@@ -46,7 +46,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UCard class="w-full max-w-sm">
       <template #header>
         <div class="flex flex-col items-center gap-3 text-center">
-          <img :src="logo" alt="Avenu" class="h-10 w-auto invert dark:invert-0" />
+          <img
+            :src="logo"
+            alt="Avenu"
+            class="h-10 w-auto invert dark:invert-0"
+          />
           <h1 class="text-xl font-bold">Sign in</h1>
           <p class="text-sm text-muted">Use admin / admin123</p>
         </div>
