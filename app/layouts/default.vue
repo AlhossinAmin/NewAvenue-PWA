@@ -3,14 +3,38 @@ import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 import logo from "~/assets/white-logo.svg";
 
 const { user, logout } = useAuth();
+const colorMode = useColorMode();
 
 async function onLogout() {
   logout();
   await navigateTo("/login");
 }
 
-const userMenu: DropdownMenuItem[][] = [
+const themeItems: DropdownMenuItem[] = [
+  { label: "Light", icon: "i-lucide-sun", value: "light" },
+  { label: "Dark", icon: "i-lucide-moon", value: "dark" },
+  { label: "System", icon: "i-lucide-monitor", value: "system" },
+];
+
+const userMenu = computed<DropdownMenuItem[][]>(() => [
   [{ label: user.value ?? "admin", type: "label" }],
+  [
+    {
+      label: "Theme",
+      icon: "i-lucide-palette",
+      children: themeItems.map((item) => ({
+        ...item,
+        type: "checkbox",
+        checked: colorMode.preference === item.value,
+        onUpdateChecked() {
+          colorMode.preference = item.value as string;
+        },
+        onSelect(e: Event) {
+          e.preventDefault();
+        },
+      })),
+    },
+  ],
   [
     {
       label: "Sign out",
@@ -18,7 +42,7 @@ const userMenu: DropdownMenuItem[][] = [
       onSelect: onLogout,
     },
   ],
-];
+]);
 
 const links: NavigationMenuItem[][] = [
   [{ label: "Home", icon: "i-lucide-house", to: "/" }],
