@@ -66,3 +66,24 @@ While many file types (e.g., `.ts`, `.json`, utilities) follow project-wide conv
    - Lifecycle Hooks (in execution order: `onMounted`, `onUpdated`, `onUnmounted`, etc.)
    - Helper/Utility Functions
 3. **`<style>`** — Prefer `scoped` unless global theming is required.
+
+---
+
+## Template Rules
+
+**No function calls in templates.** Templates must only reference reactive state, computed properties, or pre-computed object properties — never invoke a function (e.g. `{{ formatTarget(item) }}` or `:prop="compute(x)"`).
+
+Instead:
+
+- For derived values, use a `computed`.
+- For per-item display values in a list/table, pre-derive them when shaping the data (map the source array into display-ready objects) so the template only reads properties.
+
+This keeps templates declarative and avoids re-running functions on every re-render.
+
+```vue
+<!-- ❌ Bad: function call in template -->
+<span>{{ formatTarget(m.target) }}</span>
+
+<!-- ✅ Good: pre-derived property -->
+<span>{{ m.target_label }}</span>
+```
