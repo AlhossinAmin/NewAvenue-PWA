@@ -3,7 +3,7 @@ import type { TableColumn } from "@nuxt/ui";
 import {
   DUMMY_DEVELOPERS,
   type Developer,
-  type DeveloperStatus,
+  type AgreementStatus,
 } from "~/constants/dummy/developers";
 
 type DeveloperRow = Developer & { initials: string; commission_label: string };
@@ -14,29 +14,35 @@ const developers: DeveloperRow[] = DUMMY_DEVELOPERS.map((d) => ({
   commission_label: commissionLabel(d),
 }));
 
-const STATUS_COLOR: Record<DeveloperStatus, "success" | "neutral"> = {
-  Active: "success",
-  Inactive: "neutral",
+const AGREEMENT_COLOR: Record<
+  AgreementStatus,
+  "success" | "warning" | "error"
+> = {
+  Signed: "success",
+  Pending: "warning",
+  Expired: "error",
 };
 
-function statusColor(status: DeveloperStatus) {
-  return STATUS_COLOR[status];
+function agreementColor(agreement: AgreementStatus) {
+  return AGREEMENT_COLOR[agreement];
 }
 
 const columns: TableColumn<DeveloperRow>[] = [
   { accessorKey: "name", header: "Developer" },
   { accessorKey: "country", header: "Country" },
   { accessorKey: "projects_count", header: "Projects" },
+  { accessorKey: "num_deals", header: "Deals" },
   { accessorKey: "default_commission", header: "Commission" },
-  { accessorKey: "status", header: "Status" },
+  { accessorKey: "agreement", header: "Agreement" },
 ];
 
 const sortFields = [
   { key: "name", label: "Name" },
   { key: "country", label: "Country" },
   { key: "projects_count", label: "Projects" },
+  { key: "num_deals", label: "Deals" },
   { key: "default_commission", label: "Commission" },
-  { key: "status", label: "Status" },
+  { key: "agreement", label: "Agreement" },
 ];
 
 function initials(name: string): string {
@@ -78,11 +84,11 @@ function commissionLabel(d: Developer): string {
               <div class="flex items-center justify-between gap-2">
                 <p class="truncate font-semibold">{{ row.name }}</p>
                 <UBadge
-                  :color="statusColor(row.status)"
+                  :color="agreementColor(row.agreement)"
                   variant="subtle"
                   size="sm"
                 >
-                  {{ row.status }}
+                  {{ row.agreement }}
                 </UBadge>
               </div>
               <p class="mt-1 line-clamp-2 text-sm text-muted">
@@ -92,9 +98,15 @@ function commissionLabel(d: Developer): string {
           </div>
 
           <div class="mt-3 flex items-center justify-between text-sm">
-            <div class="flex items-center gap-1.5 text-muted">
-              <UIcon name="i-lucide-layout-grid" class="size-4 shrink-0" />
-              <span>{{ row.projects_count }} projects</span>
+            <div class="flex items-center gap-3 text-muted">
+              <span class="flex items-center gap-1.5">
+                <UIcon name="i-lucide-layout-grid" class="size-4 shrink-0" />
+                {{ row.projects_count }} projects
+              </span>
+              <span class="flex items-center gap-1.5">
+                <UIcon name="i-lucide-handshake" class="size-4 shrink-0" />
+                {{ row.num_deals }} deals
+              </span>
             </div>
             <span class="font-medium">{{ row.commission_label }} comm.</span>
           </div>
@@ -117,9 +129,9 @@ function commissionLabel(d: Developer): string {
         {{ row.original.commission_label }}
       </template>
 
-      <template #status-cell="{ row }">
-        <UBadge :color="statusColor(row.original.status)" variant="subtle">
-          {{ row.original.status }}
+      <template #agreement-cell="{ row }">
+        <UBadge :color="agreementColor(row.original.agreement)" variant="subtle">
+          {{ row.original.agreement }}
         </UBadge>
       </template>
     </DataView>

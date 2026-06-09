@@ -82,6 +82,7 @@ const sortFields = [
       :sort-fields="sortFields"
       search-placeholder="Search leads…"
       :edit-to="(row) => `/leads/${row.id}`"
+      mobile-table
     >
       <template #card="{ row }">
         <UCard>

@@ -13,6 +13,9 @@ const props = defineProps<{
   sortFields: SortField[];
   searchPlaceholder?: string;
   editTo?: (row: T) => string;
+  // When true, render the table at every breakpoint (with horizontal scroll on
+  // small screens) instead of the mobile card list.
+  mobileTable?: boolean;
 }>();
 
 const UButton = resolveComponent("UButton");
@@ -201,7 +204,7 @@ const forwardedSlots = computed(() =>
     </div>
 
     <!-- Mobile: card list -->
-    <div class="flex flex-col gap-3 sm:hidden">
+    <div v-if="!mobileTable" class="flex flex-col gap-3 sm:hidden">
       <template v-for="row in displayRows" :key="row.id">
         <NuxtLink v-if="editTo" :to="editTo(row)" class="block">
           <slot name="card" :row="row" />
@@ -216,8 +219,9 @@ const forwardedSlots = computed(() =>
       </p>
     </div>
 
-    <!-- Desktop: table with sortable headers -->
-    <div class="hidden sm:block">
+    <!-- Table with sortable headers (always shown on desktop; on mobile too when
+         mobileTable is set, scrolling horizontally) -->
+    <div :class="mobileTable ? 'block overflow-x-auto' : 'hidden sm:block'">
       <UTable :data="displayRows" :columns="tableColumns">
         <template v-for="name in forwardedSlots" :key="name" #[name]="slotData">
           <slot :name="name" v-bind="slotData" />

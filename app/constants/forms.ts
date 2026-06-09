@@ -18,6 +18,10 @@ export interface FormField {
   placeholder?: string;
   required?: boolean;
   full?: boolean;
+  // When set, the field is only shown/validated while the referenced field's
+  // value is one of `in`. Used for mutually-exclusive fields (e.g. a property's
+  // project vs. seller name, depending on the offering type).
+  visibleWhen?: { field: string; in: string[] };
 }
 
 // Build a blank state object from a field spec (sensible default per type).
@@ -36,13 +40,13 @@ export const DEVELOPER_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
   { key: "country", label: "Country", type: "text", required: true },
   {
-    key: "status",
-    label: "Status",
+    key: "agreement",
+    label: "Agreement",
     type: "select",
-    options: ["Active", "Inactive"],
-    required: true,
+    options: ["Signed", "Pending", "Expired"],
   },
   { key: "projects_count", label: "Projects count", type: "number" },
+  { key: "num_deals", label: "Number of deals", type: "number" },
   {
     key: "default_commission",
     label: "Default commission (%)",
@@ -108,10 +112,27 @@ export const PROPERTY_FIELDS: FormField[] = [
   { key: "type", label: "Type", type: "text", required: true },
   {
     key: "transaction_type",
-    label: "Transaction type",
+    label: "Offering type",
     type: "select",
     options: ["Primary", "Resale", "Rent"],
     required: true,
+  },
+  // Mutually exclusive: a Primary offering is tied to a developer project,
+  // while Resale/Rent offerings come from an individual seller. Only the field
+  // matching the offering type is shown — the other stays empty in the backend.
+  {
+    key: "project",
+    label: "Project",
+    type: "text",
+    required: true,
+    visibleWhen: { field: "transaction_type", in: ["Primary"] },
+  },
+  {
+    key: "seller_name",
+    label: "Seller name",
+    type: "text",
+    required: true,
+    visibleWhen: { field: "transaction_type", in: ["Resale", "Rent"] },
   },
   {
     key: "status",
@@ -120,7 +141,6 @@ export const PROPERTY_FIELDS: FormField[] = [
     options: ["Available", "Reserved", "Sold"],
     required: true,
   },
-  { key: "seller_name", label: "Seller name", type: "text" },
   { key: "price", label: "Price (EGP)", type: "number", required: true },
   { key: "commission_scheme", label: "Commission (%)", type: "number" },
   { key: "country", label: "Country", type: "text" },

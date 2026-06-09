@@ -35,7 +35,7 @@ const columns: TableColumn<PropertyRow>[] = [
   { accessorKey: "compound", header: "Compound" },
   { accessorKey: "district", header: "Location" },
   { accessorKey: "area", header: "Area" },
-  { accessorKey: "transaction_type", header: "Deal" },
+  { accessorKey: "transaction_type", header: "Offering" },
   { accessorKey: "price", header: "Price" },
   { accessorKey: "status", header: "Status" },
 ];
@@ -46,7 +46,7 @@ const sortFields = [
   { key: "area", label: "Area" },
   { key: "price", label: "Price" },
   { key: "district", label: "Location" },
-  { key: "transaction_type", label: "Deal type" },
+  { key: "transaction_type", label: "Offering type" },
   { key: "delivery_year", label: "Delivery year" },
   { key: "status", label: "Status" },
 ];

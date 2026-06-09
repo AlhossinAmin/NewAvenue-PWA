@@ -16,10 +16,37 @@ const emit = defineEmits<{
   submit: [state: Record<string, unknown>];
 }>();
 
+function isVisible(field: FormField): boolean {
+  if (!field.visibleWhen) return true;
+  const current = props.state[field.visibleWhen.field];
+  return field.visibleWhen.in.includes(current as string);
+}
+
+const visibleFields = computed(() => props.fields.filter(isVisible));
+
+function emptyValue(field: FormField): unknown {
+  if (field.type === "number") return undefined;
+  if (field.type === "switch") return false;
+  if (field.type === "tags") return [];
+  return "";
+}
+
+// Clear the value of any field that has become hidden, so mutually-exclusive
+// fields (e.g. project vs. seller name) never both carry a value.
+watch(
+  () => props.fields.map(isVisible),
+  () => {
+    for (const field of props.fields) {
+      if (!isVisible(field)) props.state[field.key] = emptyValue(field);
+    }
+  },
+  { immediate: true },
+);
+
 function validate(state: Record<string, unknown>): FormError[] {
   const errors: FormError[] = [];
   for (const field of props.fields) {
-    if (!field.required) continue;
+    if (!field.required || !isVisible(field)) continue;
     const value = state[field.key];
     const empty =
       value === undefined ||
@@ -46,7 +73,7 @@ function onSubmit(event: FormSubmitEvent<Record<string, unknown>>) {
   >
     <div class="flex flex-col gap-4">
       <UFormField
-        v-for="field in fields"
+        v-for="field in visibleFields"
         :key="field.key"
         :label="field.label"
         :name="field.key"

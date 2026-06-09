@@ -1,11 +1,12 @@
-export type DeveloperStatus = "Active" | "Inactive";
+export type AgreementStatus = "Signed" | "Pending" | "Expired";
 
 export interface Developer {
   id: string;
   name: string;
   country: string;
-  status: DeveloperStatus;
+  agreement: AgreementStatus;
   projects_count: number;
+  num_deals: number;
   default_commission: number;
   commission_min: number;
   commission_max: number;
@@ -18,8 +19,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "b6fc476b-f575-4f37-adae-3223aa296734",
     name: "TLD",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 3,
+    num_deals: 12,
     default_commission: 4.0,
     commission_min: 4.0,
     commission_max: 5.0,
@@ -31,8 +33,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "aed895dc-1a9f-44e9-a263-10e8d1d6ed9b",
     name: "Royal Development",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 2,
+    num_deals: 8,
     default_commission: 4.0,
     commission_min: 4.0,
     commission_max: 4.0,
@@ -44,8 +47,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "9f67ea22-250e-4e4b-8b1d-8a8e3140c51a",
     name: "Al Ahly Sabbour",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 5,
+    num_deals: 21,
     default_commission: 4.5,
     commission_min: 4.5,
     commission_max: 4.5,
@@ -57,8 +61,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "d919f191-afe0-4a31-92ad-dcdb52f69824",
     name: "Al Qamzi",
     country: "Egypt",
-    status: "Active",
+    agreement: "Pending",
     projects_count: 3,
+    num_deals: 7,
     default_commission: 4.0,
     commission_min: 4.0,
     commission_max: 4.0,
@@ -70,8 +75,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "c7378097-bfd8-4971-bdc0-de0086f86594",
     name: "Melee",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 4,
+    num_deals: 15,
     default_commission: 3.5,
     commission_min: 3.5,
     commission_max: 3.5,
@@ -83,8 +89,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "eda66726-e5a0-4b33-b82b-62d5c9b608be",
     name: "The Waterway Development",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 6,
+    num_deals: 24,
     default_commission: 3.0,
     commission_min: 3.0,
     commission_max: 4.0,
@@ -96,8 +103,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "c4630e27-6286-47ee-80bc-a3c90d942960",
     name: "Horizon",
     country: "Egypt",
-    status: "Active",
+    agreement: "Pending",
     projects_count: 1,
+    num_deals: 3,
     default_commission: 3.0,
     commission_min: 3.0,
     commission_max: 3.0,
@@ -109,8 +117,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "8e5a2696-add6-4b1d-9c67-541d61b97946",
     name: "City Edge",
     country: "Egypt",
-    status: "Active",
+    agreement: "Signed",
     projects_count: 20,
+    num_deals: 40,
     default_commission: 2.0,
     commission_min: 2.0,
     commission_max: 2.5,
@@ -122,8 +131,9 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     id: "b497dc20-25ff-4f2f-ac88-6658de9cff35",
     name: "CRED",
     country: "Egypt",
-    status: "Active",
+    agreement: "Expired",
     projects_count: 2,
+    num_deals: 5,
     default_commission: 4.0,
     commission_min: 4.0,
     commission_max: 4.5,
