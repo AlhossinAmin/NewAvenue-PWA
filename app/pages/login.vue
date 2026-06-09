@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { FormSubmitEvent } from "@nuxt/ui";
+import logo from "~/assets/white-logo.svg";
 
 definePageMeta({ layout: false });
 
@@ -44,9 +45,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   <div class="flex min-h-dvh items-center justify-center bg-muted p-4">
     <UCard class="w-full max-w-sm">
       <template #header>
-        <div class="flex flex-col items-center gap-2 text-center">
-          <UIcon name="i-lucide-layout-dashboard" class="size-8 text-primary" />
-          <h1 class="text-xl font-bold">Sign in to Avenu</h1>
+        <div class="flex flex-col items-center gap-3 text-center">
+          <img :src="logo" alt="Avenu" class="h-10 w-auto invert dark:invert-0" />
+          <h1 class="text-xl font-bold">Sign in</h1>
           <p class="text-sm text-muted">Use admin / admin123</p>
         </div>
       </template>

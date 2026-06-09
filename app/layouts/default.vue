@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
+import logo from "~/assets/white-logo.svg";
 
 const { user, logout } = useAuth();
 
@@ -45,8 +46,17 @@ const links: NavigationMenuItem[][] = [
     <UDashboardSidebar collapsible resizable>
       <template #header="{ collapsed }">
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-layout-dashboard" class="size-6 shrink-0" />
-          <span v-if="!collapsed" class="text-lg font-bold">Avenu</span>
+          <UIcon
+            v-if="collapsed"
+            name="i-lucide-layout-dashboard"
+            class="size-6 shrink-0"
+          />
+          <img
+            v-else
+            :src="logo"
+            alt="Avenu"
+            class="h-7 w-auto invert dark:invert-0"
+          />
         </div>
       </template>
 
