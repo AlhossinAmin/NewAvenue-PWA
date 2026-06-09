@@ -16,6 +16,8 @@ export default defineNuxtConfig({
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
         { name: "apple-mobile-web-app-title", content: "Avenu" },
+        // theme-color is overridden dynamically in app.vue so the mobile status
+        // bar / notch tracks the active (light/dark) theme. This is the SSR default.
         { name: "theme-color", content: "#ffffff" },
       ],
     },
