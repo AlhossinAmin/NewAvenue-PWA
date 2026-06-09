@@ -50,6 +50,18 @@ const sortFields = [
   { key: "delivery_year", label: "Delivery year" },
   { key: "status", label: "Status" },
 ];
+
+// Filters. Select options are derived from the data; area is a numeric range.
+const filterFields = [
+  { key: "status", label: "Status" },
+  { key: "category", label: "Category" },
+  { key: "type", label: "Type" },
+  { key: "transaction_type", label: "Offering" },
+  { key: "compound", label: "Compound" },
+  { key: "district", label: "Location" },
+  { key: "num_bedrooms", label: "Bedrooms" },
+  { key: "area", label: "Area (m²)", type: "range" as const },
+];
 </script>
 
 <template>
@@ -64,6 +76,7 @@ const sortFields = [
       :rows="properties"
       :columns="columns"
       :sort-fields="sortFields"
+      :filter-fields="filterFields"
       search-placeholder="Search properties…"
       :edit-to="(row) => `/properties/${row.id}`"
     >

@@ -7,6 +7,24 @@ interface SortField {
   label: string;
 }
 
+interface FilterField {
+  key: string;
+  label: string;
+  // "select" (default): multi-select of categorical values.
+  // "range": numeric min/max bounds.
+  type?: "select" | "range";
+  // For "select" only — when omitted, distinct row values are used.
+  options?: string[];
+}
+
+type RangeValue = { min: string; max: string };
+
+function toNum(x: unknown): number | null {
+  if (x === "" || x == null) return null;
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
 const props = defineProps<{
   rows: T[];
   columns: TableColumn<T>[];
@@ -16,6 +34,9 @@ const props = defineProps<{
   // When true, render the table at every breakpoint (with horizontal scroll on
   // small screens) instead of the mobile card list.
   mobileTable?: boolean;
+  // Multi-select filters. Each maps to a row property; selecting values keeps
+  // only rows whose value is among the selection.
+  filterFields?: FilterField[];
 }>();
 
 const UButton = resolveComponent("UButton");
@@ -25,6 +46,93 @@ const search = ref("");
 const sortKey = ref<string | null>(null);
 const sortDir = ref<"asc" | "desc">("asc");
 const sheetOpen = ref(false);
+const filterOpen = ref(false);
+
+// Value per filter key — string[] for "select", { min, max } for "range".
+// e.g. { status: ["Available"], area: { min: "100", max: "" } }.
+const filterValues = ref<Record<string, string[] | RangeValue>>(
+  Object.fromEntries(
+    (props.filterFields ?? []).map((f) => [
+      f.key,
+      f.type === "range" ? { min: "", max: "" } : [],
+    ]),
+  ),
+);
+
+// Resolve each filter for rendering — derive select options or range bounds.
+const resolvedFilters = computed(() =>
+  (props.filterFields ?? []).map((f) => {
+    if (f.type === "range") {
+      const nums = props.rows
+        .map((r) => toNum((r as Record<string, unknown>)[f.key]))
+        .filter((n): n is number => n !== null);
+      const lo = nums.length ? Math.min(...nums) : 0;
+      const hi = nums.length ? Math.max(...nums) : 0;
+      return {
+        key: f.key,
+        label: f.label,
+        type: "range" as const,
+        options: [] as string[],
+        placeholder: "",
+        minPlaceholder: `Min ${lo}`,
+        maxPlaceholder: `Max ${hi}`,
+      };
+    }
+    const values = props.rows
+      .map((r) => (r as Record<string, unknown>)[f.key])
+      .filter((v) => v != null && v !== "")
+      .map(String);
+    return {
+      key: f.key,
+      label: f.label,
+      type: "select" as const,
+      options:
+        f.options ??
+        [...new Set(values)].sort((a, b) =>
+          a.localeCompare(b, undefined, { numeric: true }),
+        ),
+      placeholder: `Any ${f.label.toLowerCase()}`,
+      minPlaceholder: "",
+      maxPlaceholder: "",
+    };
+  }),
+);
+
+const activeFilterCount = computed(() => {
+  let n = 0;
+  for (const f of props.filterFields ?? []) {
+    const v = filterValues.value[f.key];
+    if (Array.isArray(v)) n += v.length;
+    else if (v && (toNum(v.min) !== null || toNum(v.max) !== null)) n += 1;
+  }
+  return n;
+});
+
+const filterButtonLabel = computed(() =>
+  activeFilterCount.value ? `Filters · ${activeFilterCount.value}` : "Filters",
+);
+
+function clearFilters() {
+  for (const f of props.filterFields ?? [])
+    filterValues.value[f.key] = f.type === "range" ? { min: "", max: "" } : [];
+}
+
+function passesFilters(row: T) {
+  return (props.filterFields ?? []).every((f) => {
+    const v = filterValues.value[f.key];
+    if (!v) return true;
+    const cell = (row as Record<string, unknown>)[f.key];
+    if (Array.isArray(v)) {
+      return !v.length || v.includes(String(cell));
+    }
+    const num = toNum(cell);
+    const lo = toNum(v.min);
+    const hi = toNum(v.max);
+    if (lo !== null && (num === null || num < lo)) return false;
+    if (hi !== null && (num === null || num > hi)) return false;
+    return true;
+  });
+}
 
 const sortableKeys = computed(
   () => new Set(props.sortFields.map((f) => f.key)),
@@ -106,7 +214,7 @@ function matches(row: T) {
 }
 
 const displayRows = computed(() => {
-  const result = props.rows.filter(matches);
+  const result = props.rows.filter((r) => matches(r) && passesFilters(r));
   const key = sortKey.value;
   if (!key) return result;
   const dir = sortDir.value;
@@ -140,6 +248,49 @@ const forwardedSlots = computed(() =>
         :placeholder="searchPlaceholder ?? 'Search…'"
         class="flex-1"
       />
+
+      <!-- Filters: popover on desktop, bottom drawer on mobile -->
+      <template v-if="filterFields?.length">
+        <div class="hidden sm:block">
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              icon="i-lucide-list-filter"
+              :label="filterButtonLabel"
+              :color="activeFilterCount ? 'primary' : 'neutral'"
+              :variant="activeFilterCount ? 'soft' : 'outline'"
+            />
+            <template #content>
+              <div class="w-72 p-4">
+                <DataViewFilters
+                  :filters="resolvedFilters"
+                  :values="filterValues"
+                  :active-count="activeFilterCount"
+                  @clear="clearFilters"
+                />
+              </div>
+            </template>
+          </UPopover>
+        </div>
+
+        <div class="sm:hidden">
+          <UDrawer v-model:open="filterOpen" title="Filters">
+            <UButton
+              icon="i-lucide-list-filter"
+              :label="filterButtonLabel"
+              :color="activeFilterCount ? 'primary' : 'neutral'"
+              :variant="activeFilterCount ? 'soft' : 'outline'"
+            />
+            <template #body>
+              <DataViewFilters
+                :filters="resolvedFilters"
+                :values="filterValues"
+                :active-count="activeFilterCount"
+                @clear="clearFilters"
+              />
+            </template>
+          </UDrawer>
+        </div>
+      </template>
 
       <!-- Mobile sort sheet -->
       <div class="sm:hidden">
