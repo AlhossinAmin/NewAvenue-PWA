@@ -3,8 +3,8 @@ import {
   defineConfig,
 } from "@vite-pwa/assets-generator/config";
 
-// The source logo (public/logo.png) is the dark/inverted brand mark, placed on
-// a solid white background to match the app's white theme.
+// All icons and splash screens are generated from the brand logo, placed on a
+// solid white background to match the app's white theme.
 const background = "#ffffff";
 
 export default defineConfig({
