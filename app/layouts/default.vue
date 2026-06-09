@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
+import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 
-const links: NavigationMenuItem[][] = [
-  [
-    { label: "Home", icon: "i-lucide-house", to: "/" },
-    { label: "Customers", icon: "i-lucide-users", to: "/customers" },
-    { label: "Orders", icon: "i-lucide-shopping-cart", to: "/orders" },
-    { label: "Products", icon: "i-lucide-box", to: "/products" },
-    { label: "Settings", icon: "i-lucide-settings", to: "/settings" },
-  ],
+const { user, logout } = useAuth();
+
+async function onLogout() {
+  logout();
+  await navigateTo("/login");
+}
+
+const userMenu: DropdownMenuItem[][] = [
+  [{ label: user.value ?? "admin", type: "label" }],
   [
     {
-      label: "Documentation",
-      icon: "i-lucide-book-open",
-      to: "https://ui.nuxt.com",
-      target: "_blank",
+      label: "Sign out",
+      icon: "i-lucide-log-out",
+      onSelect: onLogout,
     },
+  ],
+];
+
+const links: NavigationMenuItem[][] = [
+  [{ label: "Home", icon: "i-lucide-house", to: "/" }],
+  [
+    { label: "Properties", type: "label" },
+    { label: "Developers", icon: "i-lucide-building-2", to: "/developers" },
+    { label: "Projects", icon: "i-lucide-layout-grid", to: "/projects" },
+    { label: "Properties", icon: "i-lucide-home", to: "/properties" },
+  ],
+  [
+    { label: "CRM", type: "label" },
+    { label: "Contacts", icon: "i-lucide-contact", to: "/contacts" },
+    { label: "Leads", icon: "i-lucide-user-plus", to: "/leads" },
+  ],
+  [
+    { label: "HR", type: "label" },
+    { label: "Roles", icon: "i-lucide-shield", to: "/roles" },
+    { label: "Members", icon: "i-lucide-users", to: "/members" },
   ],
 ];
 </script>
@@ -40,14 +60,21 @@ const links: NavigationMenuItem[][] = [
       </template>
 
       <template #footer="{ collapsed }">
-        <UButton
-          :avatar="{ src: 'https://github.com/nuxt.png' }"
-          :label="collapsed ? undefined : 'Admin'"
-          color="neutral"
-          variant="ghost"
+        <UDropdownMenu
+          :items="userMenu"
+          :content="{ align: 'end', side: 'top' }"
           class="w-full"
-          :block="collapsed"
-        />
+        >
+          <UButton
+            :avatar="{ src: 'https://github.com/nuxt.png' }"
+            :label="collapsed ? undefined : (user ?? 'admin')"
+            :trailing-icon="collapsed ? undefined : 'i-lucide-chevron-up'"
+            color="neutral"
+            variant="ghost"
+            class="w-full"
+            :block="collapsed"
+          />
+        </UDropdownMenu>
       </template>
     </UDashboardSidebar>
 
