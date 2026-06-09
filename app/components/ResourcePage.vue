@@ -5,6 +5,7 @@ defineProps<{
   icon: string;
   description?: string;
   newLabel?: string;
+  createTo?: string;
 }>();
 </script>
 
@@ -16,14 +17,17 @@ defineProps<{
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
+          <UColorModeButton />
           <UButton
-            :label="newLabel ?? `New`"
+            :label="newLabel ?? 'New'"
+            :to="createTo"
             icon="i-lucide-plus"
             color="primary"
             class="hidden sm:inline-flex"
           />
           <UButton
             icon="i-lucide-plus"
+            :to="createTo"
             color="primary"
             square
             class="sm:hidden"
@@ -34,7 +38,6 @@ defineProps<{
     </template>
 
     <template #body>
-      <!-- Page content; falls back to an empty state placeholder. -->
       <slot>
         <div
           class="flex flex-col items-center justify-center gap-3 py-16 text-center"
@@ -48,6 +51,7 @@ defineProps<{
           </div>
           <UButton
             :label="newLabel ?? `Create ${title}`"
+            :to="createTo"
             icon="i-lucide-plus"
           />
         </div>

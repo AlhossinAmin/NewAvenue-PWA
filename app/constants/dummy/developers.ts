@@ -77,7 +77,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     commission_max: 3.5,
     description:
       "Melee is a real-estate developer in Egypt with 4 project(s) across El Sheikh Zayed, Mostakbal City, North Coast.",
-    logo: "https://www.google.com/s2/favicons?domain=melee-development.com&sz=128",
+    logo: "https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White.png 2000w, https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White-300x80.png 300w, https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White-1024x273.png 1024w, https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White-768x205.png 768w, https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White-1536x409.png 1536w, https://thisismelee.com/wp-content/uploads/2024/12/Melee-Logo-Wide-White-600x160.png 600w",
   },
   {
     id: "eda66726-e5a0-4b33-b82b-62d5c9b608be",
