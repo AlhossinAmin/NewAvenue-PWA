@@ -7,6 +7,9 @@ const props = defineProps<{
   state: Record<string, unknown>;
   submitLabel?: string;
   loading?: boolean;
+  // When provided, the Cancel button runs this instead of router.back() —
+  // lets the form be reused inside a modal/drawer.
+  cancelHandler?: () => void;
 }>();
 
 const emit = defineEmits<{
@@ -49,8 +52,13 @@ function onSubmit(event: FormSubmitEvent<Record<string, unknown>>) {
         :name="field.key"
         :required="field.required"
       >
+        <ContactSelect
+          v-if="field.type === 'contact'"
+          v-model="state[field.key] as string"
+          :placeholder="field.placeholder"
+        />
         <USwitch
-          v-if="field.type === 'switch'"
+          v-else-if="field.type === 'switch'"
           v-model="state[field.key] as boolean"
         />
         <UTextarea
@@ -101,7 +109,7 @@ function onSubmit(event: FormSubmitEvent<Record<string, unknown>>) {
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="cancelHandler ? cancelHandler() : $router.back()"
       />
       <UButton
         type="submit"

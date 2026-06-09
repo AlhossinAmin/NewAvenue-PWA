@@ -1,5 +1,6 @@
 <template>
   <UApp>
+    <VitePwaManifest />
     <NuxtRouteAnnouncer />
     <NuxtLayout>
       <NuxtPage />

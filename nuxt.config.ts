@@ -21,7 +21,7 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    disable: isDev,
+    disable: false,
     registerType: "autoUpdate",
     manifest: {
       name: "Avenu",
@@ -61,10 +61,11 @@ export default defineNuxtConfig({
       globPatterns: ["**/*.{js,css,html,png,svg,ico,woff,woff2}"],
     },
     client: {
+      registerPlugin: true,
       installPrompt: true,
     },
     devOptions: {
-      enabled: false,
+      enabled: true,
       suppressWarnings: true,
       navigateFallback: "/",
       type: "module",

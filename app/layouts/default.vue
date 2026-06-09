@@ -94,6 +94,7 @@ const links: NavigationMenuItem[][] = [
       </template>
 
       <template #footer="{ collapsed }">
+        <PwaInstallButton :collapsed="collapsed" class="mb-2" />
         <UDropdownMenu
           :items="userMenu"
           :content="{ align: 'end', side: 'top' }"

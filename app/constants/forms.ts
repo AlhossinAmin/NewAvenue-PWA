@@ -7,7 +7,8 @@ export type FormFieldType =
   | "select"
   | "switch"
   | "date"
-  | "tags";
+  | "tags"
+  | "contact";
 
 export interface FormField {
   key: string;
@@ -185,8 +186,30 @@ export const CONTACT_FIELDS: FormField[] = [
   { key: "date_created", label: "Date created", type: "date" },
 ];
 
+// Minimal field set for creating a contact inline (e.g. on the fly from
+// the lead form). Mirrors CONTACT_FIELDS but drops the auto-managed dates.
+export const QUICK_CONTACT_FIELDS: FormField[] = [
+  { key: "name", label: "Name", type: "text", required: true },
+  { key: "mobile_num", label: "Mobile", type: "tel", required: true },
+  { key: "email", label: "Email", type: "email", required: true },
+  {
+    key: "gender",
+    label: "Gender",
+    type: "select",
+    options: ["Male", "Female"],
+  },
+  { key: "age", label: "Age", type: "number" },
+  {
+    key: "current_state",
+    label: "State",
+    type: "select",
+    options: ["Active", "Cold", "Inactive", "Converted"],
+    required: true,
+  },
+];
+
 export const LEAD_FIELDS: FormField[] = [
-  { key: "customer", label: "Customer", type: "text", required: true },
+  { key: "customer", label: "Customer", type: "contact", required: true },
   { key: "assigned_agent", label: "Assigned agent", type: "text" },
   {
     key: "current_state",
