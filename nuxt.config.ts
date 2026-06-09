@@ -9,20 +9,26 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   app: {
     head: {
-      link: [
-        { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
-        { rel: "apple-touch-icon", href: "/apple-touch-icon-180x180.png" },
-      ],
+      // Icon and Apple splash-screen <link> tags are injected by
+      // <NuxtPwaAssets /> from pwa-assets.config.ts — keep only the metas here.
       meta: [
         { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+        { name: "apple-mobile-web-app-title", content: "Avenu" },
         { name: "theme-color", content: "#ffffff" },
       ],
     },
   },
   pwa: {
-    disable: false,
+    // Run the service worker everywhere except local development.
+    disable: isDev,
     registerType: "autoUpdate",
+    // Generate icons + Apple splash screens from pwa-assets.config.ts and
+    // inject their <link> tags via <NuxtPwaAssets />.
+    pwaAssets: {
+      config: true,
+    },
     manifest: {
       name: "Avenu",
       short_name: "Avenu",
@@ -65,7 +71,7 @@ export default defineNuxtConfig({
       installPrompt: true,
     },
     devOptions: {
-      enabled: true,
+      enabled: false,
       suppressWarnings: true,
       navigateFallback: "/",
       type: "module",
