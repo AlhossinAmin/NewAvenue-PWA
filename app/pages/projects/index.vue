@@ -102,7 +102,7 @@ const STATUS_COLOR: Record<
   "Sold Out": "neutral",
 };
 
-function statusColor(status: ProjectStatus) {
+const statusColor = (status: ProjectStatus) => {
   return STATUS_COLOR[status];
 }
 
@@ -126,7 +126,7 @@ const sortFields = [
   { key: "commission_scheme", label: "Commission" },
 ];
 
-function soldPercent(p: Project): number {
+const soldPercent = (p: Project): number => {
   if (!p.total_units) return 0;
   return Math.round((p.units_sold / p.total_units) * 100);
 }

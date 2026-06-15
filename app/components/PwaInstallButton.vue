@@ -68,7 +68,7 @@ onMounted(() => {
     window.matchMedia("(display-mode: standalone)").matches;
 });
 
-async function onInstall() {
+const onInstall = async () => {
   if (showIosButton.value) {
     showIosHelp.value = true;
     return;

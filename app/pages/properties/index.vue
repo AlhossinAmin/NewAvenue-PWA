@@ -115,7 +115,7 @@ const STATUS_COLOR: Record<PropertyStatus, "success" | "warning" | "neutral"> =
     Sold: "neutral",
   };
 
-function statusColor(status: PropertyStatus) {
+const statusColor = (status: PropertyStatus) => {
   return STATUS_COLOR[status];
 }
 

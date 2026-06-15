@@ -103,7 +103,7 @@ const AGREEMENT_COLOR: Record<
   Expired: "error",
 };
 
-function agreementColor(agreement: AgreementStatus) {
+const agreementColor = (agreement: AgreementStatus) => {
   return AGREEMENT_COLOR[agreement];
 }
 
@@ -125,7 +125,7 @@ const sortFields = [
   { key: "agreement", label: "Agreement" },
 ];
 
-function initials(name: string): string {
+const initials = (name: string): string => {
   return name
     .split(" ")
     .map((part) => part[0])
@@ -134,7 +134,7 @@ function initials(name: string): string {
     .toUpperCase();
 }
 
-function commissionLabel(d: Developer): string {
+const commissionLabel = (d: Developer): string => {
   return d.commission_min === d.commission_max
     ? `${d.default_commission}%`
     : `${d.commission_min}–${d.commission_max}%`;

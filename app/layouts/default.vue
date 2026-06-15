@@ -57,7 +57,7 @@ import logo from "~/assets/white-logo.svg";
 const { user, logout } = useAuth();
 const colorMode = useColorMode();
 
-async function onLogout() {
+const onLogout = async () => {
   logout();
   await navigateTo("/login");
 }

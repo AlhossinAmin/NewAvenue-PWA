@@ -106,7 +106,7 @@ const STATUS_COLOR: Record<MemberStatus, "success" | "neutral" | "warning"> = {
   "On Leave": "warning",
 };
 
-function statusColor(status: MemberStatus) {
+const statusColor = (status: MemberStatus) => {
   return STATUS_COLOR[status];
 }
 
@@ -129,7 +129,7 @@ const sortFields = [
   { key: "status", label: "Status" },
 ];
 
-function initials(name: string): string {
+const initials = (name: string): string => {
   return name
     .split(" ")
     .map((part) => part[0])

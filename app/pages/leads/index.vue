@@ -43,7 +43,7 @@ const STATE_COLOR: Record<
   "Closed Lost": "error",
 };
 
-function stateColor(state: LeadState) {
+const stateColor = (state: LeadState) => {
   return STATE_COLOR[state];
 }
 

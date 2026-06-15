@@ -2,7 +2,7 @@
 const VALID_USERNAME = "admin";
 const VALID_PASSWORD = "admin123";
 
-export const useAuth = () => {
+export function useAuth() {
   // Cookie so auth survives reloads and is readable during SSR middleware.
   const user = useCookie<string | null>("auth_user", {
     default: () => null,

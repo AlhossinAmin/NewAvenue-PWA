@@ -75,16 +75,24 @@ While many file types (e.g., `.ts`, `.json`, utilities) follow project-wide conv
 
 All functions defined inside a `<script>` block or inside a composable must be **arrow functions** — never `function` declarations.
 
+**Exception:** The composable declaration itself uses the `function` keyword. Everything defined inside it uses arrow functions.
+
 ```ts
-// ❌ Bad
+// ❌ Bad — regular function inside script or composable
 function onSubmit() { ... }
 async function fetchData() { ... }
-export function useAuth() { ... }
 
-// ✅ Good
+// ✅ Good — arrow functions inside script or composable
 const onSubmit = () => { ... }
 const fetchData = async () => { ... }
-export const useAuth = () => { ... }
+
+// ✅ Good — composable declaration uses function keyword,
+//           but its internals use arrow functions
+export function useAuth() {
+  const login = (username: string, password: string) => { ... }
+  const logout = () => { ... }
+  return { login, logout }
+}
 ```
 
 ---

@@ -76,7 +76,7 @@ const state = reactive<Partial<Schema>>({
   password: "",
 });
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   loading.value = true;
   // Simulate a tiny network delay for UX feedback.
   await new Promise((r) => setTimeout(r, 300));

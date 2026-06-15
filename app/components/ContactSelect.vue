@@ -54,7 +54,7 @@ const items = computed(() =>
 const modalOpen = ref(false);
 const newContact = reactive(createEmptyState(QUICK_CONTACT_FIELDS));
 
-function onCreate(data: Record<string, unknown>) {
+const onCreate = (data: Record<string, unknown>) => {
   const contact = addContact(data as Partial<Contact>);
   model.value = contact.id;
   modalOpen.value = false;

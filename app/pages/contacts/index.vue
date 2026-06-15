@@ -94,7 +94,7 @@ const STATE_COLOR: Record<
   Converted: "primary",
 };
 
-function stateColor(state: ContactState) {
+const stateColor = (state: ContactState) => {
   return STATE_COLOR[state];
 }
 
@@ -115,7 +115,7 @@ const sortFields = [
   { key: "date_created", label: "Date created" },
 ];
 
-function initials(name: string): string {
+const initials = (name: string): string => {
   return name
     .split(" ")
     .map((part) => part[0])

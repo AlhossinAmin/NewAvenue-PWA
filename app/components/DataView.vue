@@ -162,7 +162,7 @@ interface FilterField {
 
 type RangeValue = { min: string; max: string };
 
-function toNum(x: unknown): number | null {
+const toNum = (x: unknown): number | null => {
   if (x === "" || x == null) return null;
   const n = Number(x);
   return Number.isFinite(n) ? n : null;
@@ -255,12 +255,12 @@ const filterButtonLabel = computed(() =>
   activeFilterCount.value ? `Filters · ${activeFilterCount.value}` : "Filters",
 );
 
-function clearFilters() {
+const clearFilters = () => {
   for (const f of props.filterFields ?? [])
     filterValues.value[f.key] = f.type === "range" ? { min: "", max: "" } : [];
 }
 
-function passesFilters(row: T) {
+const passesFilters = (row: T) => {
   return (props.filterFields ?? []).every((f) => {
     const v = filterValues.value[f.key];
     if (!v) return true;
@@ -281,7 +281,7 @@ const sortableKeys = computed(
   () => new Set(props.sortFields.map((f) => f.key)),
 );
 
-function toggleSort(key: string) {
+const toggleSort = (key: string) => {
   if (sortKey.value === key) {
     sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
   } else {
@@ -290,7 +290,7 @@ function toggleSort(key: string) {
   }
 }
 
-function selectSort(key: string) {
+const selectSort = (key: string) => {
   if (sortKey.value === key) {
     sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
   } else {
@@ -299,7 +299,7 @@ function selectSort(key: string) {
   }
 }
 
-function sortIcon(key: string) {
+const sortIcon = (key: string) => {
   if (sortKey.value !== key) return "i-lucide-chevrons-up-down";
   return sortDir.value === "asc" ? "i-lucide-arrow-up" : "i-lucide-arrow-down";
 }
@@ -346,7 +346,7 @@ const tableColumns = computed<TableColumn<T>[]>(() => {
   return cols;
 });
 
-function matches(row: T) {
+const matches = (row: T) => {
   const q = search.value.trim().toLowerCase();
   if (!q) return true;
   return Object.values(row as Record<string, unknown>).some(
