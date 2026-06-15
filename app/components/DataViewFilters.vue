@@ -1,26 +1,3 @@
-<script setup lang="ts">
-interface ResolvedFilter {
-  key: string;
-  label: string;
-  type: "select" | "range";
-  options: string[];
-  placeholder: string;
-  minPlaceholder: string;
-  maxPlaceholder: string;
-}
-
-// `values` is the parent's shared reactive filter state, mutated in place via
-// the v-models below. Each entry is a string[] for select fields or
-// { min, max } for range fields — typed as `any` since the shape is per-filter.
-defineProps<{
-  filters: ResolvedFilter[];
-  values: Record<string, any>;
-  activeCount: number;
-}>();
-
-defineEmits<{ clear: [] }>();
-</script>
-
 <template>
   <div class="flex flex-col gap-4 pb-4">
     <div v-for="f in filters" :key="f.key" class="flex flex-col gap-1">
@@ -61,3 +38,26 @@ defineEmits<{ clear: [] }>();
     />
   </div>
 </template>
+
+<script setup lang="ts">
+interface ResolvedFilter {
+  key: string;
+  label: string;
+  type: "select" | "range";
+  options: string[];
+  placeholder: string;
+  minPlaceholder: string;
+  maxPlaceholder: string;
+}
+
+// `values` is the parent's shared reactive filter state, mutated in place via
+// the v-models below. Each entry is a string[] for select fields or
+// { min, max } for range fields — typed as `any` since the shape is per-filter.
+defineProps<{
+  filters: ResolvedFilter[];
+  values: Record<string, any>;
+  activeCount: number;
+}>();
+
+defineEmits<{ clear: [] }>();
+</script>

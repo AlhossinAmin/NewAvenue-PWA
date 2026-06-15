@@ -1,11 +1,3 @@
-<script setup lang="ts">
-defineProps<{
-  panelId: string;
-  title: string;
-  backTo: string;
-}>();
-</script>
-
 <template>
   <UDashboardPanel :id="panelId">
     <template #header>
@@ -32,3 +24,11 @@ defineProps<{
     </template>
   </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  panelId: string;
+  title: string;
+  backTo: string;
+}>();
+</script>

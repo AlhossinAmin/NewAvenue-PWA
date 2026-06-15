@@ -20,7 +20,7 @@ useHead({
   meta: [{ name: "theme-color", content: () => themeColor.value }],
 });
 
-function syncThemeColor() {
+const syncThemeColor = () => {
   // Resolve the live `--ui-bg` value to a concrete rgb() string by probing it
   // off a throwaway element, so the bar matches whatever the theme renders.
   const probe = document.createElement("div");

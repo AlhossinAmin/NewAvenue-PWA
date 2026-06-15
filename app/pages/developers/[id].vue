@@ -1,20 +1,3 @@
-<script setup lang="ts">
-import { DEVELOPER_FIELDS } from "~/constants/forms";
-import { DUMMY_DEVELOPERS } from "~/constants/dummy/developers";
-
-const route = useRoute();
-const toast = useToast();
-
-const record = DUMMY_DEVELOPERS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Developer updated", color: "success" });
-  navigateTo("/developers");
-}
-</script>
-
 <template>
   <FormPage
     panel-id="developers-edit"
@@ -38,3 +21,20 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { DEVELOPER_FIELDS } from "~/constants/forms";
+import { DUMMY_DEVELOPERS } from "~/constants/dummy/developers";
+
+const route = useRoute();
+const toast = useToast();
+
+const record = DUMMY_DEVELOPERS.find((item) => item.id === route.params.id);
+const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Developer updated", color: "success" });
+  navigateTo("/developers");
+}
+</script>

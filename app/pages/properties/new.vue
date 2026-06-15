@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import { PROPERTY_FIELDS, createEmptyState } from "~/constants/forms";
-
-const toast = useToast();
-const state = reactive(createEmptyState(PROPERTY_FIELDS));
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Property created", color: "success" });
-  navigateTo("/properties");
-}
-</script>
-
 <template>
   <FormPage
     panel-id="properties-new"
@@ -25,3 +12,16 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { PROPERTY_FIELDS, createEmptyState } from "~/constants/forms";
+
+const toast = useToast();
+const state = reactive(createEmptyState(PROPERTY_FIELDS));
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Property created", color: "success" });
+  navigateTo("/properties");
+}
+</script>

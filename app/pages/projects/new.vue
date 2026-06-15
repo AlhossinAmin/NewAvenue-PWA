@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import { PROJECT_FIELDS, createEmptyState } from "~/constants/forms";
-
-const toast = useToast();
-const state = reactive(createEmptyState(PROJECT_FIELDS));
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Project created", color: "success" });
-  navigateTo("/projects");
-}
-</script>
-
 <template>
   <FormPage panel-id="projects-new" title="New project" back-to="/projects">
     <ResourceForm
@@ -21,3 +8,16 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { PROJECT_FIELDS, createEmptyState } from "~/constants/forms";
+
+const toast = useToast();
+const state = reactive(createEmptyState(PROJECT_FIELDS));
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Project created", color: "success" });
+  navigateTo("/projects");
+}
+</script>

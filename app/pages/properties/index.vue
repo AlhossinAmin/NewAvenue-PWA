@@ -1,69 +1,3 @@
-<script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_PROPERTIES,
-  type Property,
-  type PropertyStatus,
-} from "~/constants/dummy/properties";
-
-const priceFormatter = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
-type PropertyRow = Property & { price_label: string };
-
-const properties: PropertyRow[] = DUMMY_PROPERTIES.map((p) => ({
-  ...p,
-  price_label: `EGP ${priceFormatter.format(p.price)}`,
-}));
-
-const STATUS_COLOR: Record<PropertyStatus, "success" | "warning" | "neutral"> =
-  {
-    Available: "success",
-    Reserved: "warning",
-    Sold: "neutral",
-  };
-
-function statusColor(status: PropertyStatus) {
-  return STATUS_COLOR[status];
-}
-
-const columns: TableColumn<PropertyRow>[] = [
-  { accessorKey: "unit_num", header: "Unit" },
-  { accessorKey: "type", header: "Type" },
-  { accessorKey: "compound", header: "Compound" },
-  { accessorKey: "district", header: "Location" },
-  { accessorKey: "area", header: "Area" },
-  { accessorKey: "transaction_type", header: "Offering" },
-  { accessorKey: "price", header: "Price" },
-  { accessorKey: "status", header: "Status" },
-];
-
-const sortFields = [
-  { key: "compound", label: "Compound" },
-  { key: "type", label: "Type" },
-  { key: "area", label: "Area" },
-  { key: "price", label: "Price" },
-  { key: "district", label: "Location" },
-  { key: "transaction_type", label: "Offering type" },
-  { key: "delivery_year", label: "Delivery year" },
-  { key: "status", label: "Status" },
-];
-
-// Filters. Select options are derived from the data; area is a numeric range.
-const filterFields = [
-  { key: "status", label: "Status" },
-  { key: "category", label: "Category" },
-  { key: "type", label: "Type" },
-  { key: "transaction_type", label: "Offering" },
-  { key: "compound", label: "Compound" },
-  { key: "district", label: "Location" },
-  { key: "num_bedrooms", label: "Bedrooms" },
-  { key: "area", label: "Area (m²)", type: "range" as const },
-];
-</script>
-
 <template>
   <ResourcePage
     panel-id="properties"
@@ -153,3 +87,69 @@ const filterFields = [
     </DataView>
   </ResourcePage>
 </template>
+
+<script setup lang="ts">
+import type { TableColumn } from "@nuxt/ui";
+import {
+  DUMMY_PROPERTIES,
+  type Property,
+  type PropertyStatus,
+} from "~/constants/dummy/properties";
+
+const priceFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+type PropertyRow = Property & { price_label: string };
+
+const properties: PropertyRow[] = DUMMY_PROPERTIES.map((p) => ({
+  ...p,
+  price_label: `EGP ${priceFormatter.format(p.price)}`,
+}));
+
+const STATUS_COLOR: Record<PropertyStatus, "success" | "warning" | "neutral"> =
+  {
+    Available: "success",
+    Reserved: "warning",
+    Sold: "neutral",
+  };
+
+function statusColor(status: PropertyStatus) {
+  return STATUS_COLOR[status];
+}
+
+const columns: TableColumn<PropertyRow>[] = [
+  { accessorKey: "unit_num", header: "Unit" },
+  { accessorKey: "type", header: "Type" },
+  { accessorKey: "compound", header: "Compound" },
+  { accessorKey: "district", header: "Location" },
+  { accessorKey: "area", header: "Area" },
+  { accessorKey: "transaction_type", header: "Offering" },
+  { accessorKey: "price", header: "Price" },
+  { accessorKey: "status", header: "Status" },
+];
+
+const sortFields = [
+  { key: "compound", label: "Compound" },
+  { key: "type", label: "Type" },
+  { key: "area", label: "Area" },
+  { key: "price", label: "Price" },
+  { key: "district", label: "Location" },
+  { key: "transaction_type", label: "Offering type" },
+  { key: "delivery_year", label: "Delivery year" },
+  { key: "status", label: "Status" },
+];
+
+// Filters. Select options are derived from the data; area is a numeric range.
+const filterFields = [
+  { key: "status", label: "Status" },
+  { key: "category", label: "Category" },
+  { key: "type", label: "Type" },
+  { key: "transaction_type", label: "Offering" },
+  { key: "compound", label: "Compound" },
+  { key: "district", label: "Location" },
+  { key: "num_bedrooms", label: "Bedrooms" },
+  { key: "area", label: "Area (m²)", type: "range" as const },
+];
+</script>

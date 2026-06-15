@@ -1,20 +1,3 @@
-<script setup lang="ts">
-import { CONTACT_FIELDS } from "~/constants/forms";
-import { DUMMY_CONTACTS } from "~/constants/dummy/contacts";
-
-const route = useRoute();
-const toast = useToast();
-
-const record = DUMMY_CONTACTS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Contact updated", color: "success" });
-  navigateTo("/contacts");
-}
-</script>
-
 <template>
   <FormPage
     panel-id="contacts-edit"
@@ -38,3 +21,20 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { CONTACT_FIELDS } from "~/constants/forms";
+import { DUMMY_CONTACTS } from "~/constants/dummy/contacts";
+
+const route = useRoute();
+const toast = useToast();
+
+const record = DUMMY_CONTACTS.find((item) => item.id === route.params.id);
+const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Contact updated", color: "success" });
+  navigateTo("/contacts");
+}
+</script>

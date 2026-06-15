@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import { LEAD_FIELDS, createEmptyState } from "~/constants/forms";
-
-const toast = useToast();
-const state = reactive(createEmptyState(LEAD_FIELDS));
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Lead created", color: "success" });
-  navigateTo("/leads");
-}
-</script>
-
 <template>
   <FormPage panel-id="leads-new" title="New lead" back-to="/leads">
     <ResourceForm
@@ -21,3 +8,16 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { LEAD_FIELDS, createEmptyState } from "~/constants/forms";
+
+const toast = useToast();
+const state = reactive(createEmptyState(LEAD_FIELDS));
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Lead created", color: "success" });
+  navigateTo("/leads");
+}
+</script>

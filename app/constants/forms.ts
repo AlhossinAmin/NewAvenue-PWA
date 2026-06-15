@@ -25,7 +25,7 @@ export interface FormField {
 }
 
 // Build a blank state object from a field spec (sensible default per type).
-export function createEmptyState(fields: FormField[]): Record<string, unknown> {
+export const createEmptyState = (fields: FormField[]): Record<string, unknown> => {
   const state: Record<string, unknown> = {};
   for (const field of fields) {
     if (field.type === "number") state[field.key] = undefined;

@@ -1,63 +1,3 @@
-<script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_MEMBERS,
-  type Member,
-  type MemberStatus,
-} from "~/constants/dummy/members";
-
-const salaryFormatter = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
-type MemberRow = Member & { initials: string; salary_label: string };
-
-const members: MemberRow[] = DUMMY_MEMBERS.map((m) => ({
-  ...m,
-  initials: initials(m.name),
-  salary_label: `EGP ${salaryFormatter.format(m.effective_salary)}`,
-}));
-
-const STATUS_COLOR: Record<MemberStatus, "success" | "neutral" | "warning"> = {
-  Active: "success",
-  Inactive: "neutral",
-  "On Leave": "warning",
-};
-
-function statusColor(status: MemberStatus) {
-  return STATUS_COLOR[status];
-}
-
-const columns: TableColumn<MemberRow>[] = [
-  { accessorKey: "name", header: "Member" },
-  { accessorKey: "role", header: "Role" },
-  { accessorKey: "team", header: "Team" },
-  { accessorKey: "current_num_of_leads", header: "Leads" },
-  { accessorKey: "points", header: "Points" },
-  { accessorKey: "status", header: "Status" },
-];
-
-const sortFields = [
-  { key: "name", label: "Name" },
-  { key: "role", label: "Role" },
-  { key: "team", label: "Team" },
-  { key: "current_num_of_leads", label: "Leads" },
-  { key: "points", label: "Points" },
-  { key: "date_joined", label: "Date joined" },
-  { key: "status", label: "Status" },
-];
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-</script>
-
 <template>
   <ResourcePage
     panel-id="members"
@@ -138,3 +78,63 @@ function initials(name: string): string {
     </DataView>
   </ResourcePage>
 </template>
+
+<script setup lang="ts">
+import type { TableColumn } from "@nuxt/ui";
+import {
+  DUMMY_MEMBERS,
+  type Member,
+  type MemberStatus,
+} from "~/constants/dummy/members";
+
+const salaryFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+type MemberRow = Member & { initials: string; salary_label: string };
+
+const members: MemberRow[] = DUMMY_MEMBERS.map((m) => ({
+  ...m,
+  initials: initials(m.name),
+  salary_label: `EGP ${salaryFormatter.format(m.effective_salary)}`,
+}));
+
+const STATUS_COLOR: Record<MemberStatus, "success" | "neutral" | "warning"> = {
+  Active: "success",
+  Inactive: "neutral",
+  "On Leave": "warning",
+};
+
+function statusColor(status: MemberStatus) {
+  return STATUS_COLOR[status];
+}
+
+const columns: TableColumn<MemberRow>[] = [
+  { accessorKey: "name", header: "Member" },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "team", header: "Team" },
+  { accessorKey: "current_num_of_leads", header: "Leads" },
+  { accessorKey: "points", header: "Points" },
+  { accessorKey: "status", header: "Status" },
+];
+
+const sortFields = [
+  { key: "name", label: "Name" },
+  { key: "role", label: "Role" },
+  { key: "team", label: "Team" },
+  { key: "current_num_of_leads", label: "Leads" },
+  { key: "points", label: "Points" },
+  { key: "date_joined", label: "Date joined" },
+  { key: "status", label: "Status" },
+];
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+</script>

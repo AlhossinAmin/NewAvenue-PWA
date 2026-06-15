@@ -1,146 +1,3 @@
-<script setup lang="ts">
-import { DUMMY_PROPERTIES, type Property } from "~/constants/dummy/properties";
-import { DUMMY_LEADS } from "~/constants/dummy/leads";
-import { DUMMY_CONTACTS } from "~/constants/dummy/contacts";
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-
-const egp = new Intl.NumberFormat("en-EG", {
-  style: "currency",
-  currency: "EGP",
-  maximumFractionDigits: 0,
-});
-
-const compact = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
-// --- Derived datasets -------------------------------------------------------
-
-const soldProperties = computed(() =>
-  DUMMY_PROPERTIES.filter((property) => property.status === "Sold"),
-);
-
-const commissionOf = (property: Property) =>
-  Math.round((property.price * property.commission_scheme) / 100);
-
-const totalRevenue = computed(() =>
-  soldProperties.value.reduce((sum, property) => sum + commissionOf(property), 0),
-);
-
-const totalSalesVolume = computed(() =>
-  soldProperties.value.reduce((sum, property) => sum + property.price, 0),
-);
-
-const wonLeads = DUMMY_LEADS.filter(
-  (lead) => lead.current_state === "Closed Won",
-).length;
-
-const activePipeline = DUMMY_LEADS.filter((lead) =>
-  ["New", "Warm", "Hot", "In Progress"].includes(lead.current_state),
-).length;
-
-const conversionRate = Math.round((wonLeads / DUMMY_LEADS.length) * 100);
-
-// --- Stat cards -------------------------------------------------------------
-
-const stats = computed(() => [
-  {
-    label: "Revenue (commission)",
-    value: egp.format(totalRevenue.value),
-    change: "+12.5%",
-    icon: "i-lucide-wallet",
-    positive: true,
-  },
-  {
-    label: "Units sold",
-    value: String(soldProperties.value.length),
-    change: "+8.1%",
-    icon: "i-lucide-key-round",
-    positive: true,
-  },
-  {
-    label: "Active pipeline",
-    value: String(activePipeline),
-    change: "+4.3%",
-    icon: "i-lucide-flame",
-    positive: true,
-  },
-  {
-    label: "Conversion",
-    value: `${conversionRate}%`,
-    change: "-1.2%",
-    icon: "i-lucide-trending-up",
-    positive: false,
-  },
-]);
-
-// --- Sales trend chart ------------------------------------------------------
-// Distribute sold-unit commission across the last 6 months deterministically
-// so the graph stays tied to the real data without needing sale dates.
-
-const monthlyRevenue = computed(() => {
-  const buckets = MONTHS.map(() => 0);
-  soldProperties.value.forEach((property, index) => {
-    buckets[index % MONTHS.length]! += commissionOf(property);
-  });
-  return MONTHS.map((label, index) => ({ label, value: buckets[index]! }));
-});
-
-// --- Recent sales table -----------------------------------------------------
-
-interface RecentSale {
-  id: string;
-  unit: string;
-  location: string;
-  type: string;
-  agent: string;
-  price: string;
-  commission: string;
-}
-
-const recentSales = computed<RecentSale[]>(() =>
-  soldProperties.value.slice(0, 6).map((property) => ({
-    id: property.id,
-    unit: property.unit_num,
-    location: `${property.district}, ${property.city}`,
-    type: property.type,
-    agent: property.seller_name,
-    price: egp.format(property.price),
-    commission: egp.format(commissionOf(property)),
-  })),
-);
-
-const salesColumns = [
-  { accessorKey: "unit", header: "Unit" },
-  { accessorKey: "location", header: "Location" },
-  { accessorKey: "type", header: "Type" },
-  { accessorKey: "agent", header: "Agent" },
-  { accessorKey: "price", header: "Price" },
-  { accessorKey: "commission", header: "Commission" },
-];
-
-// --- Leads by source breakdown ----------------------------------------------
-
-const leadSources = computed(() => {
-  const counts = new Map<string, number>();
-  DUMMY_LEADS.forEach((lead) => {
-    counts.set(lead.source_type, (counts.get(lead.source_type) ?? 0) + 1);
-  });
-  const max = Math.max(...counts.values());
-  return [...counts.entries()]
-    .map(([label, count]) => ({
-      label,
-      count,
-      percent: Math.round((count / max) * 100),
-    }))
-    .sort((a, b) => b.count - a.count);
-});
-
-const totalContacts = DUMMY_CONTACTS.length;
-</script>
-
 <template>
   <UDashboardPanel id="home">
     <template #header>
@@ -270,3 +127,149 @@ const totalContacts = DUMMY_CONTACTS.length;
     </template>
   </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { DUMMY_PROPERTIES, type Property } from "~/constants/dummy/properties";
+import { DUMMY_LEADS } from "~/constants/dummy/leads";
+import { DUMMY_CONTACTS } from "~/constants/dummy/contacts";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+
+const egp = new Intl.NumberFormat("en-EG", {
+  style: "currency",
+  currency: "EGP",
+  maximumFractionDigits: 0,
+});
+
+const compact = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+// --- Derived datasets -------------------------------------------------------
+
+const soldProperties = computed(() =>
+  DUMMY_PROPERTIES.filter((property) => property.status === "Sold"),
+);
+
+const commissionOf = (property: Property) =>
+  Math.round((property.price * property.commission_scheme) / 100);
+
+const totalRevenue = computed(() =>
+  soldProperties.value.reduce(
+    (sum, property) => sum + commissionOf(property),
+    0,
+  ),
+);
+
+const totalSalesVolume = computed(() =>
+  soldProperties.value.reduce((sum, property) => sum + property.price, 0),
+);
+
+const wonLeads = DUMMY_LEADS.filter(
+  (lead) => lead.current_state === "Closed Won",
+).length;
+
+const activePipeline = DUMMY_LEADS.filter((lead) =>
+  ["New", "Warm", "Hot", "In Progress"].includes(lead.current_state),
+).length;
+
+const conversionRate = Math.round((wonLeads / DUMMY_LEADS.length) * 100);
+
+// --- Stat cards -------------------------------------------------------------
+
+const stats = computed(() => [
+  {
+    label: "Revenue (commission)",
+    value: egp.format(totalRevenue.value),
+    change: "+12.5%",
+    icon: "i-lucide-wallet",
+    positive: true,
+  },
+  {
+    label: "Units sold",
+    value: String(soldProperties.value.length),
+    change: "+8.1%",
+    icon: "i-lucide-key-round",
+    positive: true,
+  },
+  {
+    label: "Active pipeline",
+    value: String(activePipeline),
+    change: "+4.3%",
+    icon: "i-lucide-flame",
+    positive: true,
+  },
+  {
+    label: "Conversion",
+    value: `${conversionRate}%`,
+    change: "-1.2%",
+    icon: "i-lucide-trending-up",
+    positive: false,
+  },
+]);
+
+// --- Sales trend chart ------------------------------------------------------
+// Distribute sold-unit commission across the last 6 months deterministically
+// so the graph stays tied to the real data without needing sale dates.
+
+const monthlyRevenue = computed(() => {
+  const buckets = MONTHS.map(() => 0);
+  soldProperties.value.forEach((property, index) => {
+    buckets[index % MONTHS.length]! += commissionOf(property);
+  });
+  return MONTHS.map((label, index) => ({ label, value: buckets[index]! }));
+});
+
+// --- Recent sales table -----------------------------------------------------
+
+interface RecentSale {
+  id: string;
+  unit: string;
+  location: string;
+  type: string;
+  agent: string;
+  price: string;
+  commission: string;
+}
+
+const recentSales = computed<RecentSale[]>(() =>
+  soldProperties.value.slice(0, 6).map((property) => ({
+    id: property.id,
+    unit: property.unit_num,
+    location: `${property.district}, ${property.city}`,
+    type: property.type,
+    agent: property.seller_name,
+    price: egp.format(property.price),
+    commission: egp.format(commissionOf(property)),
+  })),
+);
+
+const salesColumns = [
+  { accessorKey: "unit", header: "Unit" },
+  { accessorKey: "location", header: "Location" },
+  { accessorKey: "type", header: "Type" },
+  { accessorKey: "agent", header: "Agent" },
+  { accessorKey: "price", header: "Price" },
+  { accessorKey: "commission", header: "Commission" },
+];
+
+// --- Leads by source breakdown ----------------------------------------------
+
+const leadSources = computed(() => {
+  const counts = new Map<string, number>();
+  DUMMY_LEADS.forEach((lead) => {
+    counts.set(lead.source_type, (counts.get(lead.source_type) ?? 0) + 1);
+  });
+  const max = Math.max(...counts.values());
+  return [...counts.entries()]
+    .map(([label, count]) => ({
+      label,
+      count,
+      percent: Math.round((count / max) * 100),
+    }))
+    .sort((a, b) => b.count - a.count);
+});
+
+const totalContacts = DUMMY_CONTACTS.length;
+</script>

@@ -1,3 +1,146 @@
+<template>
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center gap-2">
+      <UInput
+        v-model="search"
+        icon="i-lucide-search"
+        :placeholder="searchPlaceholder ?? 'Search…'"
+        class="flex-1"
+      />
+
+      <!-- Filters: popover on desktop, bottom drawer on mobile -->
+      <template v-if="filterFields?.length">
+        <div class="hidden sm:block">
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              icon="i-lucide-list-filter"
+              :label="filterButtonLabel"
+              :color="activeFilterCount ? 'primary' : 'neutral'"
+              :variant="activeFilterCount ? 'soft' : 'outline'"
+            />
+            <template #content>
+              <div class="w-72 p-4">
+                <DataViewFilters
+                  :filters="resolvedFilters"
+                  :values="filterValues"
+                  :active-count="activeFilterCount"
+                  @clear="clearFilters"
+                />
+              </div>
+            </template>
+          </UPopover>
+        </div>
+
+        <div class="sm:hidden">
+          <UDrawer v-model:open="filterOpen" title="Filters">
+            <UButton
+              icon="i-lucide-list-filter"
+              :label="filterButtonLabel"
+              :color="activeFilterCount ? 'primary' : 'neutral'"
+              :variant="activeFilterCount ? 'soft' : 'outline'"
+            />
+            <template #body>
+              <DataViewFilters
+                :filters="resolvedFilters"
+                :values="filterValues"
+                :active-count="activeFilterCount"
+                @clear="clearFilters"
+              />
+            </template>
+          </UDrawer>
+        </div>
+      </template>
+
+      <!-- Mobile sort sheet -->
+      <div class="sm:hidden">
+        <UDrawer v-model:open="sheetOpen" title="Sort">
+          <UButton
+            icon="i-lucide-arrow-up-down"
+            color="neutral"
+            variant="outline"
+            square
+            aria-label="Sort"
+          />
+
+          <template #body>
+            <div class="flex flex-col gap-4 pb-4">
+              <div class="flex gap-2">
+                <UButton
+                  label="Ascending"
+                  icon="i-lucide-arrow-up"
+                  block
+                  :color="sortDir === 'asc' ? 'primary' : 'neutral'"
+                  :variant="sortDir === 'asc' ? 'solid' : 'outline'"
+                  @click="sortDir = 'asc'"
+                />
+                <UButton
+                  label="Descending"
+                  icon="i-lucide-arrow-down"
+                  block
+                  :color="sortDir === 'desc' ? 'primary' : 'neutral'"
+                  :variant="sortDir === 'desc' ? 'solid' : 'outline'"
+                  @click="sortDir = 'desc'"
+                />
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <p class="px-1 text-xs font-medium text-muted">Sort by</p>
+                <UButton
+                  v-for="f in sortFields"
+                  :key="f.key"
+                  :label="f.label"
+                  block
+                  class="justify-between"
+                  :color="sortKey === f.key ? 'primary' : 'neutral'"
+                  :variant="sortKey === f.key ? 'soft' : 'ghost'"
+                  :trailing-icon="
+                    sortKey === f.key ? sortIcon(f.key) : undefined
+                  "
+                  @click="selectSort(f.key)"
+                />
+                <UButton
+                  v-if="sortKey"
+                  label="Clear sort"
+                  color="neutral"
+                  variant="link"
+                  block
+                  @click="sortKey = null"
+                />
+              </div>
+            </div>
+          </template>
+        </UDrawer>
+      </div>
+    </div>
+
+    <!-- Mobile: card list -->
+    <div v-if="!mobileTable" class="flex flex-col gap-3 sm:hidden">
+      <template v-for="row in displayRows" :key="row.id">
+        <NuxtLink v-if="editTo" :to="editTo(row)" class="block">
+          <slot name="card" :row="row" />
+        </NuxtLink>
+        <slot v-else name="card" :row="row" />
+      </template>
+      <p
+        v-if="!displayRows.length"
+        class="py-12 text-center text-sm text-muted"
+      >
+        No results.
+      </p>
+    </div>
+
+    <!-- Table with sortable headers (always shown on desktop; on mobile too when
+         mobileTable is set, scrolling horizontally) -->
+    <div :class="mobileTable ? 'block overflow-x-auto' : 'hidden sm:block'">
+      <UTable :data="displayRows" :columns="tableColumns">
+        <template v-for="name in forwardedSlots" :key="name" #[name]="slotData">
+          <slot :name="name" v-bind="slotData" />
+        </template>
+      </UTable>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts" generic="T extends { id: string | number }">
 import { h, resolveComponent, useSlots } from "vue";
 import type { TableColumn } from "@nuxt/ui";
@@ -238,146 +381,3 @@ const forwardedSlots = computed(() =>
   Object.keys(slots).filter((name) => name !== "card"),
 );
 </script>
-
-<template>
-  <div class="flex flex-col gap-4">
-    <div class="flex items-center gap-2">
-      <UInput
-        v-model="search"
-        icon="i-lucide-search"
-        :placeholder="searchPlaceholder ?? 'Search…'"
-        class="flex-1"
-      />
-
-      <!-- Filters: popover on desktop, bottom drawer on mobile -->
-      <template v-if="filterFields?.length">
-        <div class="hidden sm:block">
-          <UPopover :content="{ align: 'end' }">
-            <UButton
-              icon="i-lucide-list-filter"
-              :label="filterButtonLabel"
-              :color="activeFilterCount ? 'primary' : 'neutral'"
-              :variant="activeFilterCount ? 'soft' : 'outline'"
-            />
-            <template #content>
-              <div class="w-72 p-4">
-                <DataViewFilters
-                  :filters="resolvedFilters"
-                  :values="filterValues"
-                  :active-count="activeFilterCount"
-                  @clear="clearFilters"
-                />
-              </div>
-            </template>
-          </UPopover>
-        </div>
-
-        <div class="sm:hidden">
-          <UDrawer v-model:open="filterOpen" title="Filters">
-            <UButton
-              icon="i-lucide-list-filter"
-              :label="filterButtonLabel"
-              :color="activeFilterCount ? 'primary' : 'neutral'"
-              :variant="activeFilterCount ? 'soft' : 'outline'"
-            />
-            <template #body>
-              <DataViewFilters
-                :filters="resolvedFilters"
-                :values="filterValues"
-                :active-count="activeFilterCount"
-                @clear="clearFilters"
-              />
-            </template>
-          </UDrawer>
-        </div>
-      </template>
-
-      <!-- Mobile sort sheet -->
-      <div class="sm:hidden">
-        <UDrawer v-model:open="sheetOpen" title="Sort">
-          <UButton
-            icon="i-lucide-arrow-up-down"
-            color="neutral"
-            variant="outline"
-            square
-            aria-label="Sort"
-          />
-
-          <template #body>
-            <div class="flex flex-col gap-4 pb-4">
-              <div class="flex gap-2">
-                <UButton
-                  label="Ascending"
-                  icon="i-lucide-arrow-up"
-                  block
-                  :color="sortDir === 'asc' ? 'primary' : 'neutral'"
-                  :variant="sortDir === 'asc' ? 'solid' : 'outline'"
-                  @click="sortDir = 'asc'"
-                />
-                <UButton
-                  label="Descending"
-                  icon="i-lucide-arrow-down"
-                  block
-                  :color="sortDir === 'desc' ? 'primary' : 'neutral'"
-                  :variant="sortDir === 'desc' ? 'solid' : 'outline'"
-                  @click="sortDir = 'desc'"
-                />
-              </div>
-
-              <div class="flex flex-col gap-1">
-                <p class="px-1 text-xs font-medium text-muted">Sort by</p>
-                <UButton
-                  v-for="f in sortFields"
-                  :key="f.key"
-                  :label="f.label"
-                  block
-                  class="justify-between"
-                  :color="sortKey === f.key ? 'primary' : 'neutral'"
-                  :variant="sortKey === f.key ? 'soft' : 'ghost'"
-                  :trailing-icon="
-                    sortKey === f.key ? sortIcon(f.key) : undefined
-                  "
-                  @click="selectSort(f.key)"
-                />
-                <UButton
-                  v-if="sortKey"
-                  label="Clear sort"
-                  color="neutral"
-                  variant="link"
-                  block
-                  @click="sortKey = null"
-                />
-              </div>
-            </div>
-          </template>
-        </UDrawer>
-      </div>
-    </div>
-
-    <!-- Mobile: card list -->
-    <div v-if="!mobileTable" class="flex flex-col gap-3 sm:hidden">
-      <template v-for="row in displayRows" :key="row.id">
-        <NuxtLink v-if="editTo" :to="editTo(row)" class="block">
-          <slot name="card" :row="row" />
-        </NuxtLink>
-        <slot v-else name="card" :row="row" />
-      </template>
-      <p
-        v-if="!displayRows.length"
-        class="py-12 text-center text-sm text-muted"
-      >
-        No results.
-      </p>
-    </div>
-
-    <!-- Table with sortable headers (always shown on desktop; on mobile too when
-         mobileTable is set, scrolling horizontally) -->
-    <div :class="mobileTable ? 'block overflow-x-auto' : 'hidden sm:block'">
-      <UTable :data="displayRows" :columns="tableColumns">
-        <template v-for="name in forwardedSlots" :key="name" #[name]="slotData">
-          <slot :name="name" v-bind="slotData" />
-        </template>
-      </UTable>
-    </div>
-  </div>
-</template>

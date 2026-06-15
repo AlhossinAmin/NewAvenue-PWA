@@ -2,7 +2,7 @@
 const VALID_USERNAME = "admin";
 const VALID_PASSWORD = "admin123";
 
-export function useAuth() {
+export const useAuth = () => {
   // Cookie so auth survives reloads and is readable during SSR middleware.
   const user = useCookie<string | null>("auth_user", {
     default: () => null,
@@ -12,7 +12,7 @@ export function useAuth() {
 
   const isLoggedIn = computed(() => !!user.value);
 
-  function login(username: string, password: string): boolean {
+  const login = (username: string, password: string): boolean => {
     if (username === VALID_USERNAME && password === VALID_PASSWORD) {
       user.value = username;
       return true;
@@ -20,7 +20,7 @@ export function useAuth() {
     return false;
   }
 
-  function logout() {
+  const logout = () => {
     user.value = null;
   }
 

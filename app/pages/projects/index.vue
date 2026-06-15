@@ -1,59 +1,3 @@
-<script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_PROJECTS,
-  type Project,
-  type ProjectStatus,
-} from "~/constants/dummy/projects";
-
-type ProjectRow = Project & { sold_percent: number };
-
-const projects: ProjectRow[] = DUMMY_PROJECTS.map((p) => ({
-  ...p,
-  sold_percent: soldPercent(p),
-}));
-
-const STATUS_COLOR: Record<
-  ProjectStatus,
-  "success" | "neutral" | "info" | "warning" | "primary"
-> = {
-  Selling: "success",
-  "Pre-Launch": "info",
-  "Under Construction": "warning",
-  Delivered: "primary",
-  "Sold Out": "neutral",
-};
-
-function statusColor(status: ProjectStatus) {
-  return STATUS_COLOR[status];
-}
-
-const columns: TableColumn<ProjectRow>[] = [
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "developer", header: "Developer" },
-  { accessorKey: "district", header: "District" },
-  { accessorKey: "category", header: "Category" },
-  { accessorKey: "status", header: "Status" },
-  { accessorKey: "sold_percent", header: "Units sold" },
-  { accessorKey: "commission_scheme", header: "Commission" },
-];
-
-const sortFields = [
-  { key: "name", label: "Name" },
-  { key: "developer", label: "Developer" },
-  { key: "district", label: "District" },
-  { key: "category", label: "Category" },
-  { key: "status", label: "Status" },
-  { key: "sold_percent", label: "Units sold %" },
-  { key: "commission_scheme", label: "Commission" },
-];
-
-function soldPercent(p: Project): number {
-  if (!p.total_units) return 0;
-  return Math.round((p.units_sold / p.total_units) * 100);
-}
-</script>
-
 <template>
   <ResourcePage
     panel-id="projects"
@@ -131,3 +75,59 @@ function soldPercent(p: Project): number {
     </DataView>
   </ResourcePage>
 </template>
+
+<script setup lang="ts">
+import type { TableColumn } from "@nuxt/ui";
+import {
+  DUMMY_PROJECTS,
+  type Project,
+  type ProjectStatus,
+} from "~/constants/dummy/projects";
+
+type ProjectRow = Project & { sold_percent: number };
+
+const projects: ProjectRow[] = DUMMY_PROJECTS.map((p) => ({
+  ...p,
+  sold_percent: soldPercent(p),
+}));
+
+const STATUS_COLOR: Record<
+  ProjectStatus,
+  "success" | "neutral" | "info" | "warning" | "primary"
+> = {
+  Selling: "success",
+  "Pre-Launch": "info",
+  "Under Construction": "warning",
+  Delivered: "primary",
+  "Sold Out": "neutral",
+};
+
+function statusColor(status: ProjectStatus) {
+  return STATUS_COLOR[status];
+}
+
+const columns: TableColumn<ProjectRow>[] = [
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "developer", header: "Developer" },
+  { accessorKey: "district", header: "District" },
+  { accessorKey: "category", header: "Category" },
+  { accessorKey: "status", header: "Status" },
+  { accessorKey: "sold_percent", header: "Units sold" },
+  { accessorKey: "commission_scheme", header: "Commission" },
+];
+
+const sortFields = [
+  { key: "name", label: "Name" },
+  { key: "developer", label: "Developer" },
+  { key: "district", label: "District" },
+  { key: "category", label: "Category" },
+  { key: "status", label: "Status" },
+  { key: "sold_percent", label: "Units sold %" },
+  { key: "commission_scheme", label: "Commission" },
+];
+
+function soldPercent(p: Project): number {
+  if (!p.total_units) return 0;
+  return Math.round((p.units_sold / p.total_units) * 100);
+}
+</script>

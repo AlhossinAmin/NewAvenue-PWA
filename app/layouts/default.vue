@@ -1,3 +1,55 @@
+<template>
+  <UDashboardGroup>
+    <UDashboardSidebar collapsible resizable>
+      <template #header="{ collapsed }">
+        <div class="flex items-center gap-2">
+          <UIcon
+            v-if="collapsed"
+            name="i-lucide-layout-dashboard"
+            class="size-6 shrink-0"
+          />
+          <img
+            v-else
+            :src="logo"
+            alt="Avenu"
+            class="h-7 w-auto invert dark:invert-0"
+          />
+        </div>
+      </template>
+
+      <template #default="{ collapsed }">
+        <UDashboardSearchButton :collapsed="collapsed" />
+        <UNavigationMenu
+          :items="links"
+          :collapsed="collapsed"
+          orientation="vertical"
+        />
+      </template>
+
+      <template #footer="{ collapsed }">
+        <PwaInstallButton :collapsed="collapsed" class="mb-2" />
+        <UDropdownMenu
+          :items="userMenu"
+          :content="{ align: 'end', side: 'top' }"
+          class="w-full"
+        >
+          <UButton
+            :avatar="{ src: 'https://github.com/nuxt.png' }"
+            :label="collapsed ? undefined : (user ?? 'admin')"
+            :trailing-icon="collapsed ? undefined : 'i-lucide-chevron-up'"
+            color="neutral"
+            variant="ghost"
+            class="w-full"
+            :block="collapsed"
+          />
+        </UDropdownMenu>
+      </template>
+    </UDashboardSidebar>
+
+    <slot />
+  </UDashboardGroup>
+</template>
+
 <script setup lang="ts">
 import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 import logo from "~/assets/white-logo.svg";
@@ -64,55 +116,3 @@ const links: NavigationMenuItem[][] = [
   ],
 ];
 </script>
-
-<template>
-  <UDashboardGroup>
-    <UDashboardSidebar collapsible resizable>
-      <template #header="{ collapsed }">
-        <div class="flex items-center gap-2">
-          <UIcon
-            v-if="collapsed"
-            name="i-lucide-layout-dashboard"
-            class="size-6 shrink-0"
-          />
-          <img
-            v-else
-            :src="logo"
-            alt="Avenu"
-            class="h-7 w-auto invert dark:invert-0"
-          />
-        </div>
-      </template>
-
-      <template #default="{ collapsed }">
-        <UDashboardSearchButton :collapsed="collapsed" />
-        <UNavigationMenu
-          :items="links"
-          :collapsed="collapsed"
-          orientation="vertical"
-        />
-      </template>
-
-      <template #footer="{ collapsed }">
-        <PwaInstallButton :collapsed="collapsed" class="mb-2" />
-        <UDropdownMenu
-          :items="userMenu"
-          :content="{ align: 'end', side: 'top' }"
-          class="w-full"
-        >
-          <UButton
-            :avatar="{ src: 'https://github.com/nuxt.png' }"
-            :label="collapsed ? undefined : (user ?? 'admin')"
-            :trailing-icon="collapsed ? undefined : 'i-lucide-chevron-up'"
-            color="neutral"
-            variant="ghost"
-            class="w-full"
-            :block="collapsed"
-          />
-        </UDropdownMenu>
-      </template>
-    </UDashboardSidebar>
-
-    <slot />
-  </UDashboardGroup>
-</template>

@@ -53,7 +53,9 @@ All variables, state, props, events, and functions use **camelCase** by default.
 
 While many file types (e.g., `.ts`, `.json`, utilities) follow project-wide conventions with limited flexibility, **Vue SFCs** are the primary files where you can move blocks around freely.
 
-**Recommended Order Inside `.vue` Files**
+**Required Order Inside `.vue` Files**
+
+`<template>` **must always come first** — never place `<script>` before `<template>`. Each block must be separated by a single blank line.
 
 1. **`<template>`** — The component's HTML structure.
 2. **`<script setup>`** _(or `<script>`)_ — Organized in the following sequence:
@@ -66,6 +68,24 @@ While many file types (e.g., `.ts`, `.json`, utilities) follow project-wide conv
    - Lifecycle Hooks (in execution order: `onMounted`, `onUpdated`, `onUnmounted`, etc.)
    - Helper/Utility Functions
 3. **`<style>`** — Prefer `scoped` unless global theming is required.
+
+---
+
+## Function Style
+
+All functions defined inside a `<script>` block or inside a composable must be **arrow functions** — never `function` declarations.
+
+```ts
+// ❌ Bad
+function onSubmit() { ... }
+async function fetchData() { ... }
+export function useAuth() { ... }
+
+// ✅ Good
+const onSubmit = () => { ... }
+const fetchData = async () => { ... }
+export const useAuth = () => { ... }
+```
 
 ---
 

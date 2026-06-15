@@ -1,66 +1,3 @@
-<script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_DEVELOPERS,
-  type Developer,
-  type AgreementStatus,
-} from "~/constants/dummy/developers";
-
-type DeveloperRow = Developer & { initials: string; commission_label: string };
-
-const developers: DeveloperRow[] = DUMMY_DEVELOPERS.map((d) => ({
-  ...d,
-  initials: initials(d.name),
-  commission_label: commissionLabel(d),
-}));
-
-const AGREEMENT_COLOR: Record<
-  AgreementStatus,
-  "success" | "warning" | "error"
-> = {
-  Signed: "success",
-  Pending: "warning",
-  Expired: "error",
-};
-
-function agreementColor(agreement: AgreementStatus) {
-  return AGREEMENT_COLOR[agreement];
-}
-
-const columns: TableColumn<DeveloperRow>[] = [
-  { accessorKey: "name", header: "Developer" },
-  { accessorKey: "country", header: "Country" },
-  { accessorKey: "projects_count", header: "Projects" },
-  { accessorKey: "num_deals", header: "Deals" },
-  { accessorKey: "default_commission", header: "Commission" },
-  { accessorKey: "agreement", header: "Agreement" },
-];
-
-const sortFields = [
-  { key: "name", label: "Name" },
-  { key: "country", label: "Country" },
-  { key: "projects_count", label: "Projects" },
-  { key: "num_deals", label: "Deals" },
-  { key: "default_commission", label: "Commission" },
-  { key: "agreement", label: "Agreement" },
-];
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-function commissionLabel(d: Developer): string {
-  return d.commission_min === d.commission_max
-    ? `${d.default_commission}%`
-    : `${d.commission_min}–${d.commission_max}%`;
-}
-</script>
-
 <template>
   <ResourcePage
     panel-id="developers"
@@ -130,10 +67,76 @@ function commissionLabel(d: Developer): string {
       </template>
 
       <template #agreement-cell="{ row }">
-        <UBadge :color="agreementColor(row.original.agreement)" variant="subtle">
+        <UBadge
+          :color="agreementColor(row.original.agreement)"
+          variant="subtle"
+        >
           {{ row.original.agreement }}
         </UBadge>
       </template>
     </DataView>
   </ResourcePage>
 </template>
+
+<script setup lang="ts">
+import type { TableColumn } from "@nuxt/ui";
+import {
+  DUMMY_DEVELOPERS,
+  type Developer,
+  type AgreementStatus,
+} from "~/constants/dummy/developers";
+
+type DeveloperRow = Developer & { initials: string; commission_label: string };
+
+const developers: DeveloperRow[] = DUMMY_DEVELOPERS.map((d) => ({
+  ...d,
+  initials: initials(d.name),
+  commission_label: commissionLabel(d),
+}));
+
+const AGREEMENT_COLOR: Record<
+  AgreementStatus,
+  "success" | "warning" | "error"
+> = {
+  Signed: "success",
+  Pending: "warning",
+  Expired: "error",
+};
+
+function agreementColor(agreement: AgreementStatus) {
+  return AGREEMENT_COLOR[agreement];
+}
+
+const columns: TableColumn<DeveloperRow>[] = [
+  { accessorKey: "name", header: "Developer" },
+  { accessorKey: "country", header: "Country" },
+  { accessorKey: "projects_count", header: "Projects" },
+  { accessorKey: "num_deals", header: "Deals" },
+  { accessorKey: "default_commission", header: "Commission" },
+  { accessorKey: "agreement", header: "Agreement" },
+];
+
+const sortFields = [
+  { key: "name", label: "Name" },
+  { key: "country", label: "Country" },
+  { key: "projects_count", label: "Projects" },
+  { key: "num_deals", label: "Deals" },
+  { key: "default_commission", label: "Commission" },
+  { key: "agreement", label: "Agreement" },
+];
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+function commissionLabel(d: Developer): string {
+  return d.commission_min === d.commission_max
+    ? `${d.default_commission}%`
+    : `${d.commission_min}–${d.commission_max}%`;
+}
+</script>

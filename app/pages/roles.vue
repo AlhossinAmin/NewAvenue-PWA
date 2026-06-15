@@ -1,3 +1,14 @@
+<template>
+  <ResourcePage
+    panel-id="roles"
+    title="Roles"
+    icon="i-lucide-shield"
+    new-label="New role"
+  >
+    <UTable :data="roles" :columns="columns" />
+  </ResourcePage>
+</template>
+
 <script setup lang="ts">
 const roles = [
   { name: "Administrator", members: 2, permissions: "Full access" },
@@ -11,14 +22,3 @@ const columns = [
   { accessorKey: "permissions", header: "Permissions" },
 ];
 </script>
-
-<template>
-  <ResourcePage
-    panel-id="roles"
-    title="Roles"
-    icon="i-lucide-shield"
-    new-label="New role"
-  >
-    <UTable :data="roles" :columns="columns" />
-  </ResourcePage>
-</template>

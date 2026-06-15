@@ -1,59 +1,3 @@
-<script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_CONTACTS,
-  type Contact,
-  type ContactState,
-} from "~/constants/dummy/contacts";
-
-type ContactRow = Contact & { initials: string };
-
-const contacts: ContactRow[] = DUMMY_CONTACTS.map((c) => ({
-  ...c,
-  initials: initials(c.name),
-}));
-
-const STATE_COLOR: Record<
-  ContactState,
-  "success" | "warning" | "neutral" | "primary"
-> = {
-  Active: "success",
-  Cold: "warning",
-  Inactive: "neutral",
-  Converted: "primary",
-};
-
-function stateColor(state: ContactState) {
-  return STATE_COLOR[state];
-}
-
-const columns: TableColumn<ContactRow>[] = [
-  { accessorKey: "name", header: "Contact" },
-  { accessorKey: "mobile_num", header: "Mobile" },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "age", header: "Age" },
-  { accessorKey: "current_state", header: "State" },
-  { accessorKey: "last_activity_date", header: "Last activity" },
-];
-
-const sortFields = [
-  { key: "name", label: "Name" },
-  { key: "age", label: "Age" },
-  { key: "current_state", label: "State" },
-  { key: "last_activity_date", label: "Last activity" },
-  { key: "date_created", label: "Date created" },
-];
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-</script>
-
 <template>
   <ResourcePage
     panel-id="contacts"
@@ -124,3 +68,59 @@ function initials(name: string): string {
     </DataView>
   </ResourcePage>
 </template>
+
+<script setup lang="ts">
+import type { TableColumn } from "@nuxt/ui";
+import {
+  DUMMY_CONTACTS,
+  type Contact,
+  type ContactState,
+} from "~/constants/dummy/contacts";
+
+type ContactRow = Contact & { initials: string };
+
+const contacts: ContactRow[] = DUMMY_CONTACTS.map((c) => ({
+  ...c,
+  initials: initials(c.name),
+}));
+
+const STATE_COLOR: Record<
+  ContactState,
+  "success" | "warning" | "neutral" | "primary"
+> = {
+  Active: "success",
+  Cold: "warning",
+  Inactive: "neutral",
+  Converted: "primary",
+};
+
+function stateColor(state: ContactState) {
+  return STATE_COLOR[state];
+}
+
+const columns: TableColumn<ContactRow>[] = [
+  { accessorKey: "name", header: "Contact" },
+  { accessorKey: "mobile_num", header: "Mobile" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "age", header: "Age" },
+  { accessorKey: "current_state", header: "State" },
+  { accessorKey: "last_activity_date", header: "Last activity" },
+];
+
+const sortFields = [
+  { key: "name", label: "Name" },
+  { key: "age", label: "Age" },
+  { key: "current_state", label: "State" },
+  { key: "last_activity_date", label: "Last activity" },
+  { key: "date_created", label: "Date created" },
+];
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+</script>

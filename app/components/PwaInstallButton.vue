@@ -1,38 +1,3 @@
-<script setup lang="ts">
-defineProps<{ collapsed?: boolean }>();
-
-// `$pwa` is undefined when the PWA is disabled (e.g. in dev) or unsupported.
-const { $pwa } = useNuxtApp();
-
-const isIos = ref(false);
-const isStandalone = ref(false);
-const showIosHelp = ref(false);
-
-// iOS Safari never fires `beforeinstallprompt`, so `$pwa.showInstallPrompt`
-// stays false there. Detect iOS and whether the app is already installed
-// (running standalone) so we can offer manual "Add to Home Screen" steps.
-const canInstall = computed(() => $pwa?.showInstallPrompt && !$pwa.isPWAInstalled);
-const showIosButton = computed(() => isIos.value && !isStandalone.value);
-const showButton = computed(() => canInstall.value || showIosButton.value);
-
-onMounted(() => {
-  const ua = window.navigator.userAgent;
-  isIos.value = /iphone|ipad|ipod/i.test(ua);
-  isStandalone.value =
-    ("standalone" in window.navigator &&
-      (window.navigator as { standalone?: boolean }).standalone === true) ||
-    window.matchMedia("(display-mode: standalone)").matches;
-});
-
-async function onInstall() {
-  if (showIosButton.value) {
-    showIosHelp.value = true;
-    return;
-  }
-  await $pwa?.install();
-}
-</script>
-
 <template>
   <UButton
     v-if="showButton"
@@ -72,3 +37,42 @@ async function onInstall() {
     </template>
   </UModal>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  collapsed?: boolean;
+}>();
+
+// `$pwa` is undefined when the PWA is disabled (e.g. in dev) or unsupported.
+const { $pwa } = useNuxtApp();
+
+const isIos = ref(false);
+const isStandalone = ref(false);
+const showIosHelp = ref(false);
+
+// iOS Safari never fires `beforeinstallprompt`, so `$pwa.showInstallPrompt`
+// stays false there. Detect iOS and whether the app is already installed
+// (running standalone) so we can offer manual "Add to Home Screen" steps.
+const canInstall = computed(
+  () => $pwa?.showInstallPrompt && !$pwa.isPWAInstalled,
+);
+const showIosButton = computed(() => isIos.value && !isStandalone.value);
+const showButton = computed(() => canInstall.value || showIosButton.value);
+
+onMounted(() => {
+  const ua = window.navigator.userAgent;
+  isIos.value = /iphone|ipad|ipod/i.test(ua);
+  isStandalone.value =
+    ("standalone" in window.navigator &&
+      (window.navigator as { standalone?: boolean }).standalone === true) ||
+    window.matchMedia("(display-mode: standalone)").matches;
+});
+
+async function onInstall() {
+  if (showIosButton.value) {
+    showIosHelp.value = true;
+    return;
+  }
+  await $pwa?.install();
+}
+</script>

@@ -1,20 +1,3 @@
-<script setup lang="ts">
-import { PROPERTY_FIELDS } from "~/constants/forms";
-import { DUMMY_PROPERTIES } from "~/constants/dummy/properties";
-
-const route = useRoute();
-const toast = useToast();
-
-const record = DUMMY_PROPERTIES.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
-
-function onSubmit() {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Property updated", color: "success" });
-  navigateTo("/properties");
-}
-</script>
-
 <template>
   <FormPage
     panel-id="properties-edit"
@@ -38,3 +21,20 @@ function onSubmit() {
     />
   </FormPage>
 </template>
+
+<script setup lang="ts">
+import { PROPERTY_FIELDS } from "~/constants/forms";
+import { DUMMY_PROPERTIES } from "~/constants/dummy/properties";
+
+const route = useRoute();
+const toast = useToast();
+
+const record = DUMMY_PROPERTIES.find((item) => item.id === route.params.id);
+const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+
+const onSubmit = () => {
+  // Dummy data is static — surface success and return to the list.
+  toast.add({ title: "Property updated", color: "success" });
+  navigateTo("/properties");
+}
+</script>
