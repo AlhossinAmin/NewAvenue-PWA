@@ -5,6 +5,7 @@ export interface Developer {
   name: string;
   country: string;
   agreement: AgreementStatus;
+  agreement_end_date: string;
   projects_count: number;
   num_deals: number;
   default_commission: number;
@@ -20,6 +21,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "TLD",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2026-12-31",
     projects_count: 3,
     num_deals: 12,
     default_commission: 4.0,
@@ -34,6 +36,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "Royal Development",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2027-03-15",
     projects_count: 2,
     num_deals: 8,
     default_commission: 4.0,
@@ -48,6 +51,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "Al Ahly Sabbour",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2027-06-30",
     projects_count: 5,
     num_deals: 21,
     default_commission: 4.5,
@@ -62,6 +66,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "Al Qamzi",
     country: "Egypt",
     agreement: "Pending",
+    agreement_end_date: "2026-09-01",
     projects_count: 3,
     num_deals: 7,
     default_commission: 4.0,
@@ -76,6 +81,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "Melee",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2027-01-20",
     projects_count: 4,
     num_deals: 15,
     default_commission: 3.5,
@@ -90,6 +96,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "The Waterway Development",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2028-05-10",
     projects_count: 6,
     num_deals: 24,
     default_commission: 3.0,
@@ -104,6 +111,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "Horizon",
     country: "Egypt",
     agreement: "Pending",
+    agreement_end_date: "2026-08-15",
     projects_count: 1,
     num_deals: 3,
     default_commission: 3.0,
@@ -118,6 +126,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "City Edge",
     country: "Egypt",
     agreement: "Signed",
+    agreement_end_date: "2028-11-30",
     projects_count: 20,
     num_deals: 40,
     default_commission: 2.0,
@@ -132,6 +141,7 @@ export const DUMMY_DEVELOPERS: Developer[] = [
     name: "CRED",
     country: "Egypt",
     agreement: "Expired",
+    agreement_end_date: "2025-10-01",
     projects_count: 2,
     num_deals: 5,
     default_commission: 4.0,

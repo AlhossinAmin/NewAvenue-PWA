@@ -5,6 +5,7 @@ export type FormFieldType =
   | "number"
   | "textarea"
   | "select"
+  | "multiselect"
   | "switch"
   | "date"
   | "tags"
@@ -25,16 +26,19 @@ export interface FormField {
 }
 
 // Build a blank state object from a field spec (sensible default per type).
-export const createEmptyState = (fields: FormField[]): Record<string, unknown> => {
+export const createEmptyState = (
+  fields: FormField[],
+): Record<string, unknown> => {
   const state: Record<string, unknown> = {};
   for (const field of fields) {
     if (field.type === "number") state[field.key] = undefined;
     else if (field.type === "switch") state[field.key] = false;
-    else if (field.type === "tags") state[field.key] = [];
+    else if (field.type === "tags" || field.type === "multiselect")
+      state[field.key] = [];
     else state[field.key] = "";
   }
   return state;
-}
+};
 
 export const DEVELOPER_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
@@ -67,14 +71,8 @@ export const PROJECT_FIELDS: FormField[] = [
   {
     key: "category",
     label: "Category",
-    type: "select",
-    options: [
-      "Residential",
-      "Administrative",
-      "Retail",
-      "Commercial",
-      "Mixed-Use",
-    ],
+    type: "multiselect",
+    options: ["Residential", "Administrative", "Retail", "Commercial", "Mixed"],
     required: true,
   },
   {

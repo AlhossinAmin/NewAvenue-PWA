@@ -39,16 +39,38 @@
               <UProgress :model-value="row.sold_percent" size="sm" />
             </div>
 
-            <div class="flex items-center justify-between pt-1">
-              <UBadge color="neutral" variant="soft" size="sm">
-                {{ row.category }}
-              </UBadge>
-              <span class="font-medium"
+            <div class="flex items-center justify-between gap-2 pt-1">
+              <div class="flex flex-wrap gap-1">
+                <UBadge
+                  v-for="cat in row.category"
+                  :key="cat"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                >
+                  {{ cat }}
+                </UBadge>
+              </div>
+              <span class="shrink-0 font-medium"
                 >{{ row.commission_scheme }}% comm.</span
               >
             </div>
           </div>
         </UCard>
+      </template>
+
+      <template #category-cell="{ row }">
+        <div class="flex flex-wrap gap-1">
+          <UBadge
+            v-for="cat in row.original.category"
+            :key="cat"
+            color="neutral"
+            variant="soft"
+            size="sm"
+          >
+            {{ cat }}
+          </UBadge>
+        </div>
       </template>
 
       <template #status-cell="{ row }">
@@ -86,10 +108,12 @@ import {
 
 type ProjectRow = Project & { sold_percent: number };
 
-const projects: ProjectRow[] = DUMMY_PROJECTS.map((p) => ({
-  ...p,
-  sold_percent: soldPercent(p),
-}));
+const projects = computed<ProjectRow[]>(() =>
+  DUMMY_PROJECTS.map((p) => ({
+    ...p,
+    sold_percent: soldPercent(p),
+  })),
+);
 
 const STATUS_COLOR: Record<
   ProjectStatus,
