@@ -154,8 +154,9 @@ interface FilterField {
   key: string;
   label: string;
   // "select" (default): multi-select of categorical values.
-  // "range": numeric min/max bounds.
-  type?: "select" | "range";
+  // "range": numeric min/max bounds via two inputs.
+  // "slider": numeric min/max bounds via a dual-thumb range slider.
+  type?: "select" | "range" | "slider";
   // For "select" only — when omitted, distinct row values are used.
   options?: string[];
 }
@@ -197,7 +198,7 @@ const filterValues = ref<Record<string, string[] | RangeValue>>(
   Object.fromEntries(
     (props.filterFields ?? []).map((f) => [
       f.key,
-      f.type === "range" ? { min: "", max: "" } : [],
+      f.type === "range" || f.type === "slider" ? { min: "", max: "" } : [],
     ]),
   ),
 );
@@ -205,20 +206,24 @@ const filterValues = ref<Record<string, string[] | RangeValue>>(
 // Resolve each filter for rendering — derive select options or range bounds.
 const resolvedFilters = computed(() =>
   (props.filterFields ?? []).map((f) => {
-    if (f.type === "range") {
+    if (f.type === "range" || f.type === "slider") {
       const nums = props.rows
         .map((r) => toNum((r as Record<string, unknown>)[f.key]))
         .filter((n): n is number => n !== null);
       const lo = nums.length ? Math.min(...nums) : 0;
       const hi = nums.length ? Math.max(...nums) : 0;
+      const step = Math.max(1, Math.round((hi - lo) / 100));
       return {
         key: f.key,
         label: f.label,
-        type: "range" as const,
+        type: f.type,
         options: [] as string[],
         placeholder: "",
         minPlaceholder: `Min ${lo}`,
         maxPlaceholder: `Max ${hi}`,
+        min: lo,
+        max: hi,
+        step,
       };
     }
     const values = props.rows
@@ -237,6 +242,9 @@ const resolvedFilters = computed(() =>
       placeholder: `Any ${f.label.toLowerCase()}`,
       minPlaceholder: "",
       maxPlaceholder: "",
+      min: 0,
+      max: 0,
+      step: 1,
     };
   }),
 );
@@ -257,7 +265,8 @@ const filterButtonLabel = computed(() =>
 
 const clearFilters = () => {
   for (const f of props.filterFields ?? [])
-    filterValues.value[f.key] = f.type === "range" ? { min: "", max: "" } : [];
+    filterValues.value[f.key] =
+      f.type === "range" || f.type === "slider" ? { min: "", max: "" } : [];
 };
 
 const passesFilters = (row: T) => {

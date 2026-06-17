@@ -10,7 +10,23 @@ export type FormFieldType =
   | "date"
   | "tags"
   | "image"
+  | "images"
+  // Repeatable list of phone numbers, each with its own country code dropdown.
+  | "phones"
+  // Single select that also lets the user type and add a value not in the list.
+  | "combobox"
+  // Read-only value derived from other fields via `compute`.
+  | "computed"
+  // Dropdown of actual projects — links a property to a developer project.
+  | "project"
   | "contact";
+
+// A single phone entry: a dial-code picked from `COUNTRY_CODE_OPTIONS` plus the
+// local number. Contacts hold an array of these (a repeatable "phones" field).
+export interface PhoneNumber {
+  country_code: string;
+  number: string;
+}
 
 export interface FormField {
   key: string;
@@ -24,7 +40,62 @@ export interface FormField {
   // value is one of `in`. Used for mutually-exclusive fields (e.g. a property's
   // project vs. seller name, depending on the offering type).
   visibleWhen?: { field: string; in: string[] };
+  // For "computed" fields: derive the value from the current form state.
+  compute?: (state: Record<string, unknown>) => string;
 }
+
+// Dial codes offered in the phone country-code dropdown, Egypt first since it's
+// the primary market. Stored as the literal "+code" string on each phone entry.
+export const COUNTRY_CODE_OPTIONS: string[] = [
+  "+20",
+  "+966",
+  "+971",
+  "+965",
+  "+974",
+  "+973",
+  "+968",
+  "+962",
+  "+961",
+  "+1",
+  "+44",
+  "+33",
+  "+49",
+  "+39",
+  "+34",
+  "+90",
+];
+
+// Default dial code for a freshly added phone row (Egypt).
+export const DEFAULT_COUNTRY_CODE = "+20";
+
+// Fixed list of districts offered in district comboboxes. Users can still add a
+// custom one inline — these are just the common, pre-filled options.
+export const DISTRICT_OPTIONS: string[] = [
+  "Nasr City",
+  "Heliopolis",
+  "Maadi",
+  "New Cairo",
+  "New Administrative Capital",
+  "Sheikh Zayed",
+  "6th of October City",
+  "El Shorouk",
+  "Zamalek",
+  "Downtown",
+  "Mokattam",
+];
+
+// Derive a unit code from its parts, e.g. Duplex / Building 5 / Floor 2 /
+// Unit 13 -> "D5-2-13". Returns "" until the numeric parts are filled in.
+const computeUnitCode = (state: Record<string, unknown>): string => {
+  const filled = (v: unknown) => v !== undefined && v !== null && v !== "";
+  const building = state.building_num;
+  const floor = state.floor_num;
+  const unit = state.unit_number;
+  if (!filled(building) || !filled(floor) || !filled(unit)) return "";
+  const type = String(state.type ?? "").trim();
+  const prefix = type ? type[0]!.toUpperCase() : "";
+  return `${prefix}${building}-${floor}-${unit}`;
+};
 
 // Build a blank state object from a field spec (sensible default per type).
 export const createEmptyState = (
@@ -34,7 +105,14 @@ export const createEmptyState = (
   for (const field of fields) {
     if (field.type === "number") state[field.key] = undefined;
     else if (field.type === "switch") state[field.key] = false;
-    else if (field.type === "tags" || field.type === "multiselect")
+    else if (field.type === "phones")
+      // Seed one empty row so the required mobile field shows an input upfront.
+      state[field.key] = [{ country_code: DEFAULT_COUNTRY_CODE, number: "" }];
+    else if (
+      field.type === "tags" ||
+      field.type === "multiselect" ||
+      field.type === "images"
+    )
       state[field.key] = [];
     else state[field.key] = "";
   }
@@ -69,7 +147,12 @@ export const PROJECT_FIELDS: FormField[] = [
   { key: "developer", label: "Developer", type: "text", required: true },
   { key: "country", label: "Country", type: "text" },
   { key: "city", label: "City", type: "text" },
-  { key: "district", label: "District", type: "text" },
+  {
+    key: "district",
+    label: "District",
+    type: "combobox",
+    options: DISTRICT_OPTIONS,
+  },
   {
     key: "category",
     label: "Category",
@@ -77,31 +160,15 @@ export const PROJECT_FIELDS: FormField[] = [
     options: ["Residential", "Administrative", "Retail", "Commercial", "Mixed"],
     required: true,
   },
-  {
-    key: "status",
-    label: "Status",
-    type: "select",
-    options: [
-      "Selling",
-      "Pre-Launch",
-      "Under Construction",
-      "Delivered",
-      "Sold Out",
-    ],
-    required: true,
-  },
   { key: "commission_scheme", label: "Commission (%)", type: "number" },
   { key: "total_units", label: "Total units", type: "number" },
   { key: "units_sold", label: "Units sold", type: "number" },
   { key: "units_remaining", label: "Units remaining", type: "number" },
-  { key: "featured_photo", label: "Featured photo URL", type: "text" },
+  { key: "photos", label: "Photos", type: "images", full: true },
   { key: "description", label: "Description", type: "textarea" },
 ];
 
 export const PROPERTY_FIELDS: FormField[] = [
-  { key: "unit_num", label: "Unit number", type: "text", required: true },
-  { key: "floor_num", label: "Floor", type: "number" },
-  { key: "compound", label: "Compound", type: "text", required: true },
   {
     key: "category",
     label: "Category",
@@ -117,13 +184,13 @@ export const PROPERTY_FIELDS: FormField[] = [
     options: ["Primary", "Resale", "Rent"],
     required: true,
   },
-  // Mutually exclusive: a Primary offering is tied to a developer project,
-  // while Resale/Rent offerings come from an individual seller. Only the field
-  // matching the offering type is shown — the other stays empty in the backend.
+  // Formerly "Compound". A Primary unit links to an actual developer project
+  // (selected from the projects list). Resale/Rent offerings have no linked
+  // project — an individual seller is named instead — so this is hidden then.
   {
     key: "project",
     label: "Project",
-    type: "text",
+    type: "project",
     required: true,
     visibleWhen: { field: "transaction_type", in: ["Primary"] },
   },
@@ -134,23 +201,58 @@ export const PROPERTY_FIELDS: FormField[] = [
     required: true,
     visibleWhen: { field: "transaction_type", in: ["Resale", "Rent"] },
   },
+  // Unit identity: the three numeric parts plus the property type feed the
+  // read-only "Unit" code below.
   {
-    key: "status",
-    label: "Status",
-    type: "select",
-    options: ["Available", "Reserved", "Sold"],
+    key: "building_num",
+    label: "Building number",
+    type: "number",
     required: true,
+  },
+  { key: "floor_num", label: "Floor number", type: "number", required: true },
+  { key: "unit_number", label: "Unit number", type: "number", required: true },
+  {
+    key: "unit_num",
+    label: "Unit",
+    type: "computed",
+    compute: computeUnitCode,
+  },
+  {
+    key: "installments_available",
+    label: "Installments available",
+    type: "switch",
+  },
+  {
+    key: "num_installments",
+    label: "Number of installments",
+    type: "number",
+    visibleWhen: { field: "installments_available", in: ["true"] },
+  },
+  {
+    key: "installment_value",
+    label: "Installment value (EGP)",
+    type: "number",
+    visibleWhen: { field: "installments_available", in: ["true"] },
   },
   { key: "price", label: "Price (EGP)", type: "number", required: true },
   { key: "commission_scheme", label: "Commission (%)", type: "number" },
   { key: "country", label: "Country", type: "text" },
   { key: "city", label: "City", type: "text" },
-  { key: "district", label: "District", type: "text" },
-  { key: "area", label: "Area (m²)", type: "number" },
+  {
+    key: "district",
+    label: "District",
+    type: "combobox",
+    options: DISTRICT_OPTIONS,
+  },
+  { key: "neighborhood", label: "Neighborhood", type: "text" },
+  { key: "street", label: "Street", type: "text" },
+  // Core area sections. A conditional garden-area section (for standalone /
+  // ground-floor units) is pending spec details from New Avenue.
+  { key: "area", label: "Total area (m²)", type: "number" },
+  { key: "built_up_area", label: "Built-up area (m²)", type: "number" },
   { key: "delivery_year", label: "Delivery year", type: "number" },
   { key: "num_bedrooms", label: "Bedrooms", type: "number" },
   { key: "num_bathrooms", label: "Bathrooms", type: "number" },
-  { key: "street", label: "Street", type: "text" },
   { key: "amenities", label: "Amenities", type: "tags" },
   { key: "description", label: "Description", type: "textarea" },
 ];
@@ -186,8 +288,8 @@ export const MEMBER_FIELDS: FormField[] = [
 
 export const CONTACT_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "mobile_num", label: "Mobile", type: "tel", required: true },
-  { key: "email", label: "Email", type: "email", required: true },
+  { key: "mobile_nums", label: "Mobile", type: "phones", required: true },
+  { key: "email", label: "Email", type: "email" },
   {
     key: "gender",
     label: "Gender",
@@ -210,8 +312,8 @@ export const CONTACT_FIELDS: FormField[] = [
 // the lead form). Mirrors CONTACT_FIELDS but drops the auto-managed dates.
 export const QUICK_CONTACT_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "mobile_num", label: "Mobile", type: "tel", required: true },
-  { key: "email", label: "Email", type: "email", required: true },
+  { key: "mobile_nums", label: "Mobile", type: "phones", required: true },
+  { key: "email", label: "Email", type: "email" },
   {
     key: "gender",
     label: "Gender",
@@ -270,14 +372,14 @@ export const LEAD_FIELDS: FormField[] = [
     ],
     required: true,
   },
-  {
-    key: "segment",
-    label: "Segment",
-    type: "select",
-    options: ["Affordable", "Middle", "Upper Middle", "Luxury", "Ultra Luxury"],
-  },
   { key: "budget", label: "Budget (EGP)", type: "number" },
-  { key: "pref_location", label: "Preferred location", type: "text" },
+  { key: "neighborhood", label: "Neighborhood", type: "text" },
+  {
+    key: "district",
+    label: "District",
+    type: "combobox",
+    options: DISTRICT_OPTIONS,
+  },
   { key: "num_bedrooms", label: "Bedrooms", type: "number" },
   {
     key: "source_type",
@@ -304,6 +406,19 @@ export const LEAD_FIELDS: FormField[] = [
       "Instagram",
       "Google Ads",
     ],
+  },
+  // Paid-social attribution: only relevant when the lead came from Social Media.
+  {
+    key: "campaign_id",
+    label: "Campaign ID",
+    type: "text",
+    visibleWhen: { field: "source_type", in: ["Social Media"] },
+  },
+  {
+    key: "reference",
+    label: "Reference",
+    type: "textarea",
+    visibleWhen: { field: "source_type", in: ["Social Media"] },
   },
   { key: "lead_date", label: "Lead date", type: "date" },
   { key: "next_follow_up_date", label: "Next follow-up", type: "date" },
