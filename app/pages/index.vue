@@ -148,8 +148,10 @@ const compact = new Intl.NumberFormat("en-US", {
 
 // --- Derived datasets -------------------------------------------------------
 
+// Properties no longer carry a status, so sales metrics are based on purchase
+// transactions (everything other than rentals) as a stand-in for closed deals.
 const soldProperties = computed(() =>
-  DUMMY_PROPERTIES.filter((property) => property.status === "Sold"),
+  DUMMY_PROPERTIES.filter((property) => property.transaction_type !== "Rent"),
 );
 
 const commissionOf = (property: Property) =>
