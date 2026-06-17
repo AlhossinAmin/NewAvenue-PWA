@@ -20,13 +20,19 @@ type LeadRow = Lead & {
   customer_name: string;
   agent_name: string;
   budget_label: string;
+  location_label: string;
 };
+
+// Join neighborhood + district into one display string, dropping blanks.
+const locationLabel = (l: Lead) =>
+  [l.neighborhood, l.district].filter(Boolean).join(", ") || "—";
 
 const leads: LeadRow[] = DUMMY_LEADS.map((l) => ({
   ...l,
   customer_name: contactName.get(l.customer) ?? "Unknown",
   agent_name: agentName.get(l.assigned_agent) ?? "Unassigned",
   budget_label: `EGP ${budgetFormatter.format(l.budget)}`,
+  location_label: locationLabel(l),
 }));
 
 const STATE_COLOR: Record<
@@ -45,13 +51,13 @@ const STATE_COLOR: Record<
 
 const stateColor = (state: LeadState) => {
   return STATE_COLOR[state];
-}
+};
 
 const columns: TableColumn<LeadRow>[] = [
   { accessorKey: "customer_name", header: "Customer" },
   { accessorKey: "property_type", header: "Property" },
   { accessorKey: "offering_type", header: "Offering" },
-  { accessorKey: "segment", header: "Segment" },
+  { accessorKey: "location_label", header: "Location" },
   { accessorKey: "budget", header: "Budget" },
   { accessorKey: "agent_name", header: "Agent" },
   { accessorKey: "current_state", header: "State" },
@@ -60,7 +66,7 @@ const columns: TableColumn<LeadRow>[] = [
 const sortFields = [
   { key: "customer_name", label: "Customer" },
   { key: "property_type", label: "Property type" },
-  { key: "segment", label: "Segment" },
+  { key: "location_label", label: "Location" },
   { key: "budget", label: "Budget" },
   { key: "agent_name", label: "Agent" },
   { key: "current_state", label: "State" },
@@ -105,16 +111,13 @@ const sortFields = [
           <div class="mt-3 flex flex-col gap-2 text-sm">
             <div class="flex items-center gap-1.5 text-muted">
               <UIcon name="i-lucide-map-pin" class="size-4 shrink-0" />
-              <span class="truncate">{{ row.pref_location }}</span>
-            </div>
-            <div class="flex items-center gap-1.5 text-muted">
-              <UIcon name="i-lucide-user" class="size-4 shrink-0" />
-              <span class="truncate">{{ row.agent_name }}</span>
+              <span class="truncate">{{ row.location_label }}</span>
             </div>
             <div class="flex items-center justify-between pt-1">
-              <UBadge color="neutral" variant="soft" size="sm">
-                {{ row.segment }}
-              </UBadge>
+              <div class="flex items-center gap-1.5 text-muted">
+                <UIcon name="i-lucide-user" class="size-4 shrink-0" />
+                <span class="truncate">{{ row.agent_name }}</span>
+              </div>
               <span class="font-semibold">{{ row.budget_label }}</span>
             </div>
           </div>
