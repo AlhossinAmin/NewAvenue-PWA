@@ -11,7 +11,7 @@ export function useContacts() {
     const contact: Contact = {
       id: crypto.randomUUID(),
       name: input.name ?? "",
-      mobile_num: input.mobile_num ?? "",
+      mobile_nums: input.mobile_nums ?? [],
       email: input.email ?? "",
       gender: input.gender ?? "Male",
       age: input.age ?? 0,
@@ -22,7 +22,7 @@ export function useContacts() {
     };
     contacts.value = [contact, ...contacts.value];
     return contact;
-  }
+  };
 
   return { contacts, addContact };
 }

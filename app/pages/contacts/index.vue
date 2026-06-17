@@ -35,12 +35,9 @@
           <div
             class="mt-3 flex items-center justify-between text-sm text-muted"
           >
-            <a
-              :href="`tel:${row.mobile_num}`"
-              class="flex items-center gap-1.5"
-            >
+            <a :href="row.mobile_tel" class="flex items-center gap-1.5">
               <UIcon name="i-lucide-phone" class="size-4 shrink-0" />
-              {{ row.mobile_num }}
+              {{ row.mobile_label }}
             </a>
             <span class="flex items-center gap-1.5">
               <UIcon name="i-lucide-clock" class="size-4 shrink-0" />
@@ -77,12 +74,30 @@ import {
   type ContactState,
 } from "~/constants/dummy/contacts";
 
-type ContactRow = Contact & { initials: string };
+type ContactRow = Contact & {
+  initials: string;
+  mobile_label: string;
+  mobile_tel: string;
+};
 
-const contacts: ContactRow[] = DUMMY_CONTACTS.map((c) => ({
-  ...c,
-  initials: initials(c.name),
-}));
+const initials = (name: string): string => {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+};
+
+const contacts: ContactRow[] = DUMMY_CONTACTS.map((c) => {
+  const primary = c.mobile_nums[0];
+  return {
+    ...c,
+    initials: initials(c.name),
+    mobile_label: primary ? `${primary.country_code} ${primary.number}` : "—",
+    mobile_tel: primary ? `tel:${primary.country_code}${primary.number}` : "",
+  };
+});
 
 const STATE_COLOR: Record<
   ContactState,
@@ -96,11 +111,11 @@ const STATE_COLOR: Record<
 
 const stateColor = (state: ContactState) => {
   return STATE_COLOR[state];
-}
+};
 
 const columns: TableColumn<ContactRow>[] = [
   { accessorKey: "name", header: "Contact" },
-  { accessorKey: "mobile_num", header: "Mobile" },
+  { accessorKey: "mobile_label", header: "Mobile" },
   { accessorKey: "email", header: "Email" },
   { accessorKey: "age", header: "Age" },
   { accessorKey: "current_state", header: "State" },
@@ -114,13 +129,4 @@ const sortFields = [
   { key: "last_activity_date", label: "Last activity" },
   { key: "date_created", label: "Date created" },
 ];
-
-const initials = (name: string): string => {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 </script>

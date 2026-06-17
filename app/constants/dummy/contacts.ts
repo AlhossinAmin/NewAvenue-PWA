@@ -1,3 +1,5 @@
+import type { PhoneNumber } from "~/constants/forms";
+
 export type ContactState = "Cold" | "Active" | "Inactive" | "Converted";
 
 export type Gender = "Male" | "Female";
@@ -5,7 +7,8 @@ export type Gender = "Male" | "Female";
 export interface Contact {
   id: string;
   name: string;
-  mobile_num: string;
+  // One or more mobile numbers, each with its own country dial code.
+  mobile_nums: PhoneNumber[];
   email: string;
   gender: Gender;
   age: number;
@@ -19,7 +22,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "57f2f879-f188-40d8-a9cd-07657dd9a2d4",
     name: "Youssef Mohamed",
-    mobile_num: "01275744445",
+    mobile_nums: [{ country_code: "+20", number: "01275744445" }],
     email: "youssef.mohamed20@gmail.com",
     gender: "Male",
     age: 24,
@@ -31,7 +34,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
     name: "Salma Shafik",
-    mobile_num: "01037425506",
+    mobile_nums: [{ country_code: "+20", number: "01037425506" }],
     email: "salma.shafik87@yahoo.com",
     gender: "Female",
     age: 45,
@@ -43,7 +46,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
     name: "Hana Galal",
-    mobile_num: "01569203008",
+    mobile_nums: [{ country_code: "+20", number: "01569203008" }],
     email: "hana.galal82@hotmail.com",
     gender: "Female",
     age: 33,
@@ -55,7 +58,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "0ac6ab3f-0541-46e9-af10-022b0e341d10",
     name: "Mahmoud Badawi",
-    mobile_num: "01296734686",
+    mobile_nums: [{ country_code: "+20", number: "01296734686" }],
     email: "mahmoud.badawi50@hotmail.com",
     gender: "Male",
     age: 41,
@@ -67,7 +70,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "783665f1-60b6-4fb9-bf43-bfa8a1a6b4e7",
     name: "Ahmed Shafik",
-    mobile_num: "01008868259",
+    mobile_nums: [{ country_code: "+20", number: "01008868259" }],
     email: "ahmed.shafik72@outlook.com",
     gender: "Male",
     age: 47,
@@ -79,7 +82,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "de6629d5-114c-4a56-8329-a417f4b2031d",
     name: "Ramy Mansour",
-    mobile_num: "01283002531",
+    mobile_nums: [{ country_code: "+20", number: "01283002531" }],
     email: "ramy.mansour97@yahoo.com",
     gender: "Male",
     age: 46,
@@ -91,7 +94,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "093b7187-8578-44e3-b80b-3a8d4d4c8ec1",
     name: "Sherif Farouk",
-    mobile_num: "01262106839",
+    mobile_nums: [{ country_code: "+20", number: "01262106839" }],
     email: "sherif.farouk78@hotmail.com",
     gender: "Male",
     age: 58,
@@ -103,7 +106,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "00600b29-62db-49ec-9460-d004fd40b65d",
     name: "Ahmed Abdel Aziz",
-    mobile_num: "01527028578",
+    mobile_nums: [{ country_code: "+20", number: "01527028578" }],
     email: "ahmed.abdel.aziz90@gmail.com",
     gender: "Male",
     age: 41,
@@ -115,7 +118,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "5d74f95d-4585-4c58-a99e-1fa62a6a689e",
     name: "Nour Saad",
-    mobile_num: "01168980267",
+    mobile_nums: [{ country_code: "+20", number: "01168980267" }],
     email: "nour.saad57@outlook.com",
     gender: "Female",
     age: 52,
@@ -127,7 +130,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
     name: "Mostafa Elshamy",
-    mobile_num: "01066778257",
+    mobile_nums: [{ country_code: "+20", number: "01066778257" }],
     email: "mostafa.elshamy61@hotmail.com",
     gender: "Male",
     age: 24,
@@ -139,7 +142,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c",
     name: "Hana Amin",
-    mobile_num: "01138350455",
+    mobile_nums: [{ country_code: "+20", number: "01138350455" }],
     email: "hana.amin54@yahoo.com",
     gender: "Female",
     age: 49,
@@ -151,7 +154,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "65f5f18c-1dc1-47c1-87e7-f5ace20caf53",
     name: "Hana Galal",
-    mobile_num: "01169405340",
+    mobile_nums: [{ country_code: "+20", number: "01169405340" }],
     email: "hana.galal12@hotmail.com",
     gender: "Female",
     age: 36,
@@ -163,7 +166,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "c0d670c2-6541-4b60-8ace-588133360e54",
     name: "Ramy Mohamed",
-    mobile_num: "01043849674",
+    mobile_nums: [{ country_code: "+20", number: "01043849674" }],
     email: "ramy.mohamed70@gmail.com",
     gender: "Male",
     age: 65,
@@ -175,7 +178,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
     name: "Ahmed Amin",
-    mobile_num: "01586775952",
+    mobile_nums: [{ country_code: "+20", number: "01586775952" }],
     email: "ahmed.amin79@outlook.com",
     gender: "Male",
     age: 39,
@@ -187,7 +190,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
     name: "Omar Ragab",
-    mobile_num: "01023562361",
+    mobile_nums: [{ country_code: "+20", number: "01023562361" }],
     email: "omar.ragab97@outlook.com",
     gender: "Male",
     age: 39,
@@ -199,7 +202,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "59a16771-b55a-4daa-a522-c8212054511f",
     name: "Omar Galal",
-    mobile_num: "01151859729",
+    mobile_nums: [{ country_code: "+20", number: "01151859729" }],
     email: "omar.galal17@gmail.com",
     gender: "Male",
     age: 25,
@@ -211,7 +214,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "87eb1149-3491-4730-9049-7903488a1203",
     name: "Mostafa Wahba",
-    mobile_num: "01266024769",
+    mobile_nums: [{ country_code: "+20", number: "01266024769" }],
     email: "mostafa.wahba38@outlook.com",
     gender: "Male",
     age: 36,
@@ -223,7 +226,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "c03ec4ec-1caf-4e19-b102-c41519cc532c",
     name: "Ahmed Ibrahim",
-    mobile_num: "01289876199",
+    mobile_nums: [{ country_code: "+20", number: "01289876199" }],
     email: "ahmed.ibrahim47@hotmail.com",
     gender: "Male",
     age: 41,
@@ -235,7 +238,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "6c28a88b-bdaa-4773-b149-39915d6dff37",
     name: "Reem Galal",
-    mobile_num: "01182541078",
+    mobile_nums: [{ country_code: "+20", number: "01182541078" }],
     email: "reem.galal82@yahoo.com",
     gender: "Female",
     age: 36,
@@ -247,7 +250,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "570f153c-4dc7-4d18-b216-feffc3614535",
     name: "Karim Badawi",
-    mobile_num: "01134542520",
+    mobile_nums: [{ country_code: "+20", number: "01134542520" }],
     email: "karim.badawi89@gmail.com",
     gender: "Male",
     age: 50,
@@ -259,7 +262,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "e8df7c98-b26a-4ede-b247-e4db3750293e",
     name: "Tarek Farouk",
-    mobile_num: "01264417311",
+    mobile_nums: [{ country_code: "+20", number: "01264417311" }],
     email: "tarek.farouk1@outlook.com",
     gender: "Male",
     age: 58,
@@ -271,7 +274,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "2bdf0981-136f-4b43-92b1-50bbca69a9f4",
     name: "Omar Hassan",
-    mobile_num: "01095785591",
+    mobile_nums: [{ country_code: "+20", number: "01095785591" }],
     email: "omar.hassan56@yahoo.com",
     gender: "Male",
     age: 53,
@@ -283,7 +286,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "9a1aca77-3666-466a-a65b-66b774c005ae",
     name: "Mariam Shafik",
-    mobile_num: "01275866251",
+    mobile_nums: [{ country_code: "+20", number: "01275866251" }],
     email: "mariam.shafik24@outlook.com",
     gender: "Female",
     age: 61,
@@ -295,7 +298,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "1726ee5a-ec7c-4dd0-8fa5-f17303926725",
     name: "Nour Saad",
-    mobile_num: "01179206954",
+    mobile_nums: [{ country_code: "+20", number: "01179206954" }],
     email: "nour.saad6@gmail.com",
     gender: "Female",
     age: 62,
@@ -307,7 +310,7 @@ export const DUMMY_CONTACTS: Contact[] = [
   {
     id: "3b677281-fe68-4a85-89bb-d64dc3dda796",
     name: "Ibrahim Galal",
-    mobile_num: "01235097528",
+    mobile_nums: [{ country_code: "+20", number: "01235097528" }],
     email: "ibrahim.galal24@hotmail.com",
     gender: "Male",
     age: 34,
