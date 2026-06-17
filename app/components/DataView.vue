@@ -166,7 +166,7 @@ const toNum = (x: unknown): number | null => {
   if (x === "" || x == null) return null;
   const n = Number(x);
   return Number.isFinite(n) ? n : null;
-}
+};
 
 const props = defineProps<{
   rows: T[];
@@ -258,7 +258,7 @@ const filterButtonLabel = computed(() =>
 const clearFilters = () => {
   for (const f of props.filterFields ?? [])
     filterValues.value[f.key] = f.type === "range" ? { min: "", max: "" } : [];
-}
+};
 
 const passesFilters = (row: T) => {
   return (props.filterFields ?? []).every((f) => {
@@ -275,7 +275,7 @@ const passesFilters = (row: T) => {
     if (hi !== null && (num === null || num > hi)) return false;
     return true;
   });
-}
+};
 
 const sortableKeys = computed(
   () => new Set(props.sortFields.map((f) => f.key)),
@@ -288,7 +288,7 @@ const toggleSort = (key: string) => {
     sortKey.value = key;
     sortDir.value = "asc";
   }
-}
+};
 
 const selectSort = (key: string) => {
   if (sortKey.value === key) {
@@ -297,12 +297,12 @@ const selectSort = (key: string) => {
     sortKey.value = key;
     sortDir.value = "asc";
   }
-}
+};
 
 const sortIcon = (key: string) => {
   if (sortKey.value !== key) return "i-lucide-chevrons-up-down";
   return sortDir.value === "asc" ? "i-lucide-arrow-up" : "i-lucide-arrow-down";
-}
+};
 
 // Add a sortable header button to columns whose accessorKey is a sort field.
 const tableColumns = computed<TableColumn<T>[]>(() => {
@@ -354,7 +354,7 @@ const matches = (row: T) => {
       (typeof v === "string" || typeof v === "number") &&
       String(v).toLowerCase().includes(q),
   );
-}
+};
 
 const displayRows = computed(() => {
   const result = props.rows.filter((r) => matches(r) && passesFilters(r));

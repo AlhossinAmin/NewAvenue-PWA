@@ -18,6 +18,12 @@
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
+        <ImageInput
+          v-else-if="field.type === 'image'"
+          v-model="state[field.key] as string"
+          :label="field.label"
+          :placeholder="field.placeholder"
+        />
         <USwitch
           v-else-if="field.type === 'switch'"
           v-model="state[field.key] as boolean"
@@ -32,6 +38,14 @@
         <USelect
           v-else-if="field.type === 'select'"
           v-model="state[field.key] as string"
+          :items="field.options ?? []"
+          :placeholder="field.placeholder ?? 'Select…'"
+          class="w-full"
+        />
+        <USelectMenu
+          v-else-if="field.type === 'multiselect'"
+          v-model="state[field.key] as string[]"
+          multiple
           :items="field.options ?? []"
           :placeholder="field.placeholder ?? 'Select…'"
           class="w-full"
@@ -111,7 +125,7 @@ const visibleFields = computed(() => props.fields.filter(isVisible));
 const emptyValue = (field: FormField): unknown => {
   if (field.type === "number") return undefined;
   if (field.type === "switch") return false;
-  if (field.type === "tags") return [];
+  if (field.type === "tags" || field.type === "multiselect") return [];
   return "";
 }
 

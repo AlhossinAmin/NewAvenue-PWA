@@ -9,6 +9,7 @@ export type FormFieldType =
   | "switch"
   | "date"
   | "tags"
+  | "image"
   | "contact";
 
 export interface FormField {
@@ -49,6 +50,7 @@ export const DEVELOPER_FIELDS: FormField[] = [
     type: "select",
     options: ["Signed", "Pending", "Expired"],
   },
+  { key: "agreement_end_date", label: "Agreement end date", type: "date" },
   { key: "projects_count", label: "Projects count", type: "number" },
   { key: "num_deals", label: "Number of deals", type: "number" },
   {
@@ -58,7 +60,7 @@ export const DEVELOPER_FIELDS: FormField[] = [
   },
   { key: "commission_min", label: "Commission min (%)", type: "number" },
   { key: "commission_max", label: "Commission max (%)", type: "number" },
-  { key: "logo", label: "Logo URL", type: "text" },
+  { key: "logo", label: "Logo", type: "image" },
   { key: "description", label: "Description", type: "textarea" },
 ];
 

@@ -88,11 +88,13 @@ import {
 
 type DeveloperRow = Developer & { initials: string; commission_label: string };
 
-const developers: DeveloperRow[] = DUMMY_DEVELOPERS.map((d) => ({
-  ...d,
-  initials: initials(d.name),
-  commission_label: commissionLabel(d),
-}));
+const developers = computed<DeveloperRow[]>(() =>
+  DUMMY_DEVELOPERS.map((d) => ({
+    ...d,
+    initials: initials(d.name),
+    commission_label: commissionLabel(d),
+  })),
+);
 
 const AGREEMENT_COLOR: Record<
   AgreementStatus,
@@ -114,6 +116,7 @@ const columns: TableColumn<DeveloperRow>[] = [
   { accessorKey: "num_deals", header: "Deals" },
   { accessorKey: "default_commission", header: "Commission" },
   { accessorKey: "agreement", header: "Agreement" },
+  { accessorKey: "agreement_end_date", header: "Agreement end date" },
 ];
 
 const sortFields = [
@@ -123,6 +126,7 @@ const sortFields = [
   { key: "num_deals", label: "Deals" },
   { key: "default_commission", label: "Commission" },
   { key: "agreement", label: "Agreement" },
+  { key: "agreement_end_date", label: "Agreement end date" },
 ];
 
 const initials = (name: string): string => {
