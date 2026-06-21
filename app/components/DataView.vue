@@ -2,10 +2,10 @@
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-2">
       <UInput
-        v-model="search"
+        v-model="searchInput"
         icon="i-lucide-search"
-        :placeholder="searchPlaceholder ?? 'Search…'"
         class="flex-1"
+        :placeholder="searchPlaceholder ?? 'Search…'"
       />
 
       <!-- Filters: popover on desktop, bottom drawer on mobile -->
@@ -87,10 +87,10 @@
                 <p class="px-1 text-xs font-medium text-muted">Sort by</p>
                 <UButton
                   v-for="f in sortFields"
-                  :key="f.key"
-                  :label="f.label"
                   block
                   class="justify-between"
+                  :key="f.key"
+                  :label="f.label"
                   :color="sortKey === f.key ? 'primary' : 'neutral'"
                   :variant="sortKey === f.key ? 'soft' : 'ghost'"
                   :trailing-icon="
@@ -115,28 +115,62 @@
 
     <!-- Mobile: card list -->
     <div v-if="!mobileTable" class="flex flex-col gap-3 sm:hidden">
-      <template v-for="row in displayRows" :key="row.id">
-        <NuxtLink v-if="editTo" :to="editTo(row)" class="block">
-          <slot name="card" :row="row" />
-        </NuxtLink>
-        <slot v-else name="card" :row="row" />
+      <template v-if="loading">
+        <div
+          v-for="n in skeletonRows"
+          class="rounded-lg border border-default p-4"
+          :key="n"
+        >
+          <div class="flex items-center gap-3">
+            <USkeleton class="size-10 shrink-0 rounded-full" />
+            <div class="flex-1 space-y-2">
+              <USkeleton class="h-4 w-1/2" />
+              <USkeleton class="h-3 w-3/4" />
+            </div>
+          </div>
+          <USkeleton class="mt-3 h-3 w-full" />
+        </div>
       </template>
-      <p
-        v-if="!displayRows.length"
-        class="py-12 text-center text-sm text-muted"
-      >
-        No results.
-      </p>
+      <template v-else>
+        <template v-for="row in displayRows" :key="row.id">
+          <NuxtLink v-if="editTo" class="block" :to="editTo(row)">
+            <slot name="card" :row="row" />
+          </NuxtLink>
+          <slot v-else name="card" :row="row" />
+        </template>
+        <p
+          v-if="!displayRows.length"
+          class="py-12 text-center text-sm text-muted"
+        >
+          No results.
+        </p>
+      </template>
     </div>
 
     <!-- Table with sortable headers (always shown on desktop; on mobile too when
          mobileTable is set, scrolling horizontally) -->
     <div :class="mobileTable ? 'block overflow-x-auto' : 'hidden sm:block'">
-      <UTable :data="displayRows" :columns="tableColumns">
-        <template v-for="name in forwardedSlots" :key="name" #[name]="slotData">
+      <div v-if="loading" class="flex flex-col gap-3 py-2">
+        <USkeleton v-for="n in skeletonRows" class="h-12 w-full" :key="n" />
+      </div>
+      <UTable v-else :data="displayRows" :columns="tableColumns">
+        <template v-for="name in forwardedSlots" #[name]="slotData" :key="name">
           <slot :name="name" v-bind="slotData" />
         </template>
       </UTable>
+    </div>
+
+    <!-- Server-side pagination footer -->
+    <div
+      v-if="total && perPage && total > perPage"
+      class="flex items-center justify-between gap-2"
+    >
+      <p class="text-sm text-muted">{{ total }} results</p>
+      <UPagination
+        v-model:page="page"
+        :total="total"
+        :items-per-page="perPage"
+      />
     </div>
   </div>
 </template>
@@ -181,14 +215,66 @@ const props = defineProps<{
   // Multi-select filters. Each maps to a row property; selecting values keeps
   // only rows whose value is among the selection.
   filterFields?: FilterField[];
+  // Server-side pagination. When `total` is provided, `rows` is treated as the
+  // current page (no client slicing) and a pagination footer is rendered.
+  // Drive the current page with `v-model:page`.
+  total?: number;
+  perPage?: number;
+  // When true, search/sort/filtering happen on the server: `rows` is rendered
+  // as-is and the search box + sort headers only emit `v-model:search` /
+  // `v-model:sort` for the parent to refetch with.
+  serverSide?: boolean;
+  // When true, render skeleton placeholders instead of rows while data loads.
+  loading?: boolean;
 }>();
+
+// Number of skeleton placeholders to render while loading.
+const SKELETON_COUNT = 6;
+const skeletonRows = computed(() =>
+  Array.from({ length: SKELETON_COUNT }, (_, i) => i),
+);
+
+// Current page for server-side pagination (1-based). Two-way bound so the
+// parent can refetch when it changes.
+const page = defineModel<number>("page", { default: 1 });
+
+// Search query (debounced) and sort param (API format, e.g. "-created_at").
+// Two-way bound so a server-side parent can refetch when they change.
+const searchQuery = defineModel<string>("search", { default: "" });
+const sortParam = defineModel<string | null>("sort", { default: null });
 
 const UButton = resolveComponent("UButton");
 const slots = useSlots();
 
-const search = ref("");
-const sortKey = ref<string | null>(null);
-const sortDir = ref<"asc" | "desc">("asc");
+// Raw input value; debounced into `searchQuery` so server-side parents don't
+// refetch on every keystroke.
+const searchInput = ref(searchQuery.value);
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+watch(searchInput, (value) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    searchQuery.value = value.trim();
+  }, 300);
+});
+
+// Seed internal sort state from an incoming `sort` param (e.g. "-created_at").
+const parseSort = (param: string | null) => ({
+  key: param ? param.replace(/^-/, "") : null,
+  dir: param?.startsWith("-") ? ("desc" as const) : ("asc" as const),
+});
+
+const initialSort = parseSort(sortParam.value);
+const sortKey = ref<string | null>(initialSort.key);
+const sortDir = ref<"asc" | "desc">(initialSort.dir);
+
+// Reflect internal sort changes back out as an API sort param.
+watch([sortKey, sortDir], () => {
+  sortParam.value = sortKey.value
+    ? `${sortDir.value === "desc" ? "-" : ""}${sortKey.value}`
+    : null;
+});
+
 const sheetOpen = ref(false);
 const filterOpen = ref(false);
 
@@ -356,7 +442,7 @@ const tableColumns = computed<TableColumn<T>[]>(() => {
 });
 
 const matches = (row: T) => {
-  const q = search.value.trim().toLowerCase();
+  const q = searchQuery.value.trim().toLowerCase();
   if (!q) return true;
   return Object.values(row as Record<string, unknown>).some(
     (v) =>
@@ -366,6 +452,8 @@ const matches = (row: T) => {
 };
 
 const displayRows = computed(() => {
+  // Server-side mode: rows are already searched/sorted/paged by the API.
+  if (props.serverSide) return props.rows;
   const result = props.rows.filter((r) => matches(r) && passesFilters(r));
   const key = sortKey.value;
   if (!key) return result;

@@ -1,8 +1,8 @@
 <template>
   <FormPage
     panel-id="developers-edit"
-    :title="record ? `Edit developer` : `Developer not found`"
     back-to="/developers"
+    :title="record ? `Edit developer` : `Developer not found`"
   >
     <div
       v-if="!record"
@@ -14,9 +14,10 @@
     </div>
     <ResourceForm
       v-else
+      submit-label="Save changes"
       :fields="DEVELOPER_FIELDS"
       :state="state"
-      submit-label="Save changes"
+      :loading="loading"
       @submit="onSubmit"
     />
   </FormPage>
@@ -24,17 +25,31 @@
 
 <script setup lang="ts">
 import { DEVELOPER_FIELDS } from "~/constants/forms";
-import { DUMMY_DEVELOPERS } from "~/constants/dummy/developers";
+import type { DeveloperInput } from "~/composables/useDevelopers";
 
 const route = useRoute();
 const toast = useToast();
 
-const record = DUMMY_DEVELOPERS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+const id = route.params.id as string;
+const { fetchDeveloper, updateDeveloper } = useDevelopers();
 
-const onSubmit = () => {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Developer updated", color: "success" });
-  navigateTo("/developers");
-}
+const { data: record } = await useAsyncData(`developer-${id}`, () =>
+  fetchDeveloper(id).catch(() => null),
+);
+
+const state = reactive<Record<string, unknown>>({ ...(record.value ?? {}) });
+const loading = ref(false);
+
+const onSubmit = async (data: Record<string, unknown>) => {
+  loading.value = true;
+  try {
+    await updateDeveloper(id, data as Partial<DeveloperInput>);
+    toast.add({ title: "Developer updated", color: "success" });
+    navigateTo("/developers");
+  } catch {
+    toast.add({ title: "Failed to update developer", color: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
 </script>

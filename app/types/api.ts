@@ -9,6 +9,7 @@ export interface ApiPagination {
   per_page: number;
   total: number;
   last_page: number;
+  has_more_pages: boolean;
 }
 
 export interface ApiMeta {

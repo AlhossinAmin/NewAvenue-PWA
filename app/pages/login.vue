@@ -4,9 +4,9 @@
       <template #header>
         <div class="flex flex-col items-center gap-3 text-center">
           <img
-            :src="logo"
             alt="Avenu"
             class="h-10 w-auto invert dark:invert-0"
+            :src="logo"
           />
           <h1 class="text-xl font-bold">Sign in</h1>
           <p class="text-sm text-muted">Use admin / admin123</p>
@@ -14,9 +14,9 @@
       </template>
 
       <UForm
+        class="flex flex-col gap-4"
         :schema="schema"
         :state="state"
-        class="flex flex-col gap-4"
         @submit="onSubmit"
       >
         <UFormField label="Username" name="username">
@@ -61,7 +61,7 @@ import logo from "~/assets/white-logo.svg";
 
 definePageMeta({ layout: false });
 
-const { login } = useAuth();
+const { login } = useUser();
 const toast = useToast();
 const loading = ref(false);
 
@@ -78,21 +78,21 @@ const state = reactive<Partial<Schema>>({
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   loading.value = true;
-  // Simulate a tiny network delay for UX feedback.
-  await new Promise((r) => setTimeout(r, 300));
-
-  const ok = login(event.data.username, event.data.password);
-  loading.value = false;
-
-  if (ok) {
-    toast.add({ title: "Welcome back, admin", color: "success" });
-    await navigateTo("/");
-  } else {
+  try {
+    const member = await login(event.data.username, event.data.password);
     toast.add({
-      title: "Invalid credentials",
-      description: "Use admin / admin123",
+      title: `Welcome back, ${member.name}`,
+      color: "success",
+    });
+    await navigateTo("/");
+  } catch (error) {
+    toast.add({
+      title: "Sign in failed",
+      description: getApiErrorMessage(error, "Invalid credentials"),
       color: "error",
     });
+  } finally {
+    loading.value = false;
   }
-}
+};
 </script>

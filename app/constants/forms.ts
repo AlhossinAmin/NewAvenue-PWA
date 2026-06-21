@@ -161,9 +161,12 @@ export const PROJECT_FIELDS: FormField[] = [
     required: true,
   },
   { key: "commission_scheme", label: "Commission (%)", type: "number" },
-  { key: "total_units", label: "Total units", type: "number" },
-  { key: "units_sold", label: "Units sold", type: "number" },
-  { key: "units_remaining", label: "Units remaining", type: "number" },
+  { key: "resale_units_sold", label: "Resale Units Sold", type: "number" },
+  {
+    key: "resale_units_remaining",
+    label: "Resale Units Remaining",
+    type: "number",
+  },
   { key: "photos", label: "Photos", type: "images", full: true },
   { key: "description", label: "Description", type: "textarea" },
 ];

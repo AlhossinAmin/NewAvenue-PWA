@@ -7,10 +7,10 @@
     create-to="/projects/new"
   >
     <DataView
+      search-placeholder="Search projects…"
       :rows="projects"
       :columns="columns"
       :sort-fields="sortFields"
-      search-placeholder="Search projects…"
       :edit-to="(row) => `/projects/${row.id}`"
     >
       <template #card="{ row }">
@@ -28,20 +28,23 @@
 
             <div>
               <div class="mb-1 flex justify-between text-xs text-muted">
-                <span>{{ row.units_sold }} / {{ row.total_units }} sold</span>
-                <span>{{ row.units_remaining }} left</span>
+                <span>
+                  {{ row.resale_units_sold }} /
+                  {{ row.total_resale_units }} sold
+                </span>
+                <span>{{ row.resale_units_remaining }} left</span>
               </div>
-              <UProgress :model-value="row.sold_percent" size="sm" />
+              <UProgress size="sm" :model-value="row.sold_percent" />
             </div>
 
             <div class="flex items-center justify-between gap-2 pt-1">
               <div class="flex flex-wrap gap-1">
                 <UBadge
                   v-for="cat in row.category"
-                  :key="cat"
                   color="neutral"
                   variant="soft"
                   size="sm"
+                  :key="cat"
                 >
                   {{ cat }}
                 </UBadge>
@@ -58,10 +61,10 @@
         <div class="flex flex-wrap gap-1">
           <UBadge
             v-for="cat in row.original.category"
-            :key="cat"
             color="neutral"
             variant="soft"
             size="sm"
+            :key="cat"
           >
             {{ cat }}
           </UBadge>
@@ -72,11 +75,12 @@
         <div class="flex w-40 flex-col gap-1">
           <div class="flex justify-between text-xs text-muted">
             <span>
-              {{ row.original.units_sold }} / {{ row.original.total_units }}
+              {{ row.original.resale_units_sold }} /
+              {{ row.original.total_resale_units }}
             </span>
             <span>{{ row.original.sold_percent }}%</span>
           </div>
-          <UProgress :model-value="row.original.sold_percent" size="sm" />
+          <UProgress size="sm" :model-value="row.original.sold_percent" />
         </div>
       </template>
 
@@ -105,7 +109,8 @@ const columns: TableColumn<ProjectRow>[] = [
   { accessorKey: "developer", header: "Developer" },
   { accessorKey: "district", header: "District" },
   { accessorKey: "category", header: "Category" },
-  { accessorKey: "sold_percent", header: "Units sold" },
+  { accessorKey: "sold_percent", header: "Resale units sold" },
+  { accessorKey: "total_resale_units", header: "Total Resale Units" },
   { accessorKey: "commission_scheme", header: "Commission" },
 ];
 
@@ -114,12 +119,13 @@ const sortFields = [
   { key: "developer", label: "Developer" },
   { key: "district", label: "District" },
   { key: "category", label: "Category" },
-  { key: "sold_percent", label: "Units sold %" },
+  { key: "sold_percent", label: "Resale units sold %" },
+  { key: "total_resale_units", label: "Total Resale Units" },
   { key: "commission_scheme", label: "Commission" },
 ];
 
 const soldPercent = (p: Project): number => {
-  if (!p.total_units) return 0;
-  return Math.round((p.units_sold / p.total_units) * 100);
+  if (!p.total_resale_units) return 0;
+  return Math.round((p.resale_units_sold / p.total_resale_units) * 100);
 };
 </script>

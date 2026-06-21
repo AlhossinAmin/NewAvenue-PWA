@@ -7,10 +7,17 @@
     create-to="/developers/new"
   >
     <DataView
+      v-model:page="page"
+      v-model:search="search"
+      v-model:sort="sort"
+      server-side
+      search-placeholder="Search developers…"
       :rows="developers"
       :columns="columns"
       :sort-fields="sortFields"
-      search-placeholder="Search developers…"
+      :total="pagination?.total"
+      :per-page="pagination?.per_page"
+      :loading="status === 'pending'"
       :edit-to="(row) => `/developers/${row.id}`"
     >
       <template #card="{ row }">
@@ -21,9 +28,9 @@
               <div class="flex items-center justify-between gap-2">
                 <p class="truncate font-semibold">{{ row.name }}</p>
                 <UBadge
-                  :color="agreementColor(row.agreement)"
                   variant="subtle"
                   size="sm"
+                  :color="agreementColor(row.agreement)"
                 >
                   {{ row.agreement }}
                 </UBadge>
@@ -53,10 +60,10 @@
       <template #name-cell="{ row }">
         <div class="flex items-center gap-3">
           <UAvatar
+            size="sm"
             :src="row.original.logo"
             :alt="row.original.name"
             :text="row.original.initials"
-            size="sm"
           />
           <span class="font-medium">{{ row.original.name }}</span>
         </div>
@@ -68,8 +75,8 @@
 
       <template #agreement-cell="{ row }">
         <UBadge
-          :color="agreementColor(row.original.agreement)"
           variant="subtle"
+          :color="agreementColor(row.original.agreement)"
         >
           {{ row.original.agreement }}
         </UBadge>
@@ -80,20 +87,46 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_DEVELOPERS,
-  type Developer,
-  type AgreementStatus,
-} from "~/constants/dummy/developers";
+import type { Developer, AgreementStatus } from "~/constants/dummy/developers";
 
 type DeveloperRow = Developer & { initials: string; commission_label: string };
 
+const { fetchDevelopers } = useDevelopers();
+
+const page = ref(1);
+const search = ref("");
+const sort = ref<string | null>("-created_at");
+
+const { data, status, refresh } = await useAsyncData(
+  "developers",
+  () =>
+    fetchDevelopers({
+      page: page.value,
+      search: search.value,
+      sort: sort.value,
+    }),
+  { watch: [page] },
+);
+
+// Searching or re-sorting resets to the first page; if already there, refetch
+// directly so the change still takes effect.
+watch([search, sort], () => {
+  if (page.value !== 1) page.value = 1;
+  else refresh();
+});
+
 const developers = computed<DeveloperRow[]>(() =>
-  DUMMY_DEVELOPERS.map((d) => ({
+  (data.value?.data ?? []).map((d) => ({
     ...d,
     initials: initials(d.name),
     commission_label: commissionLabel(d),
   })),
+);
+
+const pagination = computed(() =>
+  data.value && !Array.isArray(data.value.pagination)
+    ? data.value.pagination
+    : null,
 );
 
 const AGREEMENT_COLOR: Record<
@@ -107,7 +140,7 @@ const AGREEMENT_COLOR: Record<
 
 const agreementColor = (agreement: AgreementStatus) => {
   return AGREEMENT_COLOR[agreement];
-}
+};
 
 const columns: TableColumn<DeveloperRow>[] = [
   { accessorKey: "name", header: "Developer" },
@@ -136,11 +169,11 @@ const initials = (name: string): string => {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-}
+};
 
 const commissionLabel = (d: Developer): string => {
   return d.commission_min === d.commission_max
     ? `${d.default_commission}%`
     : `${d.commission_min}–${d.commission_max}%`;
-}
+};
 </script>

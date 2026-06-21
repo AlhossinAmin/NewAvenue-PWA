@@ -10,9 +10,9 @@
           />
           <img
             v-else
-            :src="logo"
             alt="Avenu"
             class="h-7 w-auto invert dark:invert-0"
+            :src="logo"
           />
         </div>
       </template>
@@ -20,26 +20,26 @@
       <template #default="{ collapsed }">
         <UDashboardSearchButton :collapsed="collapsed" />
         <UNavigationMenu
+          orientation="vertical"
           :items="links"
           :collapsed="collapsed"
-          orientation="vertical"
         />
       </template>
 
       <template #footer="{ collapsed }">
-        <PwaInstallButton :collapsed="collapsed" class="mb-2" />
+        <PwaInstallButton class="mb-2" :collapsed="collapsed" />
         <UDropdownMenu
+          class="w-full"
           :items="userMenu"
           :content="{ align: 'end', side: 'top' }"
-          class="w-full"
         >
           <UButton
-            :avatar="{ src: 'https://github.com/nuxt.png' }"
-            :label="collapsed ? undefined : (user ?? 'admin')"
-            :trailing-icon="collapsed ? undefined : 'i-lucide-chevron-up'"
             color="neutral"
             variant="ghost"
             class="w-full"
+            :avatar="{ src: 'https://github.com/nuxt.png' }"
+            :label="collapsed ? undefined : (user?.name ?? 'User')"
+            :trailing-icon="collapsed ? undefined : 'i-lucide-chevron-up'"
             :block="collapsed"
           />
         </UDropdownMenu>
@@ -54,13 +54,19 @@
 import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 import logo from "~/assets/white-logo.svg";
 
-const { user, logout } = useAuth();
+const { user, isLoggedIn, fetchMe, logout } = useUser();
 const colorMode = useColorMode();
 
+// Restore the signed-in member after a hard reload — the token cookie survives
+// but the in-memory profile does not.
+onMounted(() => {
+  if (isLoggedIn.value && !user.value) fetchMe();
+});
+
 const onLogout = async () => {
-  logout();
+  await logout();
   await navigateTo("/login");
-}
+};
 
 const themeItems: DropdownMenuItem[] = [
   { label: "Light", icon: "i-lucide-sun", value: "light" },
@@ -69,7 +75,7 @@ const themeItems: DropdownMenuItem[] = [
 ];
 
 const userMenu = computed<DropdownMenuItem[][]>(() => [
-  [{ label: user.value ?? "admin", type: "label" }],
+  [{ label: user.value?.name ?? "User", type: "label" }],
   [
     {
       label: "Theme",
