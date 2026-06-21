@@ -7,6 +7,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "@vite-pwa/nuxt"],
   css: ["~/assets/css/main.css"],
+  runtimeConfig: {
+    public: {
+      baseUrl: process.env.BASE_URL || "http://127.0.0.1:8000",
+    },
+  },
   app: {
     head: {
       // Icon and Apple splash-screen <link> tags are injected by
