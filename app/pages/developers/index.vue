@@ -97,7 +97,7 @@ const page = ref(1);
 const search = ref("");
 const sort = ref<string | null>("-created_at");
 
-const { data, status, refresh } = await useAsyncData(
+const { data, status, refresh } = useAsyncData(
   "developers",
   () =>
     fetchDevelopers({

@@ -1,8 +1,8 @@
 <template>
   <UForm
+    class="flex flex-col gap-6"
     :state="state"
     :validate="validate"
-    class="flex flex-col gap-6"
     @submit="onSubmit"
   >
     <div class="flex flex-col gap-4">
@@ -20,6 +20,11 @@
         />
         <ProjectSelect
           v-else-if="field.type === 'project'"
+          v-model="state[field.key] as string"
+          :placeholder="field.placeholder"
+        />
+        <DeveloperSelect
+          v-else-if="field.type === 'developer'"
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
@@ -47,16 +52,16 @@
         <UTextarea
           v-else-if="field.type === 'textarea'"
           v-model="state[field.key] as string"
+          class="w-full"
           :placeholder="field.placeholder"
           :rows="3"
-          class="w-full"
         />
         <USelect
           v-else-if="field.type === 'select'"
           v-model="state[field.key] as string"
+          class="w-full"
           :items="field.options ?? []"
           :placeholder="field.placeholder ?? 'Select…'"
-          class="w-full"
         />
         <ComboboxInput
           v-else-if="field.type === 'combobox'"
@@ -68,22 +73,22 @@
           v-else-if="field.type === 'multiselect'"
           v-model="state[field.key] as string[]"
           multiple
+          class="w-full"
           :items="field.options ?? []"
           :placeholder="field.placeholder ?? 'Select…'"
-          class="w-full"
         />
         <UInputTags
           v-else-if="field.type === 'tags'"
           v-model="state[field.key] as string[]"
-          :placeholder="field.placeholder"
           class="w-full"
+          :placeholder="field.placeholder"
         />
         <UInput
           v-else-if="field.type === 'number'"
           v-model.number="state[field.key] as number"
           type="number"
-          :placeholder="field.placeholder"
           class="w-full"
+          :placeholder="field.placeholder"
         />
         <UInput
           v-else-if="field.type === 'date'"
@@ -93,18 +98,18 @@
         />
         <UInput
           v-else-if="field.type === 'computed'"
-          :model-value="state[field.key] as string"
           readonly
           disabled
           placeholder="Auto-generated"
           class="w-full"
+          :model-value="state[field.key] as string"
         />
         <UInput
           v-else
           v-model="state[field.key] as string"
+          class="w-full"
           :type="field.type"
           :placeholder="field.placeholder"
-          class="w-full"
         />
       </UFormField>
     </div>
@@ -118,9 +123,9 @@
       />
       <UButton
         type="submit"
+        icon="i-lucide-check"
         :label="submitLabel ?? 'Save'"
         :loading="loading"
-        icon="i-lucide-check"
       />
     </div>
   </UForm>

@@ -19,6 +19,8 @@ export type FormFieldType =
   | "computed"
   // Dropdown of actual projects — links a property to a developer project.
   | "project"
+  // Dropdown of developers loaded from the API — stores the developer's id.
+  | "developer"
   | "contact";
 
 // A single phone entry: a dial-code picked from `COUNTRY_CODE_OPTIONS` plus the
@@ -144,7 +146,7 @@ export const DEVELOPER_FIELDS: FormField[] = [
 
 export const PROJECT_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "developer", label: "Developer", type: "text", required: true },
+  { key: "developer", label: "Developer", type: "developer", required: true },
   { key: "country", label: "Country", type: "text" },
   { key: "city", label: "City", type: "text" },
   {

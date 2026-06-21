@@ -150,12 +150,16 @@
     <!-- Table with sortable headers (always shown on desktop; on mobile too when
          mobileTable is set, scrolling horizontally) -->
     <div :class="mobileTable ? 'block overflow-x-auto' : 'hidden sm:block'">
-      <div v-if="loading" class="flex flex-col gap-3 py-2">
-        <USkeleton v-for="n in skeletonRows" class="h-12 w-full" :key="n" />
-      </div>
-      <UTable v-else :data="displayRows" :columns="tableColumns">
+      <UTable
+        :data="loading ? skeletonData : displayRows"
+        :columns="loading ? skeletonColumns : tableColumns"
+      >
         <template v-for="name in forwardedSlots" #[name]="slotData" :key="name">
-          <slot :name="name" v-bind="slotData" />
+          <USkeleton
+            v-if="loading && name.endsWith('-cell')"
+            class="h-4 w-full"
+          />
+          <slot v-else :name="name" v-bind="slotData" />
         </template>
       </UTable>
     </div>
@@ -244,6 +248,7 @@ const searchQuery = defineModel<string>("search", { default: "" });
 const sortParam = defineModel<string | null>("sort", { default: null });
 
 const UButton = resolveComponent("UButton");
+const USkeleton = resolveComponent("USkeleton");
 const slots = useSlots();
 
 // Raw input value; debounced into `searchQuery` so server-side parents don't
@@ -440,6 +445,19 @@ const tableColumns = computed<TableColumn<T>[]>(() => {
 
   return cols;
 });
+
+// While loading, feed the table placeholder rows and skeleton cells so the
+// header stays visible and the skeletons render inside the table body.
+const skeletonData = computed(
+  () => skeletonRows.value.map((i) => ({ id: `skeleton-${i}` })) as T[],
+);
+
+const skeletonColumns = computed<TableColumn<T>[]>(() =>
+  tableColumns.value.map((col) => ({
+    ...col,
+    cell: () => h(USkeleton, { class: "h-4 w-full" }),
+  })),
+);
 
 const matches = (row: T) => {
   const q = searchQuery.value.trim().toLowerCase();

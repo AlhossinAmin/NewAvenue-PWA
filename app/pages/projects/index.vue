@@ -7,17 +7,26 @@
     create-to="/projects/new"
   >
     <DataView
+      v-model:page="page"
+      v-model:search="search"
+      v-model:sort="sort"
+      server-side
       search-placeholder="Search projects…"
       :rows="projects"
       :columns="columns"
       :sort-fields="sortFields"
+      :total="pagination?.total"
+      :per-page="pagination?.per_page"
+      :loading="status === 'pending'"
       :edit-to="(row) => `/projects/${row.id}`"
     >
       <template #card="{ row }">
         <UCard>
           <div class="min-w-0">
             <p class="truncate font-semibold">{{ row.name }}</p>
-            <p class="truncate text-sm text-muted">{{ row.developer }}</p>
+            <p class="truncate text-sm text-muted">
+              {{ row.developer_name }}
+            </p>
           </div>
 
           <div class="mt-3 flex flex-col gap-2 text-sm">
@@ -57,6 +66,10 @@
         </UCard>
       </template>
 
+      <template #developer-cell="{ row }">
+        {{ row.original.developer_name }}
+      </template>
+
       <template #category-cell="{ row }">
         <div class="flex flex-wrap gap-1">
           <UBadge
@@ -93,15 +106,42 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { DUMMY_PROJECTS, type Project } from "~/constants/dummy/projects";
+import type { Project } from "~/constants/dummy/projects";
 
-type ProjectRow = Project & { sold_percent: number };
+type ProjectRow = Project & { sold_percent: number; developer_name: string };
+
+const { fetchProjects } = useProjects();
+
+const page = ref(1);
+const search = ref("");
+const sort = ref<string | null>("-created_at");
+
+const { data, status, refresh } = useAsyncData(
+  "projects",
+  () =>
+    fetchProjects({ page: page.value, search: search.value, sort: sort.value }),
+  { watch: [page] },
+);
+
+// Searching or re-sorting resets to the first page; if already there, refetch
+// directly so the change still takes effect.
+watch([search, sort], () => {
+  if (page.value !== 1) page.value = 1;
+  else refresh();
+});
 
 const projects = computed<ProjectRow[]>(() =>
-  DUMMY_PROJECTS.map((p) => ({
+  (data.value?.data ?? []).map((p) => ({
     ...p,
     sold_percent: soldPercent(p),
+    developer_name: p.developer?.name ?? "",
   })),
+);
+
+const pagination = computed(() =>
+  data.value && !Array.isArray(data.value.pagination)
+    ? data.value.pagination
+    : null,
 );
 
 const columns: TableColumn<ProjectRow>[] = [

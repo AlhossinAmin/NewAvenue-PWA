@@ -5,10 +5,17 @@ export type ProjectCategory =
   | "Commercial"
   | "Mixed";
 
+// On reads the API returns the developer as a nested object; writes still take
+// just the developer's UUID (see `ProjectInput` in useProjects).
+export interface ProjectDeveloper {
+  id: string;
+  name: string;
+}
+
 export interface Project {
   id: string;
   name: string;
-  developer: string;
+  developer: ProjectDeveloper;
   country: string;
   city: string;
   district: string;
@@ -25,7 +32,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "7182072b-30c4-41d3-a7a3-587a5e05ced7",
     name: "Sky Gardens",
-    developer: "Mountain View",
+    developer: { id: "", name: "Mountain View" },
     country: "Egypt",
     city: "Cairo",
     district: "Nasr City",
@@ -41,7 +48,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "6bade7f8-4ee4-4d01-ace7-2af80d2fbad6",
     name: "Crystal Heights",
-    developer: "Emaar Misr",
+    developer: { id: "", name: "Emaar Misr" },
     country: "Egypt",
     city: "Giza",
     district: "Sheikh Zayed",
@@ -57,7 +64,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "a598620b-9fe5-4bfa-8b6f-f1cfb0a16b1f",
     name: "Stone Residence",
-    developer: "Talaat Moustafa Group",
+    developer: { id: "", name: "Talaat Moustafa Group" },
     country: "Egypt",
     city: "Cairo",
     district: "New Administrative Capital",
@@ -73,7 +80,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "5f819ed6-0942-45d8-bdb4-f0479ab71989",
     name: "Royal Towers",
-    developer: "LMD",
+    developer: { id: "", name: "LMD" },
     country: "Egypt",
     city: "Cairo",
     district: "Nasr City",
@@ -88,7 +95,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "01c5b0b8-b10a-42ec-a069-b67bc42704b4",
     name: "Stone Hills",
-    developer: "Marakez",
+    developer: { id: "", name: "Marakez" },
     country: "Egypt",
     city: "Cairo",
     district: "New Administrative Capital",
@@ -104,7 +111,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "533b5b4e-a6ea-4795-8f07-61c5123a995b",
     name: "Silver Park",
-    developer: "Mountain View",
+    developer: { id: "", name: "Mountain View" },
     country: "Egypt",
     city: "Cairo",
     district: "Nasr City",
@@ -120,7 +127,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "f02c0ebf-532c-4e27-9f28-6ba73e82ac73",
     name: "Vista Plaza",
-    developer: "Tatweer Misr",
+    developer: { id: "", name: "Tatweer Misr" },
     country: "Egypt",
     city: "Giza",
     district: "Sheikh Zayed",
@@ -136,7 +143,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "b5360155-7c24-4f26-a9b2-d033efc5fa0e",
     name: "Green Residence",
-    developer: "Hassan Allam Properties",
+    developer: { id: "", name: "Hassan Allam Properties" },
     country: "Egypt",
     city: "Cairo",
     district: "Nasr City",
@@ -152,7 +159,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "269a467c-3ece-47f6-9865-a043da4330a1",
     name: "Palm Hills",
-    developer: "Marakez",
+    developer: { id: "", name: "Marakez" },
     country: "Egypt",
     city: "Cairo",
     district: "Heliopolis",
@@ -168,7 +175,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "0fa5febb-7a83-4538-a4df-56fc8aa22a10",
     name: "Green Towers",
-    developer: "Redcon",
+    developer: { id: "", name: "Redcon" },
     country: "Egypt",
     city: "Cairo",
     district: "El Shorouk",
@@ -184,7 +191,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "3d02cc34-0946-4bf9-93e8-6b7b23b0e467",
     name: "Lake Towers",
-    developer: "Mountain View",
+    developer: { id: "", name: "Mountain View" },
     country: "Egypt",
     city: "Cairo",
     district: "Nasr City",
@@ -200,7 +207,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "16b438d2-2368-44e1-8a42-db730ed1b24a",
     name: "Grand Plaza",
-    developer: "Misr Italia",
+    developer: { id: "", name: "Misr Italia" },
     country: "Egypt",
     city: "Cairo",
     district: "Maadi",
@@ -215,7 +222,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "57da24bd-1abc-4482-bf60-6870cb946b03",
     name: "Palm Towers",
-    developer: "Mountain View",
+    developer: { id: "", name: "Mountain View" },
     country: "Egypt",
     city: "Giza",
     district: "6th of October City",
@@ -231,7 +238,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "e33b78bc-6b8b-4c87-90f9-83ebfa15e783",
     name: "Crystal Gardens",
-    developer: "Talaat Moustafa Group",
+    developer: { id: "", name: "Talaat Moustafa Group" },
     country: "Egypt",
     city: "Giza",
     district: "Sheikh Zayed",
@@ -247,7 +254,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "aae02b04-4127-44dd-a7c1-a5b49ffb7e26",
     name: "Park Towers",
-    developer: "Marakez",
+    developer: { id: "", name: "Marakez" },
     country: "Egypt",
     city: "Cairo",
     district: "New Cairo",
@@ -262,7 +269,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "2b11e817-c5cc-4ee8-a1f2-f179e53a8da5",
     name: "Vista Park",
-    developer: "Hassan Allam Properties",
+    developer: { id: "", name: "Hassan Allam Properties" },
     country: "Egypt",
     city: "Cairo",
     district: "New Cairo",
@@ -277,7 +284,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "f17ebdd0-75bc-4561-89c2-30aabbae9c4e",
     name: "Sun Heights",
-    developer: "Emaar Misr",
+    developer: { id: "", name: "Emaar Misr" },
     country: "Egypt",
     city: "Cairo",
     district: "New Administrative Capital",
@@ -293,7 +300,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "81cca3df-0521-41d1-a429-a5f285b08176",
     name: "Grand Hills",
-    developer: "Emaar Misr",
+    developer: { id: "", name: "Emaar Misr" },
     country: "Egypt",
     city: "Giza",
     district: "6th of October City",
@@ -309,7 +316,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "f90a5495-85d8-49d3-808f-4de76490af5e",
     name: "Royal Gate",
-    developer: "Emaar Misr",
+    developer: { id: "", name: "Emaar Misr" },
     country: "Egypt",
     city: "Cairo",
     district: "Maadi",
@@ -324,7 +331,7 @@ export const DUMMY_PROJECTS: Project[] = [
   {
     id: "811eafb9-aa3c-4fd1-bf7f-b0930865f50c",
     name: "Lake View",
-    developer: "Tatweer Misr",
+    developer: { id: "", name: "Tatweer Misr" },
     country: "Egypt",
     city: "Cairo",
     district: "El Shorouk",
