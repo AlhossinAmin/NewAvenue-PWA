@@ -188,6 +188,11 @@ interface SortField {
   label: string;
 }
 
+// A select option: either a plain string (label === value) or a { label, value }
+// pair when the displayed text differs from the stored value (e.g. a project's
+// name shown but its id filtered on).
+type FilterOption = string | { label: string; value: string };
+
 interface FilterField {
   key: string;
   label: string;
@@ -196,7 +201,12 @@ interface FilterField {
   // "slider": numeric min/max bounds via a dual-thumb range slider.
   type?: "select" | "range" | "slider";
   // For "select" only — when omitted, distinct row values are used.
-  options?: string[];
+  options?: FilterOption[];
+  // For "range"/"slider" only — explicit bounds. Required for server-side
+  // filtering (where the current page can't reveal the true min/max); when
+  // omitted the bounds are derived from the loaded rows.
+  min?: number;
+  max?: number;
 }
 
 type RangeValue = { min: string; max: string };
@@ -285,30 +295,52 @@ const filterOpen = ref(false);
 
 // Value per filter key — string[] for "select", { min, max } for "range".
 // e.g. { status: ["Available"], area: { min: "100", max: "" } }.
-const filterValues = ref<Record<string, string[] | RangeValue>>(
-  Object.fromEntries(
-    (props.filterFields ?? []).map((f) => [
-      f.key,
-      f.type === "range" || f.type === "slider" ? { min: "", max: "" } : [],
-    ]),
-  ),
+// Exposed as `v-model:filters` so a server-side parent can react to changes and
+// refetch (in client-side mode the parent can ignore it).
+const filterValues = defineModel<Record<string, string[] | RangeValue>>(
+  "filters",
+  { default: () => ({}) },
 );
+
+// Seed a blank value for any filter field not yet present. Runs reactively so
+// filters that arrive later (e.g. options loaded from the server) get seeded.
+watchEffect(() => {
+  for (const f of props.filterFields ?? []) {
+    if (filterValues.value[f.key] === undefined) {
+      filterValues.value[f.key] =
+        f.type === "range" || f.type === "slider" ? { min: "", max: "" } : [];
+    }
+  }
+});
+
+// Normalize a select option to the { label, value } shape the menu expects.
+const toOption = (o: FilterOption) =>
+  typeof o === "string" ? { label: o, value: o } : o;
 
 // Resolve each filter for rendering — derive select options or range bounds.
 const resolvedFilters = computed(() =>
   (props.filterFields ?? []).map((f) => {
     if (f.type === "range" || f.type === "slider") {
-      const nums = props.rows
-        .map((r) => toNum((r as Record<string, unknown>)[f.key]))
-        .filter((n): n is number => n !== null);
-      const lo = nums.length ? Math.min(...nums) : 0;
-      const hi = nums.length ? Math.max(...nums) : 0;
+      // Prefer explicit bounds (required for server-side filtering); otherwise
+      // derive them from the loaded rows.
+      let lo: number;
+      let hi: number;
+      if (f.min !== undefined && f.max !== undefined) {
+        lo = f.min;
+        hi = f.max;
+      } else {
+        const nums = props.rows
+          .map((r) => toNum((r as Record<string, unknown>)[f.key]))
+          .filter((n): n is number => n !== null);
+        lo = nums.length ? Math.min(...nums) : 0;
+        hi = nums.length ? Math.max(...nums) : 0;
+      }
       const step = Math.max(1, Math.round((hi - lo) / 100));
       return {
         key: f.key,
         label: f.label,
         type: f.type,
-        options: [] as string[],
+        options: [] as { label: string; value: string }[],
         placeholder: "",
         minPlaceholder: `Min ${lo}`,
         maxPlaceholder: `Max ${hi}`,
@@ -317,19 +349,21 @@ const resolvedFilters = computed(() =>
         step,
       };
     }
-    const values = props.rows
-      .map((r) => (r as Record<string, unknown>)[f.key])
-      .filter((v) => v != null && v !== "")
-      .map(String);
+    const derived = [
+      ...new Set(
+        props.rows
+          .map((r) => (r as Record<string, unknown>)[f.key])
+          .filter((v) => v != null && v !== "")
+          .map(String),
+      ),
+    ]
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+      .map((v) => ({ label: v, value: v }));
     return {
       key: f.key,
       label: f.label,
       type: "select" as const,
-      options:
-        f.options ??
-        [...new Set(values)].sort((a, b) =>
-          a.localeCompare(b, undefined, { numeric: true }),
-        ),
+      options: f.options ? f.options.map(toOption) : derived,
       placeholder: `Any ${f.label.toLowerCase()}`,
       minPlaceholder: "",
       maxPlaceholder: "",

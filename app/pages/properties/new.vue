@@ -5,9 +5,10 @@
     back-to="/properties"
   >
     <ResourceForm
+      submit-label="Create property"
       :fields="PROPERTY_FIELDS"
       :state="state"
-      submit-label="Create property"
+      :loading="loading"
       @submit="onSubmit"
     />
   </FormPage>
@@ -15,13 +16,24 @@
 
 <script setup lang="ts">
 import { PROPERTY_FIELDS, createEmptyState } from "~/constants/forms";
+import type { PropertyInput } from "~/composables/useProperties";
 
 const toast = useToast();
 const state = reactive(createEmptyState(PROPERTY_FIELDS));
+const loading = ref(false);
 
-const onSubmit = () => {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Property created", color: "success" });
-  navigateTo("/properties");
-}
+const { createProperty } = useProperties();
+
+const onSubmit = async (data: Record<string, unknown>) => {
+  loading.value = true;
+  try {
+    await createProperty(data as PropertyInput);
+    toast.add({ title: "Property created", color: "success" });
+    navigateTo("/properties");
+  } catch {
+    toast.add({ title: "Failed to create property", color: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
 </script>

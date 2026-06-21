@@ -1,13 +1,14 @@
 <template>
   <div class="flex flex-col gap-4 pb-4">
-    <div v-for="f in displayFilters" :key="f.key" class="flex flex-col gap-1">
+    <div v-for="f in displayFilters" class="flex flex-col gap-1" :key="f.key">
       <p class="px-1 text-xs font-medium text-muted">{{ f.label }}</p>
 
       <USelectMenu
         v-if="f.type === 'select'"
         v-model="values[f.key]"
-        :items="f.options"
+        value-key="value"
         multiple
+        :items="f.options"
         :placeholder="f.placeholder"
       />
 
@@ -32,15 +33,15 @@
         <UInput
           v-model="values[f.key].min"
           type="number"
-          :placeholder="f.minPlaceholder"
           class="flex-1"
+          :placeholder="f.minPlaceholder"
         />
         <span class="text-muted">–</span>
         <UInput
           v-model="values[f.key].max"
           type="number"
-          :placeholder="f.maxPlaceholder"
           class="flex-1"
+          :placeholder="f.maxPlaceholder"
         />
       </div>
     </div>
@@ -61,7 +62,7 @@ interface ResolvedFilter {
   key: string;
   label: string;
   type: "select" | "range" | "slider";
-  options: string[];
+  options: { label: string; value: string }[];
   placeholder: string;
   minPlaceholder: string;
   maxPlaceholder: string;

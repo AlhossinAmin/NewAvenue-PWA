@@ -7,11 +7,19 @@
     create-to="/properties/new"
   >
     <DataView
+      v-model:page="page"
+      v-model:search="search"
+      v-model:sort="sort"
+      v-model:filters="filterState"
+      server-side
+      search-placeholder="Search properties…"
       :rows="properties"
       :columns="columns"
       :sort-fields="sortFields"
       :filter-fields="filterFields"
-      search-placeholder="Search properties…"
+      :total="pagination?.total"
+      :per-page="pagination?.per_page"
+      :loading="status === 'pending'"
       :edit-to="(row) => `/properties/${row.id}`"
     >
       <template #card="{ row }">
@@ -69,10 +77,10 @@
         <span class="font-medium">{{ row.original.unit_num }}</span>
       </template>
 
-      <template #project_name-cell="{ row }">
+      <template #project-cell="{ row }">
         <ULink
-          :to="`/projects/${row.original.project}`"
           class="font-medium text-primary hover:underline"
+          :to="`/projects/${row.original.project_id}`"
         >
           {{ row.original.project_name }}
         </ULink>
@@ -149,8 +157,13 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { DUMMY_PROPERTIES, type Property } from "~/constants/dummy/properties";
-import { DUMMY_PROJECTS } from "~/constants/dummy/projects";
+import type { Property } from "~/constants/dummy/properties";
+
+type PropertyRow = Property & {
+  price_label: string;
+  project_name: string;
+  project_id: string;
+};
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -158,16 +171,122 @@ const priceFormatter = new Intl.NumberFormat("en-US", {
 });
 const amountFormatter = new Intl.NumberFormat("en-US");
 
-// Resolve a property's linked project id to its name for display/sorting.
-const projectNameById = new Map(DUMMY_PROJECTS.map((p) => [p.id, p.name]));
+const { fetchProperties, fetchPropertyFacets } = useProperties();
 
-type PropertyRow = Property & { price_label: string; project_name: string };
+const page = ref(1);
+const search = ref("");
+const sort = ref<string | null>("-created_at");
 
-const properties: PropertyRow[] = DUMMY_PROPERTIES.map((p) => ({
-  ...p,
-  price_label: `EGP ${priceFormatter.format(p.price)}`,
-  project_name: projectNameById.get(p.project) ?? "—",
-}));
+// Filter values, two-way bound to DataView. Keys map to `filterFields` below:
+// select fields hold string[] (the chosen values/ids), range/slider fields hold
+// { min, max } strings.
+const filterState = ref<
+  Record<string, string[] | { min: string; max: string }>
+>({});
+
+// Translate the filter values into request query params: multi-selects become
+// repeated `key[]` params, ranges become `*_min` / `*_max`. Empty selections
+// are omitted so they don't constrain the query.
+const filterQuery = computed(() => {
+  const v = filterState.value;
+  const query: Record<string, unknown> = {};
+  const select = (key: string) => {
+    const val = v[key];
+    if (Array.isArray(val) && val.length) query[`${key}[]`] = val;
+  };
+  const range = (key: string, minKey: string, maxKey: string) => {
+    const val = v[key];
+    if (Array.isArray(val) || !val) return;
+    if (val.min !== "") query[minKey] = val.min;
+    if (val.max !== "") query[maxKey] = val.max;
+  };
+  select("category");
+  select("type");
+  select("transaction_type");
+  select("project");
+  select("district");
+  select("num_bedrooms");
+  range("area", "area_min", "area_max");
+  range("price", "price_min", "price_max");
+  return query;
+});
+
+const { data, status, refresh } = useAsyncData(
+  "properties",
+  () =>
+    fetchProperties({
+      page: page.value,
+      search: search.value,
+      sort: sort.value,
+      filters: filterQuery.value,
+    }),
+  { watch: [page] },
+);
+
+// Searching, re-sorting, or changing a filter resets to the first page; if
+// already there, refetch directly so the change still takes effect.
+watch(
+  [search, sort, filterState],
+  () => {
+    if (page.value !== 1) page.value = 1;
+    else refresh();
+  },
+  { deep: true },
+);
+
+// Filter option lists + numeric bounds come from the server (the current page
+// can't reveal every distinct value or the true min/max).
+const { data: facets } = useAsyncData("property-facets", fetchPropertyFacets);
+
+const filterFields = computed(() => {
+  const f = facets.value;
+  if (!f) return [];
+  return [
+    { key: "category", label: "Category", options: f.category },
+    { key: "type", label: "Type", options: f.type },
+    { key: "transaction_type", label: "Offering", options: f.transaction_type },
+    {
+      key: "project",
+      label: "Project",
+      options: f.project.map((p) => ({ label: p.name, value: p.id })),
+    },
+    { key: "district", label: "Location", options: f.district },
+    {
+      key: "num_bedrooms",
+      label: "Bedrooms",
+      options: f.num_bedrooms.map(String),
+    },
+    {
+      key: "area",
+      label: "Area (m²)",
+      type: "range" as const,
+      min: f.area.min,
+      max: f.area.max,
+    },
+    {
+      key: "price",
+      label: "Price (EGP)",
+      type: "slider" as const,
+      min: f.price.min,
+      max: f.price.max,
+    },
+  ];
+});
+
+const properties = computed<PropertyRow[]>(() =>
+  (data.value?.data ?? []).map((p) => ({
+    ...p,
+    price_label: `EGP ${priceFormatter.format(p.price)}`,
+    project_name: p.project?.name ?? "—",
+    project_id: p.project?.id ?? "",
+  })),
+);
+
+const pagination = computed(() =>
+  data.value && !Array.isArray(data.value.pagination)
+    ? data.value.pagination
+    : null,
+);
 
 const installmentOpen = ref(false);
 const selected = ref<PropertyRow | null>(null);
@@ -190,7 +309,7 @@ const installmentSummary = computed(() => {
 const columns: TableColumn<PropertyRow>[] = [
   { accessorKey: "unit_num", header: "Unit" },
   { accessorKey: "type", header: "Type" },
-  { accessorKey: "project_name", header: "Project" },
+  { accessorKey: "project", header: "Project" },
   { accessorKey: "district", header: "Location" },
   { accessorKey: "area", header: "Area" },
   { accessorKey: "transaction_type", header: "Offering" },
@@ -199,25 +318,13 @@ const columns: TableColumn<PropertyRow>[] = [
 ];
 
 const sortFields = [
-  { key: "project_name", label: "Project" },
+  { key: "project", label: "Project" },
   { key: "type", label: "Type" },
   { key: "area", label: "Area" },
   { key: "price", label: "Price" },
   { key: "district", label: "Location" },
   { key: "transaction_type", label: "Offering type" },
   { key: "delivery_year", label: "Delivery year" },
-];
-
-// Filters. Select options are derived from the data; area and price are ranges.
-const filterFields = [
-  { key: "category", label: "Category" },
-  { key: "type", label: "Type" },
-  { key: "transaction_type", label: "Offering" },
-  { key: "project_name", label: "Project" },
-  { key: "district", label: "Location" },
-  { key: "num_bedrooms", label: "Bedrooms" },
-  { key: "area", label: "Area (m²)", type: "range" as const },
-  { key: "price", label: "Price (EGP)", type: "slider" as const },
 ];
 
 const openInstallments = (row: PropertyRow) => {
