@@ -1,5 +1,9 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": [
+    "prettier-plugin-organize-attributes",
+    "prettier-plugin-tailwindcss"
+  ],
   "tailwindStylesheet": "./app/assets/css/main.css",
-  "tailwindFunctions": ["cva", "cn", "tv"]
+  "tailwindFunctions": ["cva", "cn", "tv"],
+  "attributeGroups": ["^v-(?!bind|on)", "$DEFAULT", "^(:|v-bind)", "^(@|v-on)"]
 }
