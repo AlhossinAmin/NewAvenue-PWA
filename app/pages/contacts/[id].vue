@@ -1,8 +1,8 @@
 <template>
   <FormPage
     panel-id="contacts-edit"
-    :title="record ? `Edit contact` : `Contact not found`"
     back-to="/contacts"
+    :title="record ? `Edit contact` : `Contact not found`"
   >
     <div
       v-if="!record"
@@ -15,9 +15,10 @@
 
     <div v-else class="flex flex-col gap-8">
       <ResourceForm
+        submit-label="Save changes"
         :fields="CONTACT_FIELDS"
         :state="state"
-        submit-label="Save changes"
+        :loading="loading"
         @submit="onSubmit"
       />
 
@@ -30,17 +31,17 @@
         </p>
         <ULink
           v-for="lead in linkedLeads"
+          class="block"
           :key="lead.id"
           :to="`/leads/${lead.id}`"
-          class="block"
         >
-          <UCard :ui="{ body: 'sm:p-4' }" class="transition hover:bg-elevated">
+          <UCard class="transition hover:bg-elevated" :ui="{ body: 'sm:p-4' }">
             <div class="flex items-center justify-between gap-2">
               <div class="min-w-0">
                 <p class="truncate font-medium">{{ lead.title }}</p>
                 <p class="truncate text-sm text-muted">{{ lead.subtitle }}</p>
               </div>
-              <UBadge :color="lead.state_color" variant="subtle" size="sm">
+              <UBadge variant="subtle" size="sm" :color="lead.state_color">
                 {{ lead.current_state }}
               </UBadge>
             </div>
@@ -57,11 +58,11 @@
         </p>
         <ULink
           v-for="property in linkedProperties"
+          class="block"
           :key="property.id"
           :to="`/properties/${property.id}`"
-          class="block"
         >
-          <UCard :ui="{ body: 'sm:p-4' }" class="transition hover:bg-elevated">
+          <UCard class="transition hover:bg-elevated" :ui="{ body: 'sm:p-4' }">
             <div class="flex items-center justify-between gap-2">
               <div class="min-w-0">
                 <p class="truncate font-medium">{{ property.title }}</p>
@@ -82,15 +83,22 @@
 
 <script setup lang="ts">
 import { CONTACT_FIELDS } from "~/constants/forms";
-import { DUMMY_CONTACTS } from "~/constants/dummy/contacts";
+import type { ContactInput } from "~/composables/useContacts";
 import { DUMMY_LEADS, type LeadState } from "~/constants/dummy/leads";
 import { DUMMY_PROPERTIES } from "~/constants/dummy/properties";
 
 const route = useRoute();
 const toast = useToast();
 
-const record = DUMMY_CONTACTS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+const id = route.params.id as string;
+const { fetchContact, updateContact } = useContacts();
+
+const { data: record } = await useAsyncData(`contact-${id}`, () =>
+  fetchContact(id).catch(() => null),
+);
+
+const state = reactive<Record<string, unknown>>({ ...(record.value ?? {}) });
+const loading = ref(false);
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -113,19 +121,21 @@ const STATE_COLOR: Record<
 
 // Leads whose customer is this contact, shaped into display-ready rows.
 const linkedLeads = computed(() =>
-  DUMMY_LEADS.filter((lead) => lead.customer === record?.id).map((lead) => ({
-    id: lead.id,
-    current_state: lead.current_state,
-    state_color: STATE_COLOR[lead.current_state],
-    title: `${lead.property_type} · ${lead.offering_type}`,
-    subtitle: [lead.neighborhood, lead.district].filter(Boolean).join(", "),
-  })),
+  DUMMY_LEADS.filter((lead) => lead.customer === record.value?.id).map(
+    (lead) => ({
+      id: lead.id,
+      current_state: lead.current_state,
+      state_color: STATE_COLOR[lead.current_state],
+      title: `${lead.property_type} · ${lead.offering_type}`,
+      subtitle: [lead.neighborhood, lead.district].filter(Boolean).join(", "),
+    }),
+  ),
 );
 
 // Properties assigned to this contact's leads (deduped), as display-ready rows.
 const linkedProperties = computed(() => {
   const ids = new Set(
-    DUMMY_LEADS.filter((lead) => lead.customer === record?.id)
+    DUMMY_LEADS.filter((lead) => lead.customer === record.value?.id)
       .map((lead) => lead.assigned_property)
       .filter((id): id is string => Boolean(id)),
   );
@@ -139,9 +149,16 @@ const linkedProperties = computed(() => {
   );
 });
 
-const onSubmit = () => {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Contact updated", color: "success" });
-  navigateTo("/contacts");
+const onSubmit = async (data: Record<string, unknown>) => {
+  loading.value = true;
+  try {
+    await updateContact(id, data as Partial<ContactInput>);
+    toast.add({ title: "Contact updated", color: "success" });
+    navigateTo("/contacts");
+  } catch {
+    toast.add({ title: "Failed to update contact", color: "error" });
+  } finally {
+    loading.value = false;
+  }
 };
 </script>

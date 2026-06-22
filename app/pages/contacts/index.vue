@@ -7,10 +7,17 @@
     create-to="/contacts/new"
   >
     <DataView
+      v-model:page="page"
+      v-model:search="search"
+      v-model:sort="sort"
+      server-side
+      search-placeholder="Search contacts…"
       :rows="contacts"
       :columns="columns"
       :sort-fields="sortFields"
-      search-placeholder="Search contacts…"
+      :total="pagination?.total"
+      :per-page="pagination?.per_page"
+      :loading="status === 'pending'"
       :edit-to="(row) => `/contacts/${row.id}`"
     >
       <template #card="{ row }">
@@ -21,9 +28,9 @@
               <div class="flex items-center justify-between gap-2">
                 <p class="truncate font-medium">{{ row.name }}</p>
                 <UBadge
-                  :color="stateColor(row.current_state)"
                   variant="subtle"
                   size="sm"
+                  :color="stateColor(row.current_state)"
                 >
                   {{ row.current_state }}
                 </UBadge>
@@ -35,7 +42,7 @@
           <div
             class="mt-3 flex items-center justify-between text-sm text-muted"
           >
-            <a :href="row.mobile_tel" class="flex items-center gap-1.5">
+            <a class="flex items-center gap-1.5" :href="row.mobile_tel">
               <UIcon name="i-lucide-phone" class="size-4 shrink-0" />
               {{ row.mobile_label }}
             </a>
@@ -49,15 +56,15 @@
 
       <template #name-cell="{ row }">
         <div class="flex items-center gap-3">
-          <UAvatar :text="row.original.initials" size="sm" />
+          <UAvatar size="sm" :text="row.original.initials" />
           <span class="font-medium">{{ row.original.name }}</span>
         </div>
       </template>
 
       <template #current_state-cell="{ row }">
         <UBadge
-          :color="stateColor(row.original.current_state)"
           variant="subtle"
+          :color="stateColor(row.original.current_state)"
         >
           {{ row.original.current_state }}
         </UBadge>
@@ -68,17 +75,33 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_CONTACTS,
-  type Contact,
-  type ContactState,
-} from "~/constants/dummy/contacts";
+import type { Contact, ContactState } from "~/constants/dummy/contacts";
 
 type ContactRow = Contact & {
   initials: string;
   mobile_label: string;
   mobile_tel: string;
 };
+
+const { fetchContacts } = useContacts();
+
+const page = ref(1);
+const search = ref("");
+const sort = ref<string | null>("-created_at");
+
+const { data, status, refresh } = useAsyncData(
+  "contacts",
+  () =>
+    fetchContacts({ page: page.value, search: search.value, sort: sort.value }),
+  { watch: [page] },
+);
+
+// Searching or re-sorting resets to the first page; if already there, refetch
+// directly so the change still takes effect.
+watch([search, sort], () => {
+  if (page.value !== 1) page.value = 1;
+  else refresh();
+});
 
 const initials = (name: string): string => {
   return name
@@ -89,15 +112,23 @@ const initials = (name: string): string => {
     .toUpperCase();
 };
 
-const contacts: ContactRow[] = DUMMY_CONTACTS.map((c) => {
-  const primary = c.mobile_nums[0];
-  return {
-    ...c,
-    initials: initials(c.name),
-    mobile_label: primary ? `${primary.country_code} ${primary.number}` : "—",
-    mobile_tel: primary ? `tel:${primary.country_code}${primary.number}` : "",
-  };
-});
+const contacts = computed<ContactRow[]>(() =>
+  (data.value?.data ?? []).map((c) => {
+    const primary = c.mobile_nums[0];
+    return {
+      ...c,
+      initials: initials(c.name),
+      mobile_label: primary ? `${primary.country_code} ${primary.number}` : "—",
+      mobile_tel: primary ? `tel:${primary.country_code}${primary.number}` : "",
+    };
+  }),
+);
+
+const pagination = computed(() =>
+  data.value && !Array.isArray(data.value.pagination)
+    ? data.value.pagination
+    : null,
+);
 
 const STATE_COLOR: Record<
   ContactState,
