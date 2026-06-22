@@ -7,9 +7,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "@vite-pwa/nuxt"],
   css: ["~/assets/css/main.css"],
-  // Components live in domain subfolders (common/crm/hr/properties) but keep
-  // bare auto-import names (e.g. <ContactSelect>, not <CrmContactSelect>).
-  components: [{ path: "~/components", pathPrefix: false }],
+  // Shared primitives in components/common keep bare names (<PhonesInput>,
+  // <FormPage>, …). Everything else is path-prefixed by its domain/entity
+  // folder, so files can be Form/Table/Select.vue without name clashes
+  // (e.g. components/crm/contacts/Form.vue → <CrmContactsForm>).
+  components: [
+    { path: "~/components/common", pathPrefix: false },
+    { path: "~/components", pathPrefix: true },
+  ],
   // Auto-import composables/utils from their nested domain subfolders too —
   // Nuxt only scans the top level + */index.ts by default.
   imports: {

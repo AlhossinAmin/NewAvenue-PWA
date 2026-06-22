@@ -14,13 +14,7 @@
     </div>
 
     <div v-else class="flex flex-col gap-8">
-      <ResourceForm
-        submit-label="Save changes"
-        :fields="CONTACT_FIELDS"
-        :state="state"
-        :loading="loading"
-        @submit="onSubmit"
-      />
+      <CrmContactsForm :record="record" />
 
       <section class="flex flex-col gap-3">
         <h2 class="text-sm font-semibold text-highlighted">
@@ -82,24 +76,18 @@
 </template>
 
 <script setup lang="ts">
-import { CONTACT_FIELDS } from "~/constants/common/forms";
-import type { ContactInput } from "~/composables/crm/useContacts";
 import { DUMMY_LEADS } from "~/constants/crm/leads";
 import type { LeadState } from "~/types/crm/leads";
 import { DUMMY_PROPERTIES } from "~/constants/properties/properties";
 
 const route = useRoute();
-const toast = useToast();
 
 const id = route.params.id as string;
-const { fetchContact, updateContact } = useContacts();
+const { fetchContact } = useContacts();
 
 const { data: record } = await useAsyncData(`contact-${id}`, () =>
   fetchContact(id).catch(() => null),
 );
-
-const state = reactive<Record<string, unknown>>({ ...(record.value ?? {}) });
-const loading = ref(false);
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -149,17 +137,4 @@ const linkedProperties = computed(() => {
     }),
   );
 });
-
-const onSubmit = async (data: Record<string, unknown>) => {
-  loading.value = true;
-  try {
-    await updateContact(id, data as Partial<ContactInput>);
-    toast.add({ title: "Contact updated", color: "success" });
-    navigateTo("/contacts");
-  } catch {
-    toast.add({ title: "Failed to update contact", color: "error" });
-  } finally {
-    loading.value = false;
-  }
-};
 </script>

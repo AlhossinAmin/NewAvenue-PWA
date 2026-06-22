@@ -13,17 +13,17 @@
         :name="field.key"
         :required="field.required"
       >
-        <ContactSelect
+        <CrmContactsSelect
           v-if="field.type === 'contact'"
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
-        <ProjectSelect
+        <PropertiesProjectsSelect
           v-else-if="field.type === 'project'"
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
-        <DeveloperSelect
+        <PropertiesDevelopersSelect
           v-else-if="field.type === 'developer'"
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
@@ -124,12 +124,12 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="cancelHandler ? cancelHandler() : $router.back()"
+        @click="$router.back()"
       />
       <UButton
         type="submit"
         icon="i-lucide-check"
-        :label="submitLabel ?? 'Save'"
+        :label="submitLabel"
         :loading="loading"
       />
     </div>
@@ -137,85 +137,58 @@
 </template>
 
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from "@nuxt/ui";
-import type { FormField, PhoneNumber } from "~/constants/common/forms";
+import type { FormSubmitEvent } from "@nuxt/ui";
+import {
+  PROJECT_FIELDS,
+  createEmptyState,
+  type PhoneNumber,
+} from "~/constants/common/forms";
+import type { ProjectInput } from "~/composables/properties/useProjects";
+import type { Project } from "~/types/properties/projects";
 
 const props = defineProps<{
-  fields: FormField[];
-  state: Record<string, unknown>;
-  submitLabel?: string;
-  loading?: boolean;
-  // When provided, the Cancel button runs this instead of router.back() —
-  // lets the form be reused inside a modal/drawer.
-  cancelHandler?: () => void;
+  // Omit (or null) to create; pass a project to edit it.
+  record?: Project | null;
 }>();
 
-const emit = defineEmits<{
-  submit: [state: Record<string, unknown>];
-}>();
+const toast = useToast();
+const { createProject, updateProject } = useProjects();
 
-const isVisible = (field: FormField): boolean => {
-  if (!field.visibleWhen) return true;
-  const current = props.state[field.visibleWhen.field];
-  // String() so boolean toggles (e.g. a switch) match via in: ["true"].
-  return field.visibleWhen.in.includes(String(current));
-};
+// The API returns `developer` as a { id, name } object, but the form (and the
+// update payload) work with the developer's UUID — seed it from `developer.id`.
+const state = reactive<Record<string, unknown>>(
+  props.record
+    ? { ...props.record, developer: props.record.developer?.id ?? "" }
+    : createEmptyState(PROJECT_FIELDS),
+);
+const loading = ref(false);
 
-const visibleFields = computed(() => props.fields.filter(isVisible));
+const { visibleFields, validate } = useResourceForm(PROJECT_FIELDS, state);
 
-const emptyValue = (field: FormField): unknown => {
-  if (field.type === "number") return undefined;
-  if (field.type === "switch") return false;
-  if (
-    field.type === "tags" ||
-    field.type === "multiselect" ||
-    field.type === "images" ||
-    field.type === "phones"
-  )
-    return [];
-  return "";
-};
-
-// Clear the value of any field that has become hidden, so mutually-exclusive
-// fields (e.g. project vs. seller name) never both carry a value.
-watch(
-  () => props.fields.map(isVisible),
-  () => {
-    for (const field of props.fields) {
-      if (!isVisible(field)) props.state[field.key] = emptyValue(field);
-    }
-  },
-  { immediate: true },
+const submitLabel = computed(() =>
+  props.record ? "Save changes" : "Create project",
 );
 
-// Keep computed fields (e.g. the derived unit code) in sync with their inputs.
-watchEffect(() => {
-  for (const field of props.fields) {
-    if (field.type === "computed" && field.compute)
-      props.state[field.key] = field.compute(props.state);
+const onSubmit = async (event: FormSubmitEvent<Record<string, unknown>>) => {
+  loading.value = true;
+  try {
+    if (props.record) {
+      await updateProject(props.record.id, event.data as Partial<ProjectInput>);
+      toast.add({ title: "Project updated", color: "success" });
+    } else {
+      await createProject(event.data as ProjectInput);
+      toast.add({ title: "Project created", color: "success" });
+    }
+    navigateTo("/projects");
+  } catch {
+    toast.add({
+      title: props.record
+        ? "Failed to update project"
+        : "Failed to create project",
+      color: "error",
+    });
+  } finally {
+    loading.value = false;
   }
-});
-
-const validate = (state: Record<string, unknown>): FormError[] => {
-  const errors: FormError[] = [];
-  for (const field of props.fields) {
-    if (!field.required || !isVisible(field)) continue;
-    const value = state[field.key];
-    let empty =
-      value === undefined ||
-      value === null ||
-      value === "" ||
-      (Array.isArray(value) && value.length === 0);
-    // Phones come as rows; require at least one with an actual number typed in.
-    if (field.type === "phones")
-      empty = !(value as PhoneNumber[]).some((p) => p.number.trim() !== "");
-    if (empty)
-      errors.push({ name: field.key, message: `${field.label} is required` });
-  }
-  return errors;
-};
-
-const onSubmit = (event: FormSubmitEvent<Record<string, unknown>>) => {
-  emit("submit", event.data);
 };
 </script>

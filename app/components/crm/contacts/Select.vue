@@ -32,23 +32,78 @@
       />
 
       <template #body>
-        <ResourceForm
-          submit-label="Add contact"
-          :fields="QUICK_CONTACT_FIELDS"
+        <UForm
+          class="flex flex-col gap-6"
           :state="newContact"
-          :loading="creating"
-          :cancel-handler="() => (modalOpen = false)"
+          :validate="validate"
           @submit="onCreate"
-        />
+        >
+          <div class="flex flex-col gap-4">
+            <UFormField
+              v-for="field in visibleFields"
+              :key="field.key"
+              :label="field.label"
+              :name="field.key"
+              :required="field.required"
+            >
+              <PhonesInput
+                v-if="field.type === 'phones'"
+                v-model="newContact[field.key] as PhoneNumber[]"
+                :placeholder="field.placeholder"
+              />
+              <USelect
+                v-else-if="field.type === 'select'"
+                v-model="newContact[field.key] as string"
+                class="w-full"
+                :items="field.options ?? []"
+                :placeholder="field.placeholder ?? 'Select…'"
+              />
+              <UInput
+                v-else-if="field.type === 'number'"
+                v-model.number="newContact[field.key] as number"
+                type="number"
+                class="w-full"
+                :placeholder="field.placeholder"
+              />
+              <UInput
+                v-else
+                v-model="newContact[field.key] as string"
+                class="w-full"
+                :type="field.type"
+                :placeholder="field.placeholder"
+              />
+            </UFormField>
+          </div>
+
+          <div class="flex items-center justify-end gap-2">
+            <UButton
+              label="Cancel"
+              color="neutral"
+              variant="ghost"
+              @click="modalOpen = false"
+            />
+            <UButton
+              type="submit"
+              icon="i-lucide-check"
+              label="Add contact"
+              :loading="creating"
+            />
+          </div>
+        </UForm>
       </template>
     </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { FormSubmitEvent } from "@nuxt/ui";
 import type { Contact } from "~/types/crm/contacts";
 import type { ContactInput } from "~/composables/crm/useContacts";
-import { QUICK_CONTACT_FIELDS, createEmptyState } from "~/constants/common/forms";
+import {
+  QUICK_CONTACT_FIELDS,
+  createEmptyState,
+  type PhoneNumber,
+} from "~/constants/common/forms";
 
 defineProps<{
   placeholder?: string;
@@ -71,6 +126,11 @@ const searchTerm = ref("");
 const modalOpen = ref(false);
 const creating = ref(false);
 const newContact = reactive(createEmptyState(QUICK_CONTACT_FIELDS));
+
+const { visibleFields, validate } = useResourceForm(
+  QUICK_CONTACT_FIELDS,
+  newContact,
+);
 
 const items = computed(() => {
   const list = contacts.value.map((contact) => ({
@@ -167,10 +227,10 @@ const setSentinel = (el: Element | null) => {
 onBeforeUnmount(() => observer?.disconnect());
 
 // Create a contact inline, select it, and surface it at the top of the list.
-const onCreate = async (data: Record<string, unknown>) => {
+const onCreate = async (event: FormSubmitEvent<Record<string, unknown>>) => {
   creating.value = true;
   try {
-    const contact = await createContact(data as ContactInput);
+    const contact = await createContact(event.data as ContactInput);
     preselected.value = contact;
     contacts.value = [contact, ...contacts.value];
     model.value = contact.id;

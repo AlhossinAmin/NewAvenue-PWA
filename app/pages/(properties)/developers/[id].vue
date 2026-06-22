@@ -12,44 +12,18 @@
       <p class="text-sm text-muted">This developer does not exist.</p>
       <UButton label="Back to developers" to="/developers" />
     </div>
-    <ResourceForm
-      v-else
-      submit-label="Save changes"
-      :fields="DEVELOPER_FIELDS"
-      :state="state"
-      :loading="loading"
-      @submit="onSubmit"
-    />
+
+    <PropertiesDevelopersForm v-else :record="record" />
   </FormPage>
 </template>
 
 <script setup lang="ts">
-import { DEVELOPER_FIELDS } from "~/constants/common/forms";
-import type { DeveloperInput } from "~/composables/properties/useDevelopers";
-
 const route = useRoute();
-const toast = useToast();
 
 const id = route.params.id as string;
-const { fetchDeveloper, updateDeveloper } = useDevelopers();
+const { fetchDeveloper } = useDevelopers();
 
 const { data: record } = await useAsyncData(`developer-${id}`, () =>
   fetchDeveloper(id).catch(() => null),
 );
-
-const state = reactive<Record<string, unknown>>({ ...(record.value ?? {}) });
-const loading = ref(false);
-
-const onSubmit = async (data: Record<string, unknown>) => {
-  loading.value = true;
-  try {
-    await updateDeveloper(id, data as Partial<DeveloperInput>);
-    toast.add({ title: "Developer updated", color: "success" });
-    navigateTo("/developers");
-  } catch {
-    toast.add({ title: "Failed to update developer", color: "error" });
-  } finally {
-    loading.value = false;
-  }
-};
 </script>
