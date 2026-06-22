@@ -45,6 +45,9 @@ export interface Property {
   installments_available?: boolean;
   num_installments?: number;
   installment_value?: number;
+  // Server-managed timestamps (ISO 8601), returned on reads.
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const DUMMY_PROPERTIES: Property[] = [

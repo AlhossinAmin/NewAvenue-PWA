@@ -36,13 +36,26 @@ export type ReferralChannel =
   | "Instagram"
   | "Google Ads";
 
+// On reads the API returns the linked customer (contact) as a nested object;
+// writes still take just the contact UUID (see `LeadInput` in useLeads).
+export interface LeadCustomer {
+  id: string;
+  name: string;
+}
+
+// The assigned sales agent (a member); nested on read, a UUID on write.
+export interface LeadAgent {
+  id: string;
+  name: string;
+}
+
 export interface Lead {
   id: string;
-  customer: string;
+  customer: LeadCustomer;
   current_state: LeadState;
   offering_type: OfferingType;
   property_type: PropertyType;
-  assigned_agent: string;
+  assigned_agent: LeadAgent | null;
   next_follow_up_date: string | null;
   source_type: SourceType;
   referral_channel: ReferralChannel | null;
@@ -61,11 +74,17 @@ export interface Lead {
 export const DUMMY_LEADS: Lead[] = [
   {
     id: "4f2ede39-d69e-487b-95be-4f883a3b4d06",
-    customer: "57f2f879-f188-40d8-a9cd-07657dd9a2d4",
+    customer: {
+      id: "57f2f879-f188-40d8-a9cd-07657dd9a2d4",
+      name: "Youssef Mohamed",
+    },
     current_state: "Closed Lost",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "d7a2ebfa-11ca-4739-bb9d-52cb026dd1a0",
+    assigned_agent: {
+      id: "d7a2ebfa-11ca-4739-bb9d-52cb026dd1a0",
+      name: "Reham Baky",
+    },
     next_follow_up_date: null,
     source_type: "Social Media",
     referral_channel: "Broker Referral",
@@ -82,11 +101,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "4de065a8-b5a3-48a5-a52e-b13c98b5a998",
-    customer: "57f2f879-f188-40d8-a9cd-07657dd9a2d4",
+    customer: {
+      id: "57f2f879-f188-40d8-a9cd-07657dd9a2d4",
+      name: "Youssef Mohamed",
+    },
     current_state: "Warm",
     offering_type: "Sale",
     property_type: "Duplex",
-    assigned_agent: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+    assigned_agent: {
+      id: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+      name: "Ahmed Nozahi",
+    },
     next_follow_up_date: "2026-08-28",
     source_type: "Event",
     referral_channel: null,
@@ -101,11 +126,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "9578c382-c0be-4ff9-b5e7-829fca0f4aba",
-    customer: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+    customer: {
+      id: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+      name: "Salma Shafik",
+    },
     current_state: "Warm",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "e407cc5d-3ade-4dff-8324-f79ba9739372",
+    assigned_agent: {
+      id: "e407cc5d-3ade-4dff-8324-f79ba9739372",
+      name: "Sondos Labib",
+    },
     next_follow_up_date: "2026-08-30",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -120,11 +151,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "f8c78d26-3721-4d1a-9189-6050f89e18c8",
-    customer: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+    customer: {
+      id: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+      name: "Salma Shafik",
+    },
     current_state: "In Progress",
     offering_type: "Sale",
     property_type: "Apartment",
-    assigned_agent: "752acf33-9c03-4648-9fec-1dacad3b675c",
+    assigned_agent: {
+      id: "752acf33-9c03-4648-9fec-1dacad3b675c",
+      name: "Ahmed Abo Zekry",
+    },
     next_follow_up_date: "2026-06-14",
     source_type: "Event",
     referral_channel: null,
@@ -139,11 +176,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "83eb5cc7-3479-4161-970e-9d189f59336e",
-    customer: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+    customer: {
+      id: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+      name: "Salma Shafik",
+    },
     current_state: "In Progress",
     offering_type: "Resale",
     property_type: "Apartment",
-    assigned_agent: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+    assigned_agent: {
+      id: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+      name: "Fatma Alaa",
+    },
     next_follow_up_date: "2026-12-31",
     source_type: "Online",
     referral_channel: null,
@@ -158,11 +201,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "08e28c36-2768-410a-b6ed-842f44d42e9a",
-    customer: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+    customer: {
+      id: "f1adbe63-70f0-4fe9-b675-b99c66e9ab07",
+      name: "Salma Shafik",
+    },
     current_state: "Closed Lost",
     offering_type: "Sale",
     property_type: "Studio",
-    assigned_agent: "4d08a843-6498-4789-92f6-8d80c915e522",
+    assigned_agent: {
+      id: "4d08a843-6498-4789-92f6-8d80c915e522",
+      name: "Alia Mostafa",
+    },
     next_follow_up_date: null,
     source_type: "Cold Call",
     referral_channel: null,
@@ -177,11 +226,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "8512af13-047b-4c6e-bf33-9f0afc322433",
-    customer: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+    customer: {
+      id: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+      name: "Hana Galal",
+    },
     current_state: "Closed Lost",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "4d08a843-6498-4789-92f6-8d80c915e522",
+    assigned_agent: {
+      id: "4d08a843-6498-4789-92f6-8d80c915e522",
+      name: "Alia Mostafa",
+    },
     next_follow_up_date: null,
     source_type: "Event",
     referral_channel: null,
@@ -196,11 +251,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "5ccbe40a-84c9-4469-afa7-ddd00fafee32",
-    customer: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+    customer: {
+      id: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+      name: "Hana Galal",
+    },
     current_state: "Warm",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+    assigned_agent: {
+      id: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+      name: "Mohamed Abdalla",
+    },
     next_follow_up_date: "2026-06-14",
     source_type: "Online",
     referral_channel: null,
@@ -215,11 +276,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "7abf6d29-0c76-4ccc-9d41-12e7a572ff63",
-    customer: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+    customer: {
+      id: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+      name: "Hana Galal",
+    },
     current_state: "Cold",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "484042a4-458f-4976-b6a4-3bf51e62418a",
+    assigned_agent: {
+      id: "484042a4-458f-4976-b6a4-3bf51e62418a",
+      name: "Ahmed Samir",
+    },
     next_follow_up_date: "2026-12-05",
     source_type: "Online",
     referral_channel: null,
@@ -234,11 +301,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "76a842cb-89b3-4fbe-a5b9-c089f171cb53",
-    customer: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+    customer: {
+      id: "cbc55db3-5a5f-4630-8e25-54be6a0b1fb6",
+      name: "Hana Galal",
+    },
     current_state: "Closed Lost",
     offering_type: "Sale",
     property_type: "Apartment",
-    assigned_agent: "1f704115-d5d6-4630-ba47-ad6102f6127d",
+    assigned_agent: {
+      id: "1f704115-d5d6-4630-ba47-ad6102f6127d",
+      name: "Mostafa Mohie",
+    },
     next_follow_up_date: null,
     source_type: "Social Media",
     referral_channel: "Facebook",
@@ -255,11 +328,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "f52a8ae3-bd9f-45d2-b420-76530ecbadf7",
-    customer: "0ac6ab3f-0541-46e9-af10-022b0e341d10",
+    customer: {
+      id: "0ac6ab3f-0541-46e9-af10-022b0e341d10",
+      name: "Mahmoud Badawi",
+    },
     current_state: "Cold",
     offering_type: "Sale",
     property_type: "Penthouse",
-    assigned_agent: "d8aa6c15-81e2-4470-a1ac-4cea70ef0092",
+    assigned_agent: {
+      id: "d8aa6c15-81e2-4470-a1ac-4cea70ef0092",
+      name: "Dina Elaraby",
+    },
     next_follow_up_date: "2026-10-06",
     source_type: "Walk-In",
     referral_channel: null,
@@ -274,11 +353,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "b0c9479e-3fdb-4c6c-aee8-67995327b6aa",
-    customer: "0ac6ab3f-0541-46e9-af10-022b0e341d10",
+    customer: {
+      id: "0ac6ab3f-0541-46e9-af10-022b0e341d10",
+      name: "Mahmoud Badawi",
+    },
     current_state: "Hot",
     offering_type: "Rent",
     property_type: "Townhouse",
-    assigned_agent: "ac988f41-75de-4a56-bae8-43d83edd2508",
+    assigned_agent: {
+      id: "ac988f41-75de-4a56-bae8-43d83edd2508",
+      name: "Mohamed Essam",
+    },
     next_follow_up_date: "2026-06-21",
     source_type: "Referral",
     referral_channel: "WhatsApp",
@@ -293,11 +378,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "6046836e-8edd-4465-a06f-1b34f6c682db",
-    customer: "783665f1-60b6-4fb9-bf43-bfa8a1a6b4e7",
+    customer: {
+      id: "783665f1-60b6-4fb9-bf43-bfa8a1a6b4e7",
+      name: "Ahmed Shafik",
+    },
     current_state: "New",
     offering_type: "Rent",
     property_type: "Office",
-    assigned_agent: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+    assigned_agent: {
+      id: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+      name: "Ahmed Nozahi",
+    },
     next_follow_up_date: "2026-11-04",
     source_type: "Event",
     referral_channel: null,
@@ -312,11 +403,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "5f64e4f6-a70c-4586-be53-553f9dc7b1d5",
-    customer: "783665f1-60b6-4fb9-bf43-bfa8a1a6b4e7",
+    customer: {
+      id: "783665f1-60b6-4fb9-bf43-bfa8a1a6b4e7",
+      name: "Ahmed Shafik",
+    },
     current_state: "In Progress",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "35b44255-4fda-4de7-b5f4-bdc284169a91",
+    assigned_agent: {
+      id: "35b44255-4fda-4de7-b5f4-bdc284169a91",
+      name: "Andrew Essam",
+    },
     next_follow_up_date: "2026-11-11",
     source_type: "Event",
     referral_channel: null,
@@ -331,11 +428,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "7b31f2cb-06e9-4998-863a-9cb65137f1c5",
-    customer: "de6629d5-114c-4a56-8329-a417f4b2031d",
+    customer: {
+      id: "de6629d5-114c-4a56-8329-a417f4b2031d",
+      name: "Ramy Mansour",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Duplex",
-    assigned_agent: "c7c48832-96ab-44f8-b548-1cc912f79bd5",
+    assigned_agent: {
+      id: "c7c48832-96ab-44f8-b548-1cc912f79bd5",
+      name: "Mohamed Nabil",
+    },
     next_follow_up_date: "2026-12-12",
     source_type: "Referral",
     referral_channel: "Facebook",
@@ -350,11 +453,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "a03199ad-8d83-42a4-8329-191d8d8e560f",
-    customer: "de6629d5-114c-4a56-8329-a417f4b2031d",
+    customer: {
+      id: "de6629d5-114c-4a56-8329-a417f4b2031d",
+      name: "Ramy Mansour",
+    },
     current_state: "Closed Won",
     offering_type: "Resale",
     property_type: "Townhouse",
-    assigned_agent: "c3a0b08b-b1e5-467d-b725-f914f0dd628b",
+    assigned_agent: {
+      id: "c3a0b08b-b1e5-467d-b725-f914f0dd628b",
+      name: "Mohamed Haitham",
+    },
     next_follow_up_date: null,
     source_type: "Cold Call",
     referral_channel: null,
@@ -369,11 +478,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "0cd8be70-9f6e-490a-954f-889749761f62",
-    customer: "093b7187-8578-44e3-b80b-3a8d4d4c8ec1",
+    customer: {
+      id: "093b7187-8578-44e3-b80b-3a8d4d4c8ec1",
+      name: "Sherif Farouk",
+    },
     current_state: "On Hold",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "fc0ca302-53e7-46e7-a3d4-b97dd0a20202",
+    assigned_agent: {
+      id: "fc0ca302-53e7-46e7-a3d4-b97dd0a20202",
+      name: "Wessam Gaber",
+    },
     next_follow_up_date: "2026-06-26",
     source_type: "Walk-In",
     referral_channel: null,
@@ -388,11 +503,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "07fd308a-6234-4bdb-a4ef-5717fd8d449f",
-    customer: "00600b29-62db-49ec-9460-d004fd40b65d",
+    customer: {
+      id: "00600b29-62db-49ec-9460-d004fd40b65d",
+      name: "Ahmed Abdel Aziz",
+    },
     current_state: "On Hold",
     offering_type: "Sale",
     property_type: "Apartment",
-    assigned_agent: "63d87d25-35c2-4db8-bfbf-d7adef07d98e",
+    assigned_agent: {
+      id: "63d87d25-35c2-4db8-bfbf-d7adef07d98e",
+      name: "Sherif Gamal",
+    },
     next_follow_up_date: "2026-09-16",
     source_type: "Walk-In",
     referral_channel: null,
@@ -407,11 +528,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "a8b96095-21b7-44cd-8967-8ea3a8454b60",
-    customer: "00600b29-62db-49ec-9460-d004fd40b65d",
+    customer: {
+      id: "00600b29-62db-49ec-9460-d004fd40b65d",
+      name: "Ahmed Abdel Aziz",
+    },
     current_state: "Closed Won",
     offering_type: "Sale",
     property_type: "Townhouse",
-    assigned_agent: "e8a22bde-a730-4ed5-bbc6-29d1fc5b4a57",
+    assigned_agent: {
+      id: "e8a22bde-a730-4ed5-bbc6-29d1fc5b4a57",
+      name: "Hakeim Fadel",
+    },
     next_follow_up_date: null,
     source_type: "Online",
     referral_channel: null,
@@ -426,11 +553,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "ad1e8768-7803-4d70-99ad-572c7a870855",
-    customer: "5d74f95d-4585-4c58-a99e-1fa62a6a689e",
+    customer: { id: "5d74f95d-4585-4c58-a99e-1fa62a6a689e", name: "Nour Saad" },
     current_state: "Warm",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "5ca4e550-03ea-4d3c-8650-7b59349d1e75",
+    assigned_agent: {
+      id: "5ca4e550-03ea-4d3c-8650-7b59349d1e75",
+      name: "Arvial Boshra",
+    },
     next_follow_up_date: "2026-09-09",
     source_type: "Event",
     referral_channel: null,
@@ -445,11 +575,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "d598ebac-1c54-44d5-9050-e0d1499fafdd",
-    customer: "5d74f95d-4585-4c58-a99e-1fa62a6a689e",
+    customer: { id: "5d74f95d-4585-4c58-a99e-1fa62a6a689e", name: "Nour Saad" },
     current_state: "In Progress",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+    assigned_agent: {
+      id: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+      name: "Karim Saber",
+    },
     next_follow_up_date: "2026-10-16",
     source_type: "Walk-In",
     referral_channel: null,
@@ -464,11 +597,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "6b9a7b47-2688-49f1-bd2b-2593b0c29fb0",
-    customer: "5d74f95d-4585-4c58-a99e-1fa62a6a689e",
+    customer: { id: "5d74f95d-4585-4c58-a99e-1fa62a6a689e", name: "Nour Saad" },
     current_state: "Closed Won",
     offering_type: "Resale",
     property_type: "Townhouse",
-    assigned_agent: "18b80b59-ce44-455e-92f2-2dafb881218f",
+    assigned_agent: {
+      id: "18b80b59-ce44-455e-92f2-2dafb881218f",
+      name: "Youssef Galal",
+    },
     next_follow_up_date: null,
     source_type: "Referral",
     referral_channel: "WhatsApp",
@@ -483,11 +619,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "80b7d90b-a281-4319-ad19-05f76b798605",
-    customer: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+    customer: {
+      id: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+      name: "Mostafa Elshamy",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "5ca4e550-03ea-4d3c-8650-7b59349d1e75",
+    assigned_agent: {
+      id: "5ca4e550-03ea-4d3c-8650-7b59349d1e75",
+      name: "Arvial Boshra",
+    },
     next_follow_up_date: "2026-06-18",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -502,11 +644,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "bf1e6582-481f-4758-b48a-7e4c354a041e",
-    customer: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+    customer: {
+      id: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+      name: "Mostafa Elshamy",
+    },
     current_state: "New",
     offering_type: "Sale",
     property_type: "Townhouse",
-    assigned_agent: "f5ceed1b-6906-400e-960c-34e197c7821c",
+    assigned_agent: {
+      id: "f5ceed1b-6906-400e-960c-34e197c7821c",
+      name: "Ahmed Amer",
+    },
     next_follow_up_date: "2026-06-20",
     source_type: "Referral",
     referral_channel: "Facebook",
@@ -521,11 +669,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "cfb5a8ea-86aa-4314-8bb9-fb7ab3086ee2",
-    customer: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+    customer: {
+      id: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+      name: "Mostafa Elshamy",
+    },
     current_state: "Closed Lost",
     offering_type: "Sale",
     property_type: "Studio",
-    assigned_agent: "13040598-92a2-4f5c-82de-92695bcb46f0",
+    assigned_agent: {
+      id: "13040598-92a2-4f5c-82de-92695bcb46f0",
+      name: "Moataz Abo hussein",
+    },
     next_follow_up_date: null,
     source_type: "Referral",
     referral_channel: "Broker Referral",
@@ -540,11 +694,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "9531afde-9a58-440b-8699-138981b44814",
-    customer: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+    customer: {
+      id: "4a3e12d3-64b7-49dd-81f7-419677dd6eb8",
+      name: "Mostafa Elshamy",
+    },
     current_state: "Closed Won",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "671b4111-fd2c-4909-b0a3-134313eaa437",
+    assigned_agent: {
+      id: "671b4111-fd2c-4909-b0a3-134313eaa437",
+      name: "Marina Sherif",
+    },
     next_follow_up_date: null,
     source_type: "Event",
     referral_channel: null,
@@ -559,11 +719,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "e173bbc2-fda6-42a0-86c5-2f482a508ca7",
-    customer: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c",
+    customer: { id: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c", name: "Hana Amin" },
     current_state: "New",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+    assigned_agent: {
+      id: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+      name: "Ahmed Safwat",
+    },
     next_follow_up_date: "2026-07-15",
     source_type: "Cold Call",
     referral_channel: null,
@@ -578,11 +741,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "3fbc0d90-4c98-4046-a491-e0ff8d97fa4d",
-    customer: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c",
+    customer: { id: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c", name: "Hana Amin" },
     current_state: "Closed Won",
     offering_type: "Rent",
     property_type: "Townhouse",
-    assigned_agent: "f76e6e41-db49-4916-82fc-efaa13a354a5",
+    assigned_agent: {
+      id: "f76e6e41-db49-4916-82fc-efaa13a354a5",
+      name: "Hossam Elhusseiny",
+    },
     next_follow_up_date: null,
     source_type: "Walk-In",
     referral_channel: null,
@@ -597,11 +763,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "e4de7dab-4573-481d-a5a0-e84f0c41996a",
-    customer: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c",
+    customer: { id: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c", name: "Hana Amin" },
     current_state: "Cold",
     offering_type: "Rent",
     property_type: "Townhouse",
-    assigned_agent: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+    assigned_agent: {
+      id: "66fd9722-9c4f-4444-976e-6edeb10c90c1",
+      name: "Ahmed Nozahi",
+    },
     next_follow_up_date: "2026-07-28",
     source_type: "Referral",
     referral_channel: "Facebook",
@@ -616,11 +785,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "1ee9b030-e6b7-46d0-ab3d-0fcda4d8e5f1",
-    customer: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c",
+    customer: { id: "50acbf1a-c5ca-4899-b1ae-91b09ac1958c", name: "Hana Amin" },
     current_state: "In Progress",
     offering_type: "Rent",
     property_type: "Studio",
-    assigned_agent: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+    assigned_agent: {
+      id: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+      name: "Fatma Alaa",
+    },
     next_follow_up_date: "2026-09-22",
     source_type: "Event",
     referral_channel: null,
@@ -635,11 +807,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "df6a74b0-0c68-4caa-9a21-80dab5e18082",
-    customer: "65f5f18c-1dc1-47c1-87e7-f5ace20caf53",
+    customer: {
+      id: "65f5f18c-1dc1-47c1-87e7-f5ace20caf53",
+      name: "Hana Galal",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+    assigned_agent: {
+      id: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+      name: "Ahmed Safwat",
+    },
     next_follow_up_date: "2026-08-13",
     source_type: "Referral",
     referral_channel: "WhatsApp",
@@ -654,11 +832,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "65400ecc-d937-46ab-b538-49f6c24db1a4",
-    customer: "65f5f18c-1dc1-47c1-87e7-f5ace20caf53",
+    customer: {
+      id: "65f5f18c-1dc1-47c1-87e7-f5ace20caf53",
+      name: "Hana Galal",
+    },
     current_state: "New",
     offering_type: "Rent",
     property_type: "Office",
-    assigned_agent: "9adcef79-48ea-4d19-bf6c-2951d17c6fc3",
+    assigned_agent: {
+      id: "9adcef79-48ea-4d19-bf6c-2951d17c6fc3",
+      name: "Ragy Refaat",
+    },
     next_follow_up_date: "2026-06-30",
     source_type: "Walk-In",
     referral_channel: null,
@@ -673,11 +857,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "030af8ba-9f6b-4b66-a5f9-0a209eda7969",
-    customer: "c0d670c2-6541-4b60-8ace-588133360e54",
+    customer: {
+      id: "c0d670c2-6541-4b60-8ace-588133360e54",
+      name: "Ramy Mohamed",
+    },
     current_state: "Closed Lost",
     offering_type: "Resale",
     property_type: "Penthouse",
-    assigned_agent: "5d50a8a1-093f-4fde-91f6-bf67211e3b3f",
+    assigned_agent: {
+      id: "5d50a8a1-093f-4fde-91f6-bf67211e3b3f",
+      name: "Aya Sallam",
+    },
     next_follow_up_date: null,
     source_type: "Social Media",
     referral_channel: "Facebook",
@@ -694,11 +884,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "924ae72c-46e1-4f3b-aa94-1550b56760b0",
-    customer: "c0d670c2-6541-4b60-8ace-588133360e54",
+    customer: {
+      id: "c0d670c2-6541-4b60-8ace-588133360e54",
+      name: "Ramy Mohamed",
+    },
     current_state: "Hot",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "bb0a9a36-d76e-4f1f-897b-a76d2163a667",
+    assigned_agent: {
+      id: "bb0a9a36-d76e-4f1f-897b-a76d2163a667",
+      name: "Mohamed Gad",
+    },
     next_follow_up_date: "2026-09-20",
     source_type: "Event",
     referral_channel: null,
@@ -713,11 +909,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "cc01cf0c-77b3-48b7-bdef-563fff012f9a",
-    customer: "c0d670c2-6541-4b60-8ace-588133360e54",
+    customer: {
+      id: "c0d670c2-6541-4b60-8ace-588133360e54",
+      name: "Ramy Mohamed",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Duplex",
-    assigned_agent: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+    assigned_agent: {
+      id: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+      name: "Karim Saber",
+    },
     next_follow_up_date: "2026-09-22",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -732,11 +934,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "407e6834-c875-4684-92ed-b767644861f8",
-    customer: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+    customer: {
+      id: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+      name: "Ahmed Amin",
+    },
     current_state: "Closed Won",
     offering_type: "Rent",
     property_type: "Office",
-    assigned_agent: "af3f9482-7709-43f2-845c-bba1d26372ee",
+    assigned_agent: {
+      id: "af3f9482-7709-43f2-845c-bba1d26372ee",
+      name: "Salma Ahmed",
+    },
     next_follow_up_date: null,
     source_type: "Online",
     referral_channel: null,
@@ -751,11 +959,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "c0a87445-fa69-44c2-a00e-994e38e102b2",
-    customer: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+    customer: {
+      id: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+      name: "Ahmed Amin",
+    },
     current_state: "Closed Won",
     offering_type: "Rent",
     property_type: "Townhouse",
-    assigned_agent: "1f704115-d5d6-4630-ba47-ad6102f6127d",
+    assigned_agent: {
+      id: "1f704115-d5d6-4630-ba47-ad6102f6127d",
+      name: "Mostafa Mohie",
+    },
     next_follow_up_date: null,
     source_type: "Developer Booth",
     referral_channel: null,
@@ -770,11 +984,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "64fc8391-c698-4e2c-aa77-c5939306619f",
-    customer: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+    customer: {
+      id: "29d35466-79bb-45fc-8604-6b44e9e0a68d",
+      name: "Ahmed Amin",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Apartment",
-    assigned_agent: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+    assigned_agent: {
+      id: "a7ee1cec-8a0b-48e3-912a-49bbe59e3569",
+      name: "Ahmed Safwat",
+    },
     next_follow_up_date: "2026-07-10",
     source_type: "Online",
     referral_channel: null,
@@ -789,11 +1009,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "83d0981d-d821-4939-8268-c2f57bb35ca6",
-    customer: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+    customer: {
+      id: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+      name: "Omar Ragab",
+    },
     current_state: "On Hold",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "35b44255-4fda-4de7-b5f4-bdc284169a91",
+    assigned_agent: {
+      id: "35b44255-4fda-4de7-b5f4-bdc284169a91",
+      name: "Andrew Essam",
+    },
     next_follow_up_date: "2026-06-30",
     source_type: "Social Media",
     referral_channel: "Facebook",
@@ -810,11 +1036,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "79446ecd-2518-41d2-97dd-5539cfed72cd",
-    customer: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+    customer: {
+      id: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+      name: "Omar Ragab",
+    },
     current_state: "Warm",
     offering_type: "Resale",
     property_type: "Duplex",
-    assigned_agent: "c7c48832-96ab-44f8-b548-1cc912f79bd5",
+    assigned_agent: {
+      id: "c7c48832-96ab-44f8-b548-1cc912f79bd5",
+      name: "Mohamed Nabil",
+    },
     next_follow_up_date: "2026-09-06",
     source_type: "Walk-In",
     referral_channel: null,
@@ -829,11 +1061,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "7cb2bae4-c613-4a60-9ea3-d8f4f25205c2",
-    customer: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+    customer: {
+      id: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+      name: "Omar Ragab",
+    },
     current_state: "Cold",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "257a138b-d1db-4948-bef3-4b3acf4cbb52",
+    assigned_agent: {
+      id: "257a138b-d1db-4948-bef3-4b3acf4cbb52",
+      name: "Mahmoud Azab",
+    },
     next_follow_up_date: "2026-12-31",
     source_type: "Online",
     referral_channel: null,
@@ -848,11 +1086,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "a7ac0f7b-eb0a-47b9-8391-6814189339a0",
-    customer: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+    customer: {
+      id: "3c81d2fb-f272-40c7-b049-7f63e7f117d7",
+      name: "Omar Ragab",
+    },
     current_state: "In Progress",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+    assigned_agent: {
+      id: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+      name: "Mohamed Abdalla",
+    },
     next_follow_up_date: "2026-06-21",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -867,11 +1111,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "6bc50ef7-e017-467f-8905-94c0a063e423",
-    customer: "59a16771-b55a-4daa-a522-c8212054511f",
+    customer: {
+      id: "59a16771-b55a-4daa-a522-c8212054511f",
+      name: "Omar Galal",
+    },
     current_state: "Cold",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "9adcef79-48ea-4d19-bf6c-2951d17c6fc3",
+    assigned_agent: {
+      id: "9adcef79-48ea-4d19-bf6c-2951d17c6fc3",
+      name: "Ragy Refaat",
+    },
     next_follow_up_date: "2026-06-25",
     source_type: "Social Media",
     referral_channel: "Broker Referral",
@@ -888,11 +1138,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "bd4a103d-d803-4e93-aaf1-1c73006307ae",
-    customer: "59a16771-b55a-4daa-a522-c8212054511f",
+    customer: {
+      id: "59a16771-b55a-4daa-a522-c8212054511f",
+      name: "Omar Galal",
+    },
     current_state: "Closed Won",
     offering_type: "Sale",
     property_type: "Studio",
-    assigned_agent: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+    assigned_agent: {
+      id: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+      name: "Karim Saber",
+    },
     next_follow_up_date: null,
     source_type: "Online",
     referral_channel: null,
@@ -907,11 +1163,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "19f528a1-2067-42e8-819d-69a1ce53311c",
-    customer: "59a16771-b55a-4daa-a522-c8212054511f",
+    customer: {
+      id: "59a16771-b55a-4daa-a522-c8212054511f",
+      name: "Omar Galal",
+    },
     current_state: "New",
     offering_type: "Resale",
     property_type: "Apartment",
-    assigned_agent: "f29549d7-f9c6-40ae-8429-80a687d43a2c",
+    assigned_agent: {
+      id: "f29549d7-f9c6-40ae-8429-80a687d43a2c",
+      name: "Youssef Maher",
+    },
     next_follow_up_date: "2026-11-28",
     source_type: "Referral",
     referral_channel: "Instagram",
@@ -926,11 +1188,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "b8281fa3-814b-4b84-b9fa-72976dc8c0ed",
-    customer: "59a16771-b55a-4daa-a522-c8212054511f",
+    customer: {
+      id: "59a16771-b55a-4daa-a522-c8212054511f",
+      name: "Omar Galal",
+    },
     current_state: "On Hold",
     offering_type: "Sale",
     property_type: "Studio",
-    assigned_agent: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+    assigned_agent: {
+      id: "9c577a73-03f3-4d35-8b66-a1db993cd577",
+      name: "Fatma Alaa",
+    },
     next_follow_up_date: "2026-06-17",
     source_type: "Event",
     referral_channel: null,
@@ -945,11 +1213,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "ae1bca97-3982-4639-8ee5-a69939b46549",
-    customer: "87eb1149-3491-4730-9049-7903488a1203",
+    customer: {
+      id: "87eb1149-3491-4730-9049-7903488a1203",
+      name: "Mostafa Wahba",
+    },
     current_state: "Closed Lost",
     offering_type: "Rent",
     property_type: "Penthouse",
-    assigned_agent: "dee84ef5-f153-4a97-b90a-f094fe456a87",
+    assigned_agent: {
+      id: "dee84ef5-f153-4a97-b90a-f094fe456a87",
+      name: "Mostafa Wahib",
+    },
     next_follow_up_date: null,
     source_type: "Cold Call",
     referral_channel: null,
@@ -964,11 +1238,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "73e7eedb-3536-4395-b45e-b312eb69c423",
-    customer: "87eb1149-3491-4730-9049-7903488a1203",
+    customer: {
+      id: "87eb1149-3491-4730-9049-7903488a1203",
+      name: "Mostafa Wahba",
+    },
     current_state: "New",
     offering_type: "Sale",
     property_type: "Office",
-    assigned_agent: "5d50a8a1-093f-4fde-91f6-bf67211e3b3f",
+    assigned_agent: {
+      id: "5d50a8a1-093f-4fde-91f6-bf67211e3b3f",
+      name: "Aya Sallam",
+    },
     next_follow_up_date: "2026-08-08",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -983,11 +1263,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "ceac6703-c834-4147-8bc4-9c2e9ca71290",
-    customer: "c03ec4ec-1caf-4e19-b102-c41519cc532c",
+    customer: {
+      id: "c03ec4ec-1caf-4e19-b102-c41519cc532c",
+      name: "Ahmed Ibrahim",
+    },
     current_state: "In Progress",
     offering_type: "Resale",
     property_type: "Office",
-    assigned_agent: "b5199d2b-fe02-4744-9d5e-64c6588e07e5",
+    assigned_agent: {
+      id: "b5199d2b-fe02-4744-9d5e-64c6588e07e5",
+      name: "Arek Apkerian",
+    },
     next_follow_up_date: "2026-08-19",
     source_type: "Walk-In",
     referral_channel: null,
@@ -1002,11 +1288,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "f0ffa9f9-b45b-404a-b28f-9175ae035a9f",
-    customer: "c03ec4ec-1caf-4e19-b102-c41519cc532c",
+    customer: {
+      id: "c03ec4ec-1caf-4e19-b102-c41519cc532c",
+      name: "Ahmed Ibrahim",
+    },
     current_state: "In Progress",
     offering_type: "Rent",
     property_type: "Office",
-    assigned_agent: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+    assigned_agent: {
+      id: "9e591641-4206-4e90-9e0b-cb1e83fec17b",
+      name: "Mohamed Abdalla",
+    },
     next_follow_up_date: "2026-08-17",
     source_type: "Referral",
     referral_channel: "Instagram",
@@ -1021,11 +1313,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "45ee9d15-7bd8-4aaf-ab03-c10a5a723a5f",
-    customer: "6c28a88b-bdaa-4773-b149-39915d6dff37",
+    customer: {
+      id: "6c28a88b-bdaa-4773-b149-39915d6dff37",
+      name: "Reem Galal",
+    },
     current_state: "Closed Lost",
     offering_type: "Rent",
     property_type: "Villa",
-    assigned_agent: "4aceb4ca-591c-475a-be7f-9f6f0188da25",
+    assigned_agent: {
+      id: "4aceb4ca-591c-475a-be7f-9f6f0188da25",
+      name: "Nada Tolba",
+    },
     next_follow_up_date: null,
     source_type: "Online",
     referral_channel: null,
@@ -1040,11 +1338,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "4a08e5d5-98aa-47cc-a30a-db89a0184ed6",
-    customer: "570f153c-4dc7-4d18-b216-feffc3614535",
+    customer: {
+      id: "570f153c-4dc7-4d18-b216-feffc3614535",
+      name: "Karim Badawi",
+    },
     current_state: "New",
     offering_type: "Sale",
     property_type: "Studio",
-    assigned_agent: "c914d29b-eb23-4a46-9134-ef8d96b1850d",
+    assigned_agent: {
+      id: "c914d29b-eb23-4a46-9134-ef8d96b1850d",
+      name: "Amir Youssef",
+    },
     next_follow_up_date: "2026-09-29",
     source_type: "Online",
     referral_channel: null,
@@ -1059,11 +1363,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "82f7a710-643f-4383-a829-e4eb6a21a859",
-    customer: "570f153c-4dc7-4d18-b216-feffc3614535",
+    customer: {
+      id: "570f153c-4dc7-4d18-b216-feffc3614535",
+      name: "Karim Badawi",
+    },
     current_state: "Hot",
     offering_type: "Sale",
     property_type: "Duplex",
-    assigned_agent: "14b881b8-237b-4bb3-9344-2a09d2880503",
+    assigned_agent: {
+      id: "14b881b8-237b-4bb3-9344-2a09d2880503",
+      name: "Karim Adnana",
+    },
     next_follow_up_date: "2026-11-06",
     source_type: "Walk-In",
     referral_channel: null,
@@ -1078,11 +1388,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "5498b1dd-c391-4c19-b2e2-b8cc2a74728a",
-    customer: "570f153c-4dc7-4d18-b216-feffc3614535",
+    customer: {
+      id: "570f153c-4dc7-4d18-b216-feffc3614535",
+      name: "Karim Badawi",
+    },
     current_state: "On Hold",
     offering_type: "Rent",
     property_type: "Duplex",
-    assigned_agent: "81ba72a3-0518-4ffe-84db-585c43111b49",
+    assigned_agent: {
+      id: "81ba72a3-0518-4ffe-84db-585c43111b49",
+      name: "Omar Sallam",
+    },
     next_follow_up_date: "2026-08-02",
     source_type: "Event",
     referral_channel: null,
@@ -1097,11 +1413,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "0d15911b-3234-4b15-a157-fc9807af0d78",
-    customer: "570f153c-4dc7-4d18-b216-feffc3614535",
+    customer: {
+      id: "570f153c-4dc7-4d18-b216-feffc3614535",
+      name: "Karim Badawi",
+    },
     current_state: "Warm",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "0aaa6372-5ba5-4418-98c1-e653ee24ca6a",
+    assigned_agent: {
+      id: "0aaa6372-5ba5-4418-98c1-e653ee24ca6a",
+      name: "Omar Elkhouly",
+    },
     next_follow_up_date: "2026-06-13",
     source_type: "Social Media",
     referral_channel: "WhatsApp",
@@ -1118,11 +1440,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "cbc51d71-8a65-461f-9dd4-94f47e1338d5",
-    customer: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+    customer: {
+      id: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+      name: "Tarek Farouk",
+    },
     current_state: "Closed Lost",
     offering_type: "Rent",
     property_type: "Office",
-    assigned_agent: "f76e6e41-db49-4916-82fc-efaa13a354a5",
+    assigned_agent: {
+      id: "f76e6e41-db49-4916-82fc-efaa13a354a5",
+      name: "Hossam Elhusseiny",
+    },
     next_follow_up_date: null,
     source_type: "Event",
     referral_channel: null,
@@ -1137,11 +1465,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "ae9cc728-9e35-41c5-83d7-4de6f15f70d6",
-    customer: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+    customer: {
+      id: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+      name: "Tarek Farouk",
+    },
     current_state: "Closed Won",
     offering_type: "Sale",
     property_type: "Penthouse",
-    assigned_agent: "2691bcad-cb98-4c56-bfd5-4faca2c2d567",
+    assigned_agent: {
+      id: "2691bcad-cb98-4c56-bfd5-4faca2c2d567",
+      name: "Yassin Mohamed",
+    },
     next_follow_up_date: null,
     source_type: "Walk-In",
     referral_channel: null,
@@ -1156,11 +1490,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "3fd4dc88-3380-4984-b0d6-b43d4bc1b626",
-    customer: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+    customer: {
+      id: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+      name: "Tarek Farouk",
+    },
     current_state: "Cold",
     offering_type: "Resale",
     property_type: "Studio",
-    assigned_agent: "b0abad81-b117-448e-958a-70da68057d30",
+    assigned_agent: {
+      id: "b0abad81-b117-448e-958a-70da68057d30",
+      name: "Youssef Yassin",
+    },
     next_follow_up_date: "2026-12-09",
     source_type: "Online",
     referral_channel: null,
@@ -1175,11 +1515,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "71ce8487-fcc6-42df-83b1-dc7bf6c329c7",
-    customer: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+    customer: {
+      id: "e8df7c98-b26a-4ede-b247-e4db3750293e",
+      name: "Tarek Farouk",
+    },
     current_state: "Hot",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "b5199d2b-fe02-4744-9d5e-64c6588e07e5",
+    assigned_agent: {
+      id: "b5199d2b-fe02-4744-9d5e-64c6588e07e5",
+      name: "Arek Apkerian",
+    },
     next_follow_up_date: "2026-07-09",
     source_type: "Developer Booth",
     referral_channel: null,
@@ -1194,11 +1540,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "2c468096-63f8-48a6-80f6-e6d3e7d32f9e",
-    customer: "2bdf0981-136f-4b43-92b1-50bbca69a9f4",
+    customer: {
+      id: "2bdf0981-136f-4b43-92b1-50bbca69a9f4",
+      name: "Omar Hassan",
+    },
     current_state: "Closed Lost",
     offering_type: "Sale",
     property_type: "Apartment",
-    assigned_agent: "06c6e565-b1c3-4a02-a6eb-4c64648f1c2b",
+    assigned_agent: {
+      id: "06c6e565-b1c3-4a02-a6eb-4c64648f1c2b",
+      name: "Youssef Ashraf",
+    },
     next_follow_up_date: null,
     source_type: "Online",
     referral_channel: null,
@@ -1213,11 +1565,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "64f414e0-52c0-4e2f-a244-540756502475",
-    customer: "9a1aca77-3666-466a-a65b-66b774c005ae",
+    customer: {
+      id: "9a1aca77-3666-466a-a65b-66b774c005ae",
+      name: "Mariam Shafik",
+    },
     current_state: "New",
     offering_type: "Sale",
     property_type: "Duplex",
-    assigned_agent: "e470b7a7-038e-4898-9808-eae3e243b28d",
+    assigned_agent: {
+      id: "e470b7a7-038e-4898-9808-eae3e243b28d",
+      name: "Karim Abdelgawad",
+    },
     next_follow_up_date: "2026-06-24",
     source_type: "Online",
     referral_channel: null,
@@ -1232,11 +1590,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "1d37094d-e421-4815-a346-672b0cb6b5a2",
-    customer: "1726ee5a-ec7c-4dd0-8fa5-f17303926725",
+    customer: { id: "1726ee5a-ec7c-4dd0-8fa5-f17303926725", name: "Nour Saad" },
     current_state: "Warm",
     offering_type: "Sale",
     property_type: "Duplex",
-    assigned_agent: "0e81a0e8-8483-48f6-bd5e-b2bcd17aa9db",
+    assigned_agent: {
+      id: "0e81a0e8-8483-48f6-bd5e-b2bcd17aa9db",
+      name: "Nada Abdelaziz",
+    },
     next_follow_up_date: "2026-09-07",
     source_type: "Cold Call",
     referral_channel: null,
@@ -1251,11 +1612,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "36411a94-b09f-4a55-a3f0-f7727b6246b1",
-    customer: "1726ee5a-ec7c-4dd0-8fa5-f17303926725",
+    customer: { id: "1726ee5a-ec7c-4dd0-8fa5-f17303926725", name: "Nour Saad" },
     current_state: "On Hold",
     offering_type: "Sale",
     property_type: "Penthouse",
-    assigned_agent: "d914d4b2-1289-4e4f-a69f-f3b2e12cfbd8",
+    assigned_agent: {
+      id: "d914d4b2-1289-4e4f-a69f-f3b2e12cfbd8",
+      name: "Reem Salah",
+    },
     next_follow_up_date: "2026-10-23",
     source_type: "Referral",
     referral_channel: "Google Ads",
@@ -1270,11 +1634,14 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "b46bd014-3e09-4b55-89bb-9a42246a8faf",
-    customer: "1726ee5a-ec7c-4dd0-8fa5-f17303926725",
+    customer: { id: "1726ee5a-ec7c-4dd0-8fa5-f17303926725", name: "Nour Saad" },
     current_state: "Hot",
     offering_type: "Rent",
     property_type: "Villa",
-    assigned_agent: "b0abad81-b117-448e-958a-70da68057d30",
+    assigned_agent: {
+      id: "b0abad81-b117-448e-958a-70da68057d30",
+      name: "Youssef Yassin",
+    },
     next_follow_up_date: "2026-12-22",
     source_type: "Cold Call",
     referral_channel: null,
@@ -1289,11 +1656,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "2fd7ad30-ea18-4f73-9c36-16f34e6c53c2",
-    customer: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+    customer: {
+      id: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+      name: "Ibrahim Galal",
+    },
     current_state: "Hot",
     offering_type: "Resale",
     property_type: "Villa",
-    assigned_agent: "420a5c0b-de1e-4aa3-9d99-7b3adfb996fd",
+    assigned_agent: {
+      id: "420a5c0b-de1e-4aa3-9d99-7b3adfb996fd",
+      name: "Mohamed Torba",
+    },
     next_follow_up_date: "2026-12-08",
     source_type: "Online",
     referral_channel: null,
@@ -1308,11 +1681,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "a96ce8a6-895f-4b5d-90ec-9c7feef54a56",
-    customer: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+    customer: {
+      id: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+      name: "Ibrahim Galal",
+    },
     current_state: "Closed Won",
     offering_type: "Rent",
     property_type: "Duplex",
-    assigned_agent: "af3f9482-7709-43f2-845c-bba1d26372ee",
+    assigned_agent: {
+      id: "af3f9482-7709-43f2-845c-bba1d26372ee",
+      name: "Salma Ahmed",
+    },
     next_follow_up_date: null,
     source_type: "Event",
     referral_channel: null,
@@ -1327,11 +1706,17 @@ export const DUMMY_LEADS: Lead[] = [
   },
   {
     id: "252b27aa-4bc6-49c7-9533-2239741e3d20",
-    customer: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+    customer: {
+      id: "3b677281-fe68-4a85-89bb-d64dc3dda796",
+      name: "Ibrahim Galal",
+    },
     current_state: "Hot",
     offering_type: "Sale",
     property_type: "Penthouse",
-    assigned_agent: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+    assigned_agent: {
+      id: "2c272b41-c222-4d67-a872-ae77a4e01fb8",
+      name: "Karim Saber",
+    },
     next_follow_up_date: "2026-06-25",
     source_type: "Developer Booth",
     referral_channel: null,

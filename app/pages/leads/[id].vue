@@ -1,8 +1,8 @@
 <template>
   <FormPage
     panel-id="leads-edit"
-    :title="record ? `Edit lead` : `Lead not found`"
     back-to="/leads"
+    :title="record ? `Edit lead` : `Lead not found`"
   >
     <div
       v-if="!record"
@@ -14,9 +14,10 @@
     </div>
     <ResourceForm
       v-else
+      submit-label="Save changes"
       :fields="LEAD_FIELDS"
       :state="state"
-      submit-label="Save changes"
+      :loading="loading"
       @submit="onSubmit"
     />
   </FormPage>
@@ -24,17 +25,37 @@
 
 <script setup lang="ts">
 import { LEAD_FIELDS } from "~/constants/forms";
-import { DUMMY_LEADS } from "~/constants/dummy/leads";
+import type { LeadInput } from "~/composables/useLeads";
 
 const route = useRoute();
 const toast = useToast();
 
-const record = DUMMY_LEADS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+const id = route.params.id as string;
+const { fetchLead, updateLead } = useLeads();
 
-const onSubmit = () => {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Lead updated", color: "success" });
-  navigateTo("/leads");
-}
+const { data: record } = await useAsyncData(`lead-${id}`, () =>
+  fetchLead(id).catch(() => null),
+);
+
+// The API returns `customer` and `assigned_agent` as { id, name } objects, but
+// the form (and the update payload) work with their UUIDs — seed from `*.id`.
+const state = reactive<Record<string, unknown>>({
+  ...(record.value ?? {}),
+  customer: record.value?.customer?.id ?? "",
+  assigned_agent: record.value?.assigned_agent?.id ?? "",
+});
+const loading = ref(false);
+
+const onSubmit = async (data: Record<string, unknown>) => {
+  loading.value = true;
+  try {
+    await updateLead(id, data as Partial<LeadInput>);
+    toast.add({ title: "Lead updated", color: "success" });
+    navigateTo("/leads");
+  } catch {
+    toast.add({ title: "Failed to update lead", color: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
 </script>

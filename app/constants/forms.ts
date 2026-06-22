@@ -21,6 +21,8 @@ export type FormFieldType =
   | "project"
   // Dropdown of developers loaded from the API — stores the developer's id.
   | "developer"
+  // Dropdown of members (sales agents) loaded from the API — stores member id.
+  | "agent"
   | "contact";
 
 // A single phone entry: a dial-code picked from `COUNTRY_CODE_OPTIONS` plus the
@@ -264,7 +266,24 @@ export const PROPERTY_FIELDS: FormField[] = [
 
 export const MEMBER_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
-  { key: "role", label: "Role", type: "text", required: true },
+  {
+    key: "role",
+    label: "Role",
+    type: "select",
+    // Must match the backend's seeded role names (validated `exists:roles,name`).
+    options: [
+      "CEO",
+      "VP",
+      "Head Of Sales",
+      "Deputy Head of sales",
+      "Senior Sales Manager",
+      "Sales Manger 1",
+      "Sales Manager 2",
+      "Team Leader",
+      "Sales Supervisor",
+    ],
+    required: true,
+  },
   { key: "team", label: "Team", type: "text" },
   { key: "email", label: "Email", type: "email", required: true },
   { key: "mobile", label: "Mobile", type: "tel" },
@@ -337,7 +356,7 @@ export const QUICK_CONTACT_FIELDS: FormField[] = [
 
 export const LEAD_FIELDS: FormField[] = [
   { key: "customer", label: "Customer", type: "contact", required: true },
-  { key: "assigned_agent", label: "Assigned agent", type: "text" },
+  { key: "assigned_agent", label: "Assigned agent", type: "agent" },
   {
     key: "current_state",
     label: "State",

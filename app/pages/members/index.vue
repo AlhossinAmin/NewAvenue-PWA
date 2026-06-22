@@ -7,10 +7,17 @@
     create-to="/members/new"
   >
     <DataView
+      v-model:page="page"
+      v-model:search="search"
+      v-model:sort="sort"
+      server-side
+      search-placeholder="Search members…"
       :rows="members"
       :columns="columns"
       :sort-fields="sortFields"
-      search-placeholder="Search members…"
+      :total="pagination?.total"
+      :per-page="pagination?.per_page"
+      :loading="status === 'pending'"
       :edit-to="(row) => `/members/${row.id}`"
     >
       <template #card="{ row }">
@@ -21,9 +28,9 @@
               <div class="flex items-center justify-between gap-2">
                 <p class="truncate font-medium">{{ row.name }}</p>
                 <UBadge
-                  :color="statusColor(row.status)"
                   variant="subtle"
                   size="sm"
+                  :color="statusColor(row.status)"
                 >
                   {{ row.status }}
                 </UBadge>
@@ -54,7 +61,7 @@
 
       <template #name-cell="{ row }">
         <div class="flex items-center gap-3">
-          <UAvatar :text="row.original.initials" size="sm" />
+          <UAvatar size="sm" :text="row.original.initials" />
           <div class="min-w-0">
             <p class="truncate font-medium">{{ row.original.name }}</p>
             <p class="truncate text-xs text-muted">{{ row.original.email }}</p>
@@ -71,7 +78,7 @@
       </template>
 
       <template #status-cell="{ row }">
-        <UBadge :color="statusColor(row.original.status)" variant="subtle">
+        <UBadge variant="subtle" :color="statusColor(row.original.status)">
           {{ row.original.status }}
         </UBadge>
       </template>
@@ -81,11 +88,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import {
-  DUMMY_MEMBERS,
-  type Member,
-  type MemberStatus,
-} from "~/constants/dummy/members";
+import type { Member, MemberStatus } from "~/constants/dummy/members";
 
 const salaryFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -94,11 +97,39 @@ const salaryFormatter = new Intl.NumberFormat("en-US", {
 
 type MemberRow = Member & { initials: string; salary_label: string };
 
-const members: MemberRow[] = DUMMY_MEMBERS.map((m) => ({
-  ...m,
-  initials: initials(m.name),
-  salary_label: `EGP ${salaryFormatter.format(m.effective_salary)}`,
-}));
+const { fetchMembers } = useMembers();
+
+const page = ref(1);
+const search = ref("");
+const sort = ref<string | null>("-created_at");
+
+const { data, status, refresh } = useAsyncData(
+  "members",
+  () =>
+    fetchMembers({ page: page.value, search: search.value, sort: sort.value }),
+  { watch: [page] },
+);
+
+// Searching or re-sorting resets to the first page; if already there, refetch
+// directly so the change still takes effect.
+watch([search, sort], () => {
+  if (page.value !== 1) page.value = 1;
+  else refresh();
+});
+
+const members = computed<MemberRow[]>(() =>
+  (data.value?.data ?? []).map((m) => ({
+    ...m,
+    initials: initials(m.name),
+    salary_label: `EGP ${salaryFormatter.format(m.effective_salary)}`,
+  })),
+);
+
+const pagination = computed(() =>
+  data.value && !Array.isArray(data.value.pagination)
+    ? data.value.pagination
+    : null,
+);
 
 const STATUS_COLOR: Record<MemberStatus, "success" | "neutral" | "warning"> = {
   Active: "success",
@@ -108,7 +139,7 @@ const STATUS_COLOR: Record<MemberStatus, "success" | "neutral" | "warning"> = {
 
 const statusColor = (status: MemberStatus) => {
   return STATUS_COLOR[status];
-}
+};
 
 const columns: TableColumn<MemberRow>[] = [
   { accessorKey: "name", header: "Member" },
@@ -136,5 +167,5 @@ const initials = (name: string): string => {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-}
+};
 </script>

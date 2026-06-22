@@ -28,6 +28,11 @@
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
+        <AgentSelect
+          v-else-if="field.type === 'agent'"
+          v-model="state[field.key] as string"
+          :placeholder="field.placeholder"
+        />
         <ImageInput
           v-else-if="field.type === 'image'"
           v-model="state[field.key] as string"

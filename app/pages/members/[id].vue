@@ -1,8 +1,8 @@
 <template>
   <FormPage
     panel-id="members-edit"
-    :title="record ? `Edit member` : `Member not found`"
     back-to="/members"
+    :title="record ? `Edit member` : `Member not found`"
   >
     <div
       v-if="!record"
@@ -14,9 +14,10 @@
     </div>
     <ResourceForm
       v-else
+      submit-label="Save changes"
       :fields="MEMBER_FIELDS"
       :state="state"
-      submit-label="Save changes"
+      :loading="loading"
       @submit="onSubmit"
     />
   </FormPage>
@@ -24,17 +25,31 @@
 
 <script setup lang="ts">
 import { MEMBER_FIELDS } from "~/constants/forms";
-import { DUMMY_MEMBERS } from "~/constants/dummy/members";
+import type { MemberInput } from "~/composables/useMembers";
 
 const route = useRoute();
 const toast = useToast();
 
-const record = DUMMY_MEMBERS.find((item) => item.id === route.params.id);
-const state = reactive<Record<string, unknown>>({ ...(record ?? {}) });
+const id = route.params.id as string;
+const { fetchMember, updateMember } = useMembers();
 
-const onSubmit = () => {
-  // Dummy data is static — surface success and return to the list.
-  toast.add({ title: "Member updated", color: "success" });
-  navigateTo("/members");
+const { data: record } = await useAsyncData(`member-${id}`, () =>
+  fetchMember(id).catch(() => null),
+);
+
+const state = reactive<Record<string, unknown>>({ ...(record.value ?? {}) });
+const loading = ref(false);
+
+const onSubmit = async (data: Record<string, unknown>) => {
+  loading.value = true;
+  try {
+    await updateMember(id, data as Partial<MemberInput>);
+    toast.add({ title: "Member updated", color: "success" });
+    navigateTo("/members");
+  } catch {
+    toast.add({ title: "Failed to update member", color: "error" });
+  } finally {
+    loading.value = false;
+  }
 };
 </script>

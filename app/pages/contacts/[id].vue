@@ -121,7 +121,7 @@ const STATE_COLOR: Record<
 
 // Leads whose customer is this contact, shaped into display-ready rows.
 const linkedLeads = computed(() =>
-  DUMMY_LEADS.filter((lead) => lead.customer === record.value?.id).map(
+  DUMMY_LEADS.filter((lead) => lead.customer.id === record.value?.id).map(
     (lead) => ({
       id: lead.id,
       current_state: lead.current_state,
@@ -135,7 +135,7 @@ const linkedLeads = computed(() =>
 // Properties assigned to this contact's leads (deduped), as display-ready rows.
 const linkedProperties = computed(() => {
   const ids = new Set(
-    DUMMY_LEADS.filter((lead) => lead.customer === record.value?.id)
+    DUMMY_LEADS.filter((lead) => lead.customer.id === record.value?.id)
       .map((lead) => lead.assigned_property)
       .filter((id): id is string => Boolean(id)),
   );
