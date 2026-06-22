@@ -114,6 +114,18 @@
         />
         <span v-else class="text-muted">—</span>
       </template>
+
+      <template #created_at-cell="{ row }">
+        <span class="whitespace-nowrap text-muted">
+          {{ row.original.created_at_label }}
+        </span>
+      </template>
+
+      <template #updated_at-cell="{ row }">
+        <span class="whitespace-nowrap text-muted">
+          {{ row.original.updated_at_label }}
+        </span>
+      </template>
     </DataView>
 
     <UModal v-model:open="installmentOpen" title="Installment plan">
@@ -163,6 +175,8 @@ type PropertyRow = Property & {
   price_label: string;
   project_name: string;
   project_id: string;
+  created_at_label: string;
+  updated_at_label: string;
 };
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
@@ -170,6 +184,15 @@ const priceFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 });
 const amountFormatter = new Intl.NumberFormat("en-US");
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+// Format an ISO timestamp into a short, readable date; blanks render as "—".
+const formatDate = (value?: string) =>
+  value ? dateFormatter.format(new Date(value)) : "—";
 
 const { fetchProperties, fetchPropertyFacets } = useProperties();
 
@@ -279,6 +302,8 @@ const properties = computed<PropertyRow[]>(() =>
     price_label: `EGP ${priceFormatter.format(p.price)}`,
     project_name: p.project?.name ?? "—",
     project_id: p.project?.id ?? "",
+    created_at_label: formatDate(p.created_at),
+    updated_at_label: formatDate(p.updated_at),
   })),
 );
 
@@ -315,6 +340,8 @@ const columns: TableColumn<PropertyRow>[] = [
   { accessorKey: "transaction_type", header: "Offering" },
   { accessorKey: "price", header: "Price" },
   { accessorKey: "installments", header: "Installments" },
+  { accessorKey: "created_at", header: "Date created" },
+  { accessorKey: "updated_at", header: "Last update" },
 ];
 
 const sortFields = [
@@ -325,6 +352,8 @@ const sortFields = [
   { key: "district", label: "Location" },
   { key: "transaction_type", label: "Offering type" },
   { key: "delivery_year", label: "Delivery year" },
+  { key: "created_at", label: "Date created" },
+  { key: "updated_at", label: "Last update" },
 ];
 
 const openInstallments = (row: PropertyRow) => {

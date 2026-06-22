@@ -5,7 +5,10 @@ import type { ApiResponse } from "~/types/api";
 // On write the API expects `project` and `developer` as UUIDs (not the nested
 // objects returned on reads). `project` is required for Primary offerings;
 // `developer` is derived from the project for those, so both are optional here.
-export type PropertyInput = Omit<Property, "id" | "project" | "developer"> & {
+export type PropertyInput = Omit<
+  Property,
+  "id" | "created_at" | "updated_at" | "project" | "developer"
+> & {
   project?: string;
   developer?: string;
 };
