@@ -7,6 +7,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "@vite-pwa/nuxt"],
   css: ["~/assets/css/main.css"],
+  // Components live in domain subfolders (common/crm/hr/properties) but keep
+  // bare auto-import names (e.g. <ContactSelect>, not <CrmContactSelect>).
+  components: [{ path: "~/components", pathPrefix: false }],
+  // Auto-import composables/utils from their nested domain subfolders too —
+  // Nuxt only scans the top level + */index.ts by default.
+  imports: {
+    dirs: ["composables/**", "utils/**"],
+  },
   runtimeConfig: {
     public: {
       baseUrl: process.env.BASE_URL || "http://127.0.0.1:8000",
