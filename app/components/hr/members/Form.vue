@@ -33,6 +33,12 @@
           v-model="state[field.key] as string"
           :placeholder="field.placeholder"
         />
+        <HrRolesSelect
+          v-else-if="field.type === 'role'"
+          v-model="state[field.key] as string"
+          by="name"
+          :placeholder="field.placeholder"
+        />
         <ImageInput
           v-else-if="field.type === 'image'"
           v-model="state[field.key] as string"

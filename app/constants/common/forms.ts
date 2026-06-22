@@ -23,6 +23,8 @@ export type FormFieldType =
   | "developer"
   // Dropdown of members (sales agents) loaded from the API — stores member id.
   | "agent"
+  // Dropdown of roles loaded from the API — stores the role's name.
+  | "role"
   | "contact";
 
 // A single phone entry: a dial-code picked from `COUNTRY_CODE_OPTIONS` plus the
@@ -264,26 +266,27 @@ export const PROPERTY_FIELDS: FormField[] = [
   { key: "description", label: "Description", type: "textarea" },
 ];
 
-export const MEMBER_FIELDS: FormField[] = [
+export const ROLE_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },
   {
-    key: "role",
-    label: "Role",
+    key: "tier",
+    label: "Tier",
     type: "select",
-    // Must match the backend's seeded role names (validated `exists:roles,name`).
-    options: [
-      "CEO",
-      "VP",
-      "Head Of Sales",
-      "Deputy Head of sales",
-      "Senior Sales Manager",
-      "Sales Manger 1",
-      "Sales Manager 2",
-      "Team Leader",
-      "Sales Supervisor",
-    ],
-    required: true,
+    options: ["Executive", "Management", "Operational"],
   },
+  {
+    key: "commission_eligibility",
+    label: "Commission eligible",
+    type: "switch",
+  },
+  // Optional parent role (the role this one reports to); stores the role id.
+  { key: "parent_role", label: "Reports to", type: "role" },
+];
+
+export const MEMBER_FIELDS: FormField[] = [
+  { key: "name", label: "Name", type: "text", required: true },
+  // Live roles dropdown (resolved by name, validated `exists:roles,name`).
+  { key: "role", label: "Role", type: "role", required: true },
   { key: "team", label: "Team", type: "text" },
   { key: "email", label: "Email", type: "email", required: true },
   { key: "mobile", label: "Mobile", type: "tel" },
