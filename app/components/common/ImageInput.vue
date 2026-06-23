@@ -2,28 +2,45 @@
   <div class="flex flex-col gap-3">
     <!-- Once an image is chosen (from either source) show a preview with a
          remove control, mirroring Trello/Gmail which confirm the selection
-         visually before letting the user proceed. -->
-    <div
-      v-if="hasImage"
-      class="flex items-center gap-3 rounded-lg border border-default p-3"
-    >
-      <img
-        alt="Selected image preview"
-        class="size-16 shrink-0 rounded-md object-cover"
-        :src="model"
-      />
-      <div class="min-w-0 flex-1">
-        <p class="truncate text-sm font-medium">{{ sourceLabel }}</p>
-        <p class="truncate text-xs text-muted">{{ sourceDetail }}</p>
+         visually before letting the user proceed. Click the preview to open it
+         full-size. -->
+    <div v-if="hasImage" class="flex flex-col gap-3">
+      <div
+        class="group relative overflow-hidden rounded-lg border border-default bg-elevated"
+      >
+        <button
+          type="button"
+          class="block w-full cursor-zoom-in"
+          aria-label="Preview image"
+          @click="previewOpen = true"
+        >
+          <img
+            alt="Selected image preview"
+            class="max-h-64 w-full object-contain"
+            :src="model"
+          />
+          <span
+            class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100"
+          >
+            <UIcon name="i-lucide-eye" class="size-6 text-white" />
+          </span>
+        </button>
       </div>
-      <UButton
-        label="Remove"
-        color="neutral"
-        variant="ghost"
-        size="xs"
-        icon="i-lucide-x"
-        @click="onClear"
-      />
+
+      <div class="flex items-center gap-3">
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium">{{ sourceLabel }}</p>
+          <p class="truncate text-xs text-muted">{{ sourceDetail }}</p>
+        </div>
+        <UButton
+          label="Remove"
+          color="neutral"
+          variant="ghost"
+          size="xs"
+          icon="i-lucide-x"
+          @click="onClear"
+        />
+      </div>
     </div>
 
     <!-- Both sources stay visible side by side — neither is hidden behind a
@@ -54,6 +71,8 @@
         @keydown.enter.prevent="commitUrl"
       />
     </template>
+
+    <ImagePreviewModal v-model:open="previewOpen" :images="previewImages" />
   </div>
 </template>
 
@@ -67,8 +86,10 @@ const model = defineModel<string>();
 
 const file = ref<File | null>(null);
 const urlDraft = ref("");
+const previewOpen = ref(false);
 
 const hasImage = computed(() => !!model.value);
+const previewImages = computed(() => (model.value ? [model.value] : []));
 const isDataUrl = computed(() => model.value?.startsWith("data:") ?? false);
 const sourceLabel = computed(() =>
   isDataUrl.value ? "Uploaded image" : "Image from URL",
