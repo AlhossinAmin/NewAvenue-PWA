@@ -1,3 +1,5 @@
+import { ALL_PROPERTY_TYPES } from "~/constants/properties/property-types";
+
 export type FormFieldType =
   | "text"
   | "email"
@@ -247,16 +249,8 @@ export const LEAD_FIELDS: FormField[] = [
     key: "property_type",
     label: "Property type",
     type: "select",
-    options: [
-      "Apartment",
-      "Duplex",
-      "Penthouse",
-      "Studio",
-      "Townhouse",
-      "Twin House",
-      "Villa",
-      "Office",
-    ],
+    // A lead is not tied to a category, so it offers every property type.
+    options: ALL_PROPERTY_TYPES,
     required: true,
   },
   { key: "budget", label: "Budget (EGP)", type: "number" },

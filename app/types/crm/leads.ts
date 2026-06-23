@@ -10,15 +10,28 @@ export type LeadState =
 
 export type OfferingType = "Sale" | "Resale" | "Rent";
 
+// Kept in sync with PROPERTY_TYPES_BY_CATEGORY in
+// app/constants/properties/property-types.ts (and the backend property_type
+// enum). Residential types first, then Commercial.
 export type PropertyType =
   | "Apartment"
   | "Duplex"
   | "Penthouse"
-  | "Studio"
+  | "Standalone Villa"
+  | "Twin house"
   | "Townhouse"
-  | "Twin House"
-  | "Villa"
-  | "Office";
+  | "Chalet"
+  | "Studio"
+  | "Office Space"
+  | "Clinic"
+  | "Retail"
+  | "Pharmacy"
+  | "Warehouse"
+  | "Building"
+  | "Land"
+  | "Factory"
+  | "Hospital"
+  | "School";
 
 export type SourceType =
   | "Social Media"

@@ -12,6 +12,7 @@
       <PropertiesPropertiesFormLocation :state="state" />
       <PropertiesPropertiesFormSpecifications :state="state" />
       <PropertiesPropertiesFormMedia :state="state" />
+      <PropertiesPropertiesFormPublishing :state="state" />
     </div>
 
     <div class="flex items-center justify-end gap-2">
@@ -34,10 +35,12 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { PropertyInput } from "~/composables/properties/useProperties";
-import type {
-  Property,
-  PropertyFormState,
+import {
+  createPublications,
+  type Property,
+  type PropertyFormState,
 } from "~/types/properties/properties";
+import { PROPERTY_TYPES_BY_CATEGORY } from "~/constants/properties/property-types";
 
 const props = defineProps<{
   // Omit (or null) to create; pass a property to edit it.
@@ -110,6 +113,7 @@ const state = reactive<PropertyFormState>(
         installments_available: props.record.installments_available ?? false,
         amenities: props.record.amenities ?? [],
         photos: props.record.photos ?? [],
+        publications: createPublications(props.record.publications),
       }
     : {
         category: undefined,
@@ -137,6 +141,8 @@ const state = reactive<PropertyFormState>(
         num_bathrooms: undefined,
         amenities: [],
         photos: [],
+        description: "",
+        publications: createPublications(),
       },
 );
 const loading = ref(false);
@@ -165,6 +171,19 @@ watch(
   () => state.transaction_type,
   (type) => {
     if (type === "rent") state.project = "";
+  },
+);
+// The type options depend on the category — drop a type that no longer belongs
+// to the selected category so a stale, mismatched value can't be submitted.
+watch(
+  () => state.category,
+  (category) => {
+    if (
+      category &&
+      !PROPERTY_TYPES_BY_CATEGORY[category].includes(state.type)
+    ) {
+      state.type = "";
+    }
   },
 );
 watch(

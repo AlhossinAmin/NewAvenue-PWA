@@ -63,6 +63,36 @@ export function useProperties() {
   };
 
   /**
+   * Read every property — pages through the full list and returns the flattened
+   * records. Used by views that aggregate the whole dataset (e.g. the dashboard
+   * sales metrics) where the API exposes no dedicated summary endpoint. The
+   * first page reveals the page count, then the remainder is fetched in
+   * parallel.
+   */
+  const fetchAllProperties = async (
+    params: {
+      search?: string;
+      sort?: string | null;
+      filters?: Record<string, unknown>;
+    } = {},
+  ): Promise<Property[]> => {
+    const first = await fetchProperties({ ...params, page: 1 });
+    const all = [...first.data];
+    const lastPage = Array.isArray(first.pagination)
+      ? 1
+      : first.pagination.last_page;
+    if (lastPage > 1) {
+      const rest = await Promise.all(
+        Array.from({ length: lastPage - 1 }, (_, i) =>
+          fetchProperties({ ...params, page: i + 2 }),
+        ),
+      );
+      for (const res of rest) all.push(...res.data);
+    }
+    return all;
+  };
+
+  /**
    * Read filter facets — the option lists and numeric bounds used to populate
    * the list page's filter controls.
    */
@@ -108,6 +138,7 @@ export function useProperties() {
 
   return {
     fetchProperties,
+    fetchAllProperties,
     fetchPropertyFacets,
     fetchProperty,
     createProperty,

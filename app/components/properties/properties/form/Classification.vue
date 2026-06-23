@@ -12,11 +12,17 @@
         />
       </UFormField>
 
+      <!-- The available types depend on the selected category (see
+           PROPERTY_TYPES_BY_CATEGORY). Stays disabled until a category is
+           picked; changing the category clears a now-invalid type (handled in
+           the form's category watcher). -->
       <UFormField label="Type" name="type" required>
-        <UInput
+        <USelect
           v-model="state.type"
           class="w-full"
-          placeholder="e.g. Apartment"
+          placeholder="Select…"
+          :items="typeOptions"
+          :disabled="!state.category"
         />
       </UFormField>
 
@@ -62,12 +68,18 @@ import type {
   PropertyFormState,
   TransactionType,
 } from "~/types/properties/properties";
+import { PROPERTY_TYPES_BY_CATEGORY } from "~/constants/properties/property-types";
 
-defineProps<{
+const props = defineProps<{
   state: PropertyFormState;
 }>();
 
 const CATEGORY_OPTIONS: PropertyCategory[] = ["Residential", "Commercial"];
+
+// Types offered for the currently selected category — empty until one is picked.
+const typeOptions = computed(() =>
+  props.state.category ? PROPERTY_TYPES_BY_CATEGORY[props.state.category] : [],
+);
 const TRANSACTION_OPTIONS: { label: string; value: TransactionType }[] = [
   { label: "For Sale", value: "sell" },
   { label: "For Rent", value: "rent" },

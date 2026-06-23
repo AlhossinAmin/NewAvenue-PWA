@@ -76,18 +76,42 @@
 </template>
 
 <script setup lang="ts">
-import { DUMMY_LEADS } from "~/constants/crm/leads";
 import type { LeadState } from "~/types/crm/leads";
-import { DUMMY_PROPERTIES } from "~/constants/properties/properties";
 
 const route = useRoute();
 
 const id = route.params.id as string;
 const { fetchContact } = useContacts();
+const { fetchAllLeads } = useLeads();
+const { fetchProperty } = useProperties();
 
 const { data: record } = await useAsyncData(`contact-${id}`, () =>
   fetchContact(id).catch(() => null),
 );
+
+// This contact's leads and the properties assigned to them. The API has no
+// "leads by contact" endpoint, so pull every lead and filter client-side, then
+// fetch each assigned property by id.
+const { data: links } = await useAsyncData(`contact-${id}-links`, async () => {
+  const leads = (await fetchAllLeads().catch(() => [])).filter(
+    (lead) => lead.customer?.id === id,
+  );
+  const propertyIds = [
+    ...new Set(
+      leads
+        .map((lead) => lead.assigned_property)
+        .filter((propertyId): propertyId is string => Boolean(propertyId)),
+    ),
+  ];
+  const properties = (
+    await Promise.all(
+      propertyIds.map((propertyId) =>
+        fetchProperty(propertyId).catch(() => null),
+      ),
+    )
+  ).filter((property) => property !== null);
+  return { leads, properties };
+});
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -110,31 +134,22 @@ const STATE_COLOR: Record<
 
 // Leads whose customer is this contact, shaped into display-ready rows.
 const linkedLeads = computed(() =>
-  DUMMY_LEADS.filter((lead) => lead.customer.id === record.value?.id).map(
-    (lead) => ({
-      id: lead.id,
-      current_state: lead.current_state,
-      state_color: STATE_COLOR[lead.current_state],
-      title: `${lead.property_type} · ${lead.offering_type}`,
-      subtitle: [lead.neighborhood, lead.district].filter(Boolean).join(", "),
-    }),
-  ),
+  (links.value?.leads ?? []).map((lead) => ({
+    id: lead.id,
+    current_state: lead.current_state,
+    state_color: STATE_COLOR[lead.current_state],
+    title: `${lead.property_type} · ${lead.offering_type}`,
+    subtitle: [lead.neighborhood, lead.district].filter(Boolean).join(", "),
+  })),
 );
 
 // Properties assigned to this contact's leads (deduped), as display-ready rows.
-const linkedProperties = computed(() => {
-  const ids = new Set(
-    DUMMY_LEADS.filter((lead) => lead.customer.id === record.value?.id)
-      .map((lead) => lead.assigned_property)
-      .filter((id): id is string => Boolean(id)),
-  );
-  return DUMMY_PROPERTIES.filter((property) => ids.has(property.id)).map(
-    (property) => ({
-      id: property.id,
-      title: `${property.compound} · Unit ${property.unit_num}`,
-      subtitle: `${property.type} · ${property.district}, ${property.city}`,
-      price_label: `EGP ${priceFormatter.format(property.price)}`,
-    }),
-  );
-});
+const linkedProperties = computed(() =>
+  (links.value?.properties ?? []).map((property) => ({
+    id: property.id,
+    title: `${property.compound} · Unit ${property.unit_num}`,
+    subtitle: `${property.type} · ${property.district}, ${property.city}`,
+    price_label: `EGP ${priceFormatter.format(property.price)}`,
+  })),
+);
 </script>
