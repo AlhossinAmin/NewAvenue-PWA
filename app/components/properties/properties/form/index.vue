@@ -60,11 +60,11 @@ const schema = z
       error: "Category is required",
     }),
     type: z.string().min(1, "Type is required"),
-    transaction_type: z.enum(["Primary", "Resale", "Rent"], {
+    transaction_type: z.enum(["sell", "rent"], {
       error: "Offering type is required",
     }),
     project: z.string().optional(),
-    seller_name: z.string().optional(),
+    seller: z.string().optional(),
     building_num: requiredNumber("Building number is required"),
     floor_num: requiredNumber("Floor number is required"),
     unit_number: requiredNumber("Unit number is required"),
@@ -86,20 +86,16 @@ const schema = z
     amenities: z.array(z.string()).optional(),
     description: z.string().optional(),
   })
-  // Project vs. seller name are mutually exclusive on the offering type: a
-  // Primary unit needs a linked project, Resale/Rent needs a seller name.
-  .refine((d) => !(d.transaction_type === "Primary" && !d.project), {
-    path: ["project"],
-    message: "Project is required",
+  // A rental must be linked to a seller contact.
+  .refine((d) => !(d.transaction_type === "rent" && !d.seller), {
+    path: ["seller"],
+    message: "A property for rent must be linked to a seller contact.",
   })
-  .refine(
-    (d) =>
-      !(
-        (d.transaction_type === "Resale" || d.transaction_type === "Rent") &&
-        !d.seller_name
-      ),
-    { path: ["seller_name"], message: "Seller name is required" },
-  );
+  // A sale must have a seller and/or a project — at least one, never neither.
+  .refine((d) => !(d.transaction_type === "sell" && !d.seller && !d.project), {
+    path: ["seller"],
+    message: "A property for sale must have a seller or a project.",
+  });
 
 // The API returns `project`/`developer` as { id, name } objects, but the form
 // works with their UUIDs — seed them from `*.id`. `photos` holds { id, url }
@@ -110,6 +106,7 @@ const state = reactive<PropertyFormState>(
         ...props.record,
         project: props.record.project?.id ?? "",
         developer: props.record.developer?.id ?? "",
+        seller: props.record.seller?.id ?? "",
         installments_available: props.record.installments_available ?? false,
         amenities: props.record.amenities ?? [],
         photos: props.record.photos ?? [],
@@ -119,7 +116,7 @@ const state = reactive<PropertyFormState>(
         type: "",
         transaction_type: undefined,
         project: "",
-        seller_name: "",
+        seller: "",
         building_num: undefined,
         floor_num: undefined,
         unit_number: undefined,
@@ -162,13 +159,12 @@ const submitLabel = computed(() =>
   props.record ? "Save changes" : "Create property",
 );
 
-// Clear the hidden side of each mutually-exclusive pair so a stale value from a
-// since-hidden field never gets submitted.
+// A rental has no linked project — clear any project picked while it was a sale
+// so a stale value can't be submitted once the project field is hidden.
 watch(
   () => state.transaction_type,
   (type) => {
-    if (type === "Primary") state.seller_name = "";
-    else state.project = "";
+    if (type === "rent") state.project = "";
   },
 );
 watch(
@@ -180,6 +176,23 @@ watch(
     }
   },
 );
+
+// Surface the first field message the API returns under `meta.error.stack`
+// (e.g. the server's seller rule) so a 422 reads as something actionable
+// instead of the generic fallback.
+const serverErrorMessage = (error: unknown): string | undefined => {
+  const stack = (
+    error as {
+      data?: { meta?: { error?: { stack?: Record<string, unknown> } } };
+    }
+  )?.data?.meta?.error?.stack;
+  if (!stack) return undefined;
+  for (const value of Object.values(stack)) {
+    const message = Array.isArray(value) ? value[0] : value;
+    if (typeof message === "string") return message;
+  }
+  return undefined;
+};
 
 const onSubmit = async () => {
   loading.value = true;
@@ -198,11 +211,12 @@ const onSubmit = async () => {
       toast.add({ title: "Property created", color: "success" });
     }
     navigateTo("/properties");
-  } catch {
+  } catch (error) {
+    const fallback = props.record
+      ? "Failed to update property"
+      : "Failed to create property";
     toast.add({
-      title: props.record
-        ? "Failed to update property"
-        : "Failed to create property",
+      title: serverErrorMessage(error) ?? fallback,
       color: "error",
     });
   } finally {

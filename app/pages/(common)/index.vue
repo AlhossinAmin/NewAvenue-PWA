@@ -152,7 +152,7 @@ const compact = new Intl.NumberFormat("en-US", {
 // Properties no longer carry a status, so sales metrics are based on purchase
 // transactions (everything other than rentals) as a stand-in for closed deals.
 const soldProperties = computed(() =>
-  DUMMY_PROPERTIES.filter((property) => property.transaction_type !== "Rent"),
+  DUMMY_PROPERTIES.filter((property) => property.transaction_type !== "rent"),
 );
 
 const commissionOf = (property: Property) =>
@@ -242,7 +242,7 @@ const recentSales = computed<RecentSale[]>(() =>
     unit: property.unit_num,
     location: `${property.district}, ${property.city}`,
     type: property.type,
-    agent: property.seller_name,
+    agent: property.seller?.name ?? "—",
     price: egp.format(property.price),
     commission: egp.format(commissionOf(property)),
   })),

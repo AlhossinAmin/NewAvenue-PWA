@@ -171,7 +171,7 @@
 
               <div class="flex items-center justify-between pt-1">
                 <UBadge color="neutral" variant="soft" size="sm">
-                  {{ row.transaction_type }}
+                  {{ row.transaction_label }}
                 </UBadge>
                 <span class="font-semibold">{{ row.price_label }}</span>
               </div>
@@ -225,7 +225,7 @@
 
         <template #transaction_type-cell="{ row }">
           <UBadge color="neutral" variant="soft">
-            {{ row.original.transaction_type }}
+            {{ row.original.transaction_label }}
           </UBadge>
         </template>
 
@@ -311,7 +311,11 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
 import type { FilterField } from "~/composables/common/useTable";
-import type { Property } from "~/types/properties/properties";
+import {
+  TRANSACTION_TYPE_LABELS,
+  type Property,
+  type TransactionType,
+} from "~/types/properties/properties";
 
 // A property shaped into display-ready fields the table/cards read directly
 // (no function calls in templates).
@@ -319,6 +323,7 @@ type PropertyRow = Property & {
   price_label: string;
   project_name: string;
   project_id: string;
+  transaction_label: string;
   created_at_label: string;
   updated_at_label: string;
 };
@@ -383,7 +388,15 @@ watchEffect(() => {
   filterFields.push(
     { key: "category", label: "Category", options: f.category },
     { key: "type", label: "Type", options: f.type },
-    { key: "transaction_type", label: "Offering", options: f.transaction_type },
+    {
+      key: "transaction_type",
+      label: "Offering",
+      // Drive options from the API facet, but show the friendly label.
+      options: f.transaction_type.map((value) => ({
+        label: TRANSACTION_TYPE_LABELS[value as TransactionType] ?? value,
+        value,
+      })),
+    },
     {
       key: "project",
       label: "Project",
@@ -503,6 +516,8 @@ const properties = computed<PropertyRow[]>(() =>
     price_label: `EGP ${priceFormatter.format(p.price)}`,
     project_name: p.project?.name ?? "—",
     project_id: p.project?.id ?? "",
+    transaction_label:
+      TRANSACTION_TYPE_LABELS[p.transaction_type] ?? p.transaction_type,
     created_at_label: formatDate(p.created_at),
     updated_at_label: formatDate(p.updated_at),
   })),

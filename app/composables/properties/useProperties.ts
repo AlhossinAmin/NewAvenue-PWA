@@ -2,15 +2,22 @@ import { useApi } from "~/composables/common/useApi";
 import type { Property } from "~/types/properties/properties";
 import type { ApiResponse } from "~/types/common/api";
 
-// On write the API expects `project` and `developer` as UUIDs (not the nested
-// objects returned on reads). `project` is required for Primary offerings;
-// `developer` is derived from the project for those, so both are optional here.
+// On write the API expects `project`, `developer`, and `seller` as UUIDs (not
+// the nested objects returned on reads). All are optional; the backend enforces
+// the offering rules (rent needs a seller; sell needs a seller and/or project).
 export type PropertyInput = Omit<
   Property,
-  "id" | "created_at" | "updated_at" | "project" | "developer" | "photos"
+  | "id"
+  | "created_at"
+  | "updated_at"
+  | "project"
+  | "developer"
+  | "seller"
+  | "photos"
 > & {
   project?: string;
   developer?: string;
+  seller?: string;
   // Array of media ids; the read shape is `{ id, url }` objects (see
   // `Property.photos`). `featured_photo` stays a plain string.
   photos?: number[];

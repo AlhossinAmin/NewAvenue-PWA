@@ -2,7 +2,14 @@ import type { MediaItem } from "~/types/common/media";
 
 export type PropertyCategory = "Residential" | "Commercial";
 
-export type TransactionType = "Primary" | "Resale" | "Rent";
+export type TransactionType = "sell" | "rent";
+
+// Human-readable labels for each offering type (the API values are the terse
+// "sell" / "rent"). Used by selects, table cells, and filter chips.
+export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
+  sell: "For Sale",
+  rent: "For Rent",
+};
 
 // Shape of the property form's reactive state, shared across the form sections
 // (see components/properties/properties/form). The API returns `project`/
@@ -14,8 +21,10 @@ export interface PropertyFormState {
   category?: PropertyCategory;
   type: string;
   transaction_type?: TransactionType;
+  // UUIDs of the linked project and the seller contact. A "rent" offering needs
+  // a seller; a "sell" offering needs a seller and/or a project (at least one).
   project: string;
-  seller_name: string;
+  seller: string;
   developer?: string;
   building_num?: number;
   floor_num?: number;
@@ -52,16 +61,24 @@ export interface PropertyDeveloper {
   name: string;
 }
 
+// The seller is a CRM contact; reads return it nested, writes send just its id.
+export interface PropertySeller {
+  id: string;
+  name: string;
+}
+
 export interface Property {
   id: string;
   unit_num: string;
   floor_num: number;
-  project: PropertyProject;
-  developer: PropertyDeveloper;
+  // project/developer are optional links — both may be null (e.g. a resale or a
+  // rental listed by a seller with no developer project).
+  project: PropertyProject | null;
+  developer: PropertyDeveloper | null;
+  seller: PropertySeller | null;
   category: PropertyCategory;
   type: string;
   transaction_type: TransactionType;
-  seller_name: string;
   price: number;
   commission_scheme: number;
   country: string;

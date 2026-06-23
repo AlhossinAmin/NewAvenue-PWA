@@ -23,36 +23,33 @@
       <UFormField label="Offering type" name="transaction_type" required>
         <USelect
           v-model="state.transaction_type"
+          value-key="value"
           class="w-full"
           placeholder="Select…"
           :items="TRANSACTION_OPTIONS"
         />
       </UFormField>
 
-      <!-- A Primary unit links to an actual developer project; Resale/Rent
-       offerings have no linked project — an individual seller is named. -->
+      <!-- A sale can be linked to a developer project (optional); a rental has
+           no project. Both offerings name a seller contact — required for rent,
+           and required for a sale only when no project is linked. -->
       <UFormField
-        v-if="state.transaction_type === 'Primary'"
+        v-if="state.transaction_type === 'sell'"
         label="Project"
         name="project"
-        required
       >
         <PropertiesProjectsSelect v-model="state.project" />
       </UFormField>
 
       <UFormField
-        v-else-if="
-          state.transaction_type === 'Resale' ||
-          state.transaction_type === 'Rent'
-        "
-        label="Seller name"
-        name="seller_name"
-        required
+        v-if="state.transaction_type"
+        label="Seller"
+        name="seller"
+        :required="state.transaction_type === 'rent'"
       >
-        <UInput
-          v-model="state.seller_name"
-          class="w-full"
-          placeholder="Seller name"
+        <CrmContactsSelect
+          v-model="state.seller"
+          placeholder="Select seller contact…"
         />
       </UFormField>
     </div>
@@ -71,5 +68,8 @@ defineProps<{
 }>();
 
 const CATEGORY_OPTIONS: PropertyCategory[] = ["Residential", "Commercial"];
-const TRANSACTION_OPTIONS: TransactionType[] = ["Primary", "Resale", "Rent"];
+const TRANSACTION_OPTIONS: { label: string; value: TransactionType }[] = [
+  { label: "For Sale", value: "sell" },
+  { label: "For Rent", value: "rent" },
+];
 </script>
