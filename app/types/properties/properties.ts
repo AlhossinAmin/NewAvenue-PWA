@@ -4,6 +4,42 @@ export type PropertyCategory = "Residential" | "Commercial";
 
 export type TransactionType = "Primary" | "Resale" | "Rent";
 
+// Shape of the property form's reactive state, shared across the form sections
+// (see components/properties/properties/form). The API returns `project`/
+// `developer` as { id, name } objects, but the form works with their UUIDs.
+// `photos` holds { id, url } objects in state and is reshaped to media ids on
+// submit. Some fields (e.g. `neighborhood`) are form-only inputs not on the
+// `Property` read type below.
+export interface PropertyFormState {
+  category?: PropertyCategory;
+  type: string;
+  transaction_type?: TransactionType;
+  project: string;
+  seller_name: string;
+  developer?: string;
+  building_num?: number;
+  floor_num?: number;
+  unit_number?: number;
+  installments_available: boolean;
+  num_installments?: number;
+  installment_value?: number;
+  price?: number;
+  commission_scheme?: number;
+  country: string;
+  city: string;
+  district: string;
+  neighborhood?: string;
+  street: string;
+  area?: number;
+  built_up_area?: number;
+  delivery_year?: number;
+  num_bedrooms?: number;
+  num_bathrooms?: number;
+  amenities: string[];
+  photos: MediaItem[];
+  description: string;
+}
+
 // On reads the API returns the linked project and developer as nested objects;
 // writes still take just their UUIDs (see `PropertyInput` in useProperties).
 export interface PropertyProject {
