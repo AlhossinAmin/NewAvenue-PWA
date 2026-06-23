@@ -129,12 +129,33 @@
 </template>
 
 <script setup lang="ts">
-import { DUMMY_PROPERTIES } from "~/constants/properties/properties";
 import type { Property } from "~/types/properties/properties";
-import { DUMMY_LEADS } from "~/constants/crm/leads";
-import { DUMMY_CONTACTS } from "~/constants/crm/contacts";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+
+// --- Data --------------------------------------------------------------------
+// The dashboard aggregates across the full datasets, so pull every record up
+// front (contacts only need their total count, read from pagination).
+
+const { fetchAllProperties } = useProperties();
+const { fetchAllLeads } = useLeads();
+const { fetchContacts } = useContacts();
+
+const { data } = await useAsyncData("dashboard", async () => {
+  const [propertyList, leadList, contactsPage] = await Promise.all([
+    fetchAllProperties(),
+    fetchAllLeads(),
+    fetchContacts({ page: 1 }),
+  ]);
+  const totalContacts = Array.isArray(contactsPage.pagination)
+    ? contactsPage.data.length
+    : contactsPage.pagination.total;
+  return { properties: propertyList, leads: leadList, totalContacts };
+});
+
+const properties = computed(() => data.value?.properties ?? []);
+const leads = computed(() => data.value?.leads ?? []);
+const totalContacts = computed(() => data.value?.totalContacts ?? 0);
 
 const egp = new Intl.NumberFormat("en-EG", {
   style: "currency",
@@ -152,7 +173,7 @@ const compact = new Intl.NumberFormat("en-US", {
 // Properties no longer carry a status, so sales metrics are based on purchase
 // transactions (everything other than rentals) as a stand-in for closed deals.
 const soldProperties = computed(() =>
-  DUMMY_PROPERTIES.filter((property) => property.transaction_type !== "rent"),
+  properties.value.filter((property) => property.transaction_type !== "rent"),
 );
 
 const commissionOf = (property: Property) =>
@@ -169,15 +190,23 @@ const totalSalesVolume = computed(() =>
   soldProperties.value.reduce((sum, property) => sum + property.price, 0),
 );
 
-const wonLeads = DUMMY_LEADS.filter(
-  (lead) => lead.current_state === "Closed Won",
-).length;
+const wonLeads = computed(
+  () =>
+    leads.value.filter((lead) => lead.current_state === "Closed Won").length,
+);
 
-const activePipeline = DUMMY_LEADS.filter((lead) =>
-  ["New", "Warm", "Hot", "In Progress"].includes(lead.current_state),
-).length;
+const activePipeline = computed(
+  () =>
+    leads.value.filter((lead) =>
+      ["New", "Warm", "Hot", "In Progress"].includes(lead.current_state),
+    ).length,
+);
 
-const conversionRate = Math.round((wonLeads / DUMMY_LEADS.length) * 100);
+const conversionRate = computed(() =>
+  leads.value.length
+    ? Math.round((wonLeads.value / leads.value.length) * 100)
+    : 0,
+);
 
 // --- Stat cards -------------------------------------------------------------
 
@@ -198,14 +227,14 @@ const stats = computed(() => [
   },
   {
     label: "Active pipeline",
-    value: String(activePipeline),
+    value: String(activePipeline.value),
     change: "+4.3%",
     icon: "i-lucide-flame",
     positive: true,
   },
   {
     label: "Conversion",
-    value: `${conversionRate}%`,
+    value: `${conversionRate.value}%`,
     change: "-1.2%",
     icon: "i-lucide-trending-up",
     positive: false,
@@ -261,9 +290,10 @@ const salesColumns = [
 
 const leadSources = computed(() => {
   const counts = new Map<string, number>();
-  DUMMY_LEADS.forEach((lead) => {
+  leads.value.forEach((lead) => {
     counts.set(lead.source_type, (counts.get(lead.source_type) ?? 0) + 1);
   });
+  if (!counts.size) return [];
   const max = Math.max(...counts.values());
   return [...counts.entries()]
     .map(([label, count]) => ({
@@ -273,6 +303,4 @@ const leadSources = computed(() => {
     }))
     .sort((a, b) => b.count - a.count);
 });
-
-const totalContacts = DUMMY_CONTACTS.length;
 </script>
