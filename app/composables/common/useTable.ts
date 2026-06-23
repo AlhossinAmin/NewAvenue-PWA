@@ -1,6 +1,7 @@
-import { h, resolveComponent, toValue } from "vue";
+import { h, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
 import type { TableColumn } from "@nuxt/ui";
+import { UButton, USkeleton } from "#components";
 
 export interface SortField {
   key: string;
@@ -55,9 +56,6 @@ export function useTable<T extends { id: string | number }>(opts: {
   // Initial API sort param, e.g. "-created_at".
   initialSort?: string | null;
 }) {
-  const UButton = resolveComponent("UButton");
-  const USkeleton = resolveComponent("USkeleton");
-
   // Current page for server-side pagination (1-based).
   const page = ref(1);
 
