@@ -25,6 +25,7 @@ export default defineNuxtConfig({
       baseUrl: process.env.BASE_URL || "http://127.0.0.1:8000",
     },
   },
+  ssr: false,
   app: {
     head: {
       // Icon and Apple splash-screen <link> tags are injected by

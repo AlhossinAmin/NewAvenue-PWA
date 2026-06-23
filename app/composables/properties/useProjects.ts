@@ -3,9 +3,11 @@ import type { Project } from "~/types/properties/projects";
 import type { ApiResponse } from "~/types/common/api";
 
 // On write the API expects `developer` as the developer's UUID (not the nested
-// object returned on reads).
-export type ProjectInput = Omit<Project, "id" | "developer"> & {
+// object returned on reads), and `photos` as an array of media ids (the read
+// shape is `{ id, url }` objects — see `Project.photos`).
+export type ProjectInput = Omit<Project, "id" | "developer" | "photos"> & {
   developer: string;
+  photos: number[];
 };
 
 export function useProjects() {

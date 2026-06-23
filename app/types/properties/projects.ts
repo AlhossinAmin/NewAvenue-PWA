@@ -1,3 +1,5 @@
+import type { MediaItem } from "~/types/common/media";
+
 export type ProjectCategory =
   | "Residential"
   | "Administrative"
@@ -25,5 +27,7 @@ export interface Project {
   total_resale_units: number;
   resale_units_sold: number;
   description: string;
-  photos: string[];
+  // Read shape of the `photos` media collection — `{ id, url }` objects. On
+  // writes only the ids are sent (see `ProjectInput` in useProjects).
+  photos: MediaItem[];
 }

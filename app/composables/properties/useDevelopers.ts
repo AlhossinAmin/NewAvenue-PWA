@@ -2,7 +2,11 @@ import { useApi } from "~/composables/common/useApi";
 import type { Developer } from "~/types/properties/developers";
 import type { ApiResponse } from "~/types/common/api";
 
-export type DeveloperInput = Omit<Developer, "id">;
+// On write `logo` is a media id (or null to clear); the read shape is a URL
+// string (see `Developer.logo`). Omitting it leaves the existing logo untouched.
+export type DeveloperInput = Omit<Developer, "id" | "logo"> & {
+  logo?: number | null;
+};
 
 export function useDevelopers() {
   const api = useApi();

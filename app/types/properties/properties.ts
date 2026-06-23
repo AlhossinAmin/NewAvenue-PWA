@@ -1,3 +1,5 @@
+import type { MediaItem } from "~/types/common/media";
+
 export type PropertyCategory = "Residential" | "Commercial";
 
 export type TransactionType = "Primary" | "Resale" | "Rent";
@@ -39,8 +41,11 @@ export interface Property {
   num_bathrooms: number;
   compound: string;
   street: string;
+  // Kept as a plain string column server-side (not media-managed).
   featured_photo: string;
-  other_photos: string | null;
+  // Read shape of the `photos` media collection — `{ id, url }` objects. On
+  // writes only the ids are sent (see `PropertyInput` in useProperties).
+  photos?: MediaItem[];
   // Installment plan — present only when the unit offers installments.
   installments_available?: boolean;
   num_installments?: number;

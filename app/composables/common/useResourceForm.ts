@@ -21,10 +21,12 @@ export function useResourceForm(
   const emptyValue = (field: FormField): unknown => {
     if (field.type === "number") return undefined;
     if (field.type === "switch") return false;
+    if (field.type === "photo") return null;
     if (
       field.type === "tags" ||
       field.type === "multiselect" ||
       field.type === "images" ||
+      field.type === "photos" ||
       field.type === "phones"
     )
       return [];

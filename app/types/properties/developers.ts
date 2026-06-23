@@ -12,5 +12,7 @@ export interface Developer {
   commission_min: number;
   commission_max: number;
   description: string;
-  logo: string;
+  // Read shape: the logo's media URL, or null when unset. On writes a media id
+  // is sent instead (see `DeveloperInput` in useDevelopers).
+  logo: string | null;
 }

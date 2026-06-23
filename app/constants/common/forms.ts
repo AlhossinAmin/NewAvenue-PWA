@@ -11,6 +11,12 @@ export type FormFieldType =
   | "tags"
   | "image"
   | "images"
+  // Media-backed photo gallery — uploads each file to the media API and stores
+  // an array of `{ id, url }` (submitted as media ids). See PhotosInput.vue.
+  | "photos"
+  // Media-backed single image — uploads to the media API and stores either the
+  // existing URL (from a read), a `{ id, url }`, or null. See PhotoInput.vue.
+  | "photo"
   // Repeatable list of phone numbers, each with its own country code dropdown.
   | "phones"
   // Single select that also lets the user type and add a value not in the list.
@@ -90,19 +96,6 @@ export const DISTRICT_OPTIONS: string[] = [
   "Mokattam",
 ];
 
-// Derive a unit code from its parts, e.g. Duplex / Building 5 / Floor 2 /
-// Unit 13 -> "D5-2-13". Returns "" until the numeric parts are filled in.
-const computeUnitCode = (state: Record<string, unknown>): string => {
-  const filled = (v: unknown) => v !== undefined && v !== null && v !== "";
-  const building = state.building_num;
-  const floor = state.floor_num;
-  const unit = state.unit_number;
-  if (!filled(building) || !filled(floor) || !filled(unit)) return "";
-  const type = String(state.type ?? "").trim();
-  const prefix = type ? type[0]!.toUpperCase() : "";
-  return `${prefix}${building}-${floor}-${unit}`;
-};
-
 // Build a blank state object from a field spec (sensible default per type).
 export const createEmptyState = (
   fields: FormField[],
@@ -111,13 +104,16 @@ export const createEmptyState = (
   for (const field of fields) {
     if (field.type === "number") state[field.key] = undefined;
     else if (field.type === "switch") state[field.key] = false;
+    // null (not "") so a media-single field starts "no logo" and clears cleanly.
+    else if (field.type === "photo") state[field.key] = null;
     else if (field.type === "phones")
       // Seed one empty row so the required mobile field shows an input upfront.
       state[field.key] = [{ country_code: DEFAULT_COUNTRY_CODE, number: "" }];
     else if (
       field.type === "tags" ||
       field.type === "multiselect" ||
-      field.type === "images"
+      field.type === "images" ||
+      field.type === "photos"
     )
       state[field.key] = [];
     else state[field.key] = "";
@@ -125,146 +121,10 @@ export const createEmptyState = (
   return state;
 };
 
-export const DEVELOPER_FIELDS: FormField[] = [
-  { key: "name", label: "Name", type: "text", required: true },
-  { key: "country", label: "Country", type: "text", required: true },
-  {
-    key: "agreement",
-    label: "Agreement",
-    type: "select",
-    options: ["Signed", "Pending", "Expired"],
-  },
-  { key: "agreement_end_date", label: "Agreement end date", type: "date" },
-  { key: "projects_count", label: "Projects count", type: "number" },
-  { key: "num_deals", label: "Number of deals", type: "number" },
-  {
-    key: "default_commission",
-    label: "Default commission (%)",
-    type: "number",
-  },
-  { key: "commission_min", label: "Commission min (%)", type: "number" },
-  { key: "commission_max", label: "Commission max (%)", type: "number" },
-  { key: "logo", label: "Logo", type: "image" },
-  { key: "description", label: "Description", type: "textarea" },
-];
-
-export const PROJECT_FIELDS: FormField[] = [
-  { key: "name", label: "Name", type: "text", required: true },
-  { key: "developer", label: "Developer", type: "developer", required: true },
-  { key: "country", label: "Country", type: "text" },
-  { key: "city", label: "City", type: "text" },
-  {
-    key: "district",
-    label: "District",
-    type: "combobox",
-    options: DISTRICT_OPTIONS,
-  },
-  {
-    key: "category",
-    label: "Category",
-    type: "multiselect",
-    options: ["Residential", "Administrative", "Retail", "Commercial", "Mixed"],
-    required: true,
-  },
-  { key: "commission_scheme", label: "Commission (%)", type: "number" },
-  { key: "resale_units_sold", label: "Resale Units Sold", type: "number" },
-  {
-    key: "resale_units_remaining",
-    label: "Resale Units Remaining",
-    type: "number",
-  },
-  { key: "photos", label: "Photos", type: "images", full: true },
-  { key: "description", label: "Description", type: "textarea" },
-];
-
-export const PROPERTY_FIELDS: FormField[] = [
-  {
-    key: "category",
-    label: "Category",
-    type: "select",
-    options: ["Residential", "Commercial"],
-    required: true,
-  },
-  { key: "type", label: "Type", type: "text", required: true },
-  {
-    key: "transaction_type",
-    label: "Offering type",
-    type: "select",
-    options: ["Primary", "Resale", "Rent"],
-    required: true,
-  },
-  // Formerly "Compound". A Primary unit links to an actual developer project
-  // (selected from the projects list). Resale/Rent offerings have no linked
-  // project — an individual seller is named instead — so this is hidden then.
-  {
-    key: "project",
-    label: "Project",
-    type: "project",
-    required: true,
-    visibleWhen: { field: "transaction_type", in: ["Primary"] },
-  },
-  {
-    key: "seller_name",
-    label: "Seller name",
-    type: "text",
-    required: true,
-    visibleWhen: { field: "transaction_type", in: ["Resale", "Rent"] },
-  },
-  // Unit identity: the three numeric parts plus the property type feed the
-  // read-only "Unit" code below.
-  {
-    key: "building_num",
-    label: "Building number",
-    type: "number",
-    required: true,
-  },
-  { key: "floor_num", label: "Floor number", type: "number", required: true },
-  { key: "unit_number", label: "Unit number", type: "number", required: true },
-  {
-    key: "unit_num",
-    label: "Unit",
-    type: "computed",
-    compute: computeUnitCode,
-  },
-  {
-    key: "installments_available",
-    label: "Installments available",
-    type: "switch",
-  },
-  {
-    key: "num_installments",
-    label: "Number of installments",
-    type: "number",
-    visibleWhen: { field: "installments_available", in: ["true"] },
-  },
-  {
-    key: "installment_value",
-    label: "Installment value (EGP)",
-    type: "number",
-    visibleWhen: { field: "installments_available", in: ["true"] },
-  },
-  { key: "price", label: "Price (EGP)", type: "number", required: true },
-  { key: "commission_scheme", label: "Commission (%)", type: "number" },
-  { key: "country", label: "Country", type: "text" },
-  { key: "city", label: "City", type: "text" },
-  {
-    key: "district",
-    label: "District",
-    type: "combobox",
-    options: DISTRICT_OPTIONS,
-  },
-  { key: "neighborhood", label: "Neighborhood", type: "text" },
-  { key: "street", label: "Street", type: "text" },
-  // Core area sections. A conditional garden-area section (for standalone /
-  // ground-floor units) is pending spec details from New Avenue.
-  { key: "area", label: "Total area (m²)", type: "number" },
-  { key: "built_up_area", label: "Built-up area (m²)", type: "number" },
-  { key: "delivery_year", label: "Delivery year", type: "number" },
-  { key: "num_bedrooms", label: "Bedrooms", type: "number" },
-  { key: "num_bathrooms", label: "Bathrooms", type: "number" },
-  { key: "amenities", label: "Amenities", type: "tags" },
-  { key: "description", label: "Description", type: "textarea" },
-];
+// Developer, Project and Property forms moved off this data-driven spec to
+// explicit per-field markup with a zod schema (see their Form.vue files), so
+// they can be laid out and styled directly. The specs below remain for the
+// forms still rendered generically via <UForm> + useResourceForm.
 
 export const ROLE_FIELDS: FormField[] = [
   { key: "name", label: "Name", type: "text", required: true },

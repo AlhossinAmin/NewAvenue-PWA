@@ -38,7 +38,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Etapa",
     street: "Plot 266, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/etapa-D18/featured.jpg",
-    other_photos: null,
     installments_available: true,
     num_installments: 48,
     installment_value: 181618,
@@ -78,7 +77,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "NMQ",
     street: "Plot 213, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/nmq-H14/featured.jpg",
-    other_photos: "https://cdn.example.com/units/nmq-H14/gallery.zip",
   },
   {
     id: "98d0b5c0-be36-4435-aa44-b875c2d4225d",
@@ -114,7 +112,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "NMQ",
     street: "Plot 104, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/nmq-F9/featured.jpg",
-    other_photos: "https://cdn.example.com/units/nmq-F9/gallery.zip",
     installments_available: true,
     num_installments: 36,
     installment_value: 131029,
@@ -152,7 +149,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 180, Downtown Cairo",
     featured_photo:
       "https://cdn.example.com/units/maspero-business-tower-C6/featured.jpg",
-    other_photos: null,
   },
   {
     id: "788eada7-e966-461c-a5dd-ba73f8f709d0",
@@ -189,7 +185,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "East Shire",
     street: "Plot 199, New Cairo",
     featured_photo: "https://cdn.example.com/units/east-shire-G1/featured.jpg",
-    other_photos: null,
     installments_available: true,
     num_installments: 60,
     installment_value: 369830,
@@ -223,7 +218,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Pulse",
     street: "Plot 89, Mostakbal City",
     featured_photo: "https://cdn.example.com/units/pulse-B13/featured.jpg",
-    other_photos: null,
   },
   {
     id: "8b34bee6-402d-45c5-bbbd-0cbb735824a2",
@@ -265,8 +259,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 108, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarin-ria-/-mazarin-ria-chalet-/-mazarin-town-house-B0/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/mazarin-ria-/-mazarin-ria-chalet-/-mazarin-town-house-B0/gallery.zip",
   },
   {
     id: "5fd99026-7aa7-48ef-a9e6-b1ac83cba181",
@@ -306,8 +298,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 101, North Coast",
     featured_photo:
       "https://cdn.example.com/units/downtown-commercial-D15/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/downtown-commercial-D15/gallery.zip",
   },
   {
     id: "b80ac8ed-742e-437e-b158-cc811fa453ac",
@@ -339,8 +329,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 262, North Coast",
     featured_photo:
       "https://cdn.example.com/units/the-waterway-north-coast-G8/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/the-waterway-north-coast-G8/gallery.zip",
   },
   {
     id: "71ec6527-3aaf-4042-a8d6-7596addb1f5d",
@@ -372,7 +360,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 168, North Coast",
     featured_photo:
       "https://cdn.example.com/units/kynd-cabanas-gaia-C0/featured.jpg",
-    other_photos: null,
   },
   {
     id: "e511415e-9386-46c6-8907-e5e7a4538c7b",
@@ -406,7 +393,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Everday",
     street: "Plot 221, New Cairo",
     featured_photo: "https://cdn.example.com/units/everday-G2/featured.jpg",
-    other_photos: null,
   },
   {
     id: "28019ff8-1b9f-4246-aefc-8b7acc33b112",
@@ -441,8 +427,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 150, Downtown Cairo",
     featured_photo:
       "https://cdn.example.com/units/maspero-business-tower-B1/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/maspero-business-tower-B1/gallery.zip",
   },
   {
     id: "25cc8a1d-47dc-46b6-b062-a4f611d840e3",
@@ -482,7 +466,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Capital Way",
     street: "Plot 28, New Capital",
     featured_photo: "https://cdn.example.com/units/capital-way-D0/featured.jpg",
-    other_photos: null,
   },
   {
     id: "46f3ae6c-bc4d-40ca-b7bb-119ad763d404",
@@ -523,8 +506,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 145, North Coast",
     featured_photo:
       "https://cdn.example.com/units/downtown-commercial-E11/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/downtown-commercial-E11/gallery.zip",
   },
   {
     id: "fbb0367b-1a26-4cdc-856e-f356180c865d",
@@ -564,7 +545,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Etapa",
     street: "Plot 99, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/etapa-F1/featured.jpg",
-    other_photos: "https://cdn.example.com/units/etapa-F1/gallery.zip",
   },
   {
     id: "76a78d15-a21b-47e0-a507-b7e35b93422b",
@@ -596,7 +576,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 56, New Capital",
     featured_photo:
       "https://cdn.example.com/units/capital-way-B19/featured.jpg",
-    other_photos: "https://cdn.example.com/units/capital-way-B19/gallery.zip",
   },
   {
     id: "975451f9-0b4e-42a0-a1f2-52d7323661a8",
@@ -636,7 +615,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Kairo",
     street: "Plot 98, New Cairo",
     featured_photo: "https://cdn.example.com/units/kairo-E1/featured.jpg",
-    other_photos: null,
   },
   {
     id: "f85fcdc1-3d60-47f5-b7a5-3411dacacaf1",
@@ -676,7 +654,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Youd",
     street: "Plot 283, North Coast",
     featured_photo: "https://cdn.example.com/units/youd-G1/featured.jpg",
-    other_photos: "https://cdn.example.com/units/youd-G1/gallery.zip",
   },
   {
     id: "8cf7faa0-4ee6-46e7-b0b8-b8b5ca59ad0b",
@@ -714,7 +691,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 4, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarine-commercial-F16/featured.jpg",
-    other_photos: null,
   },
   {
     id: "a4648c84-c2de-486b-a7c3-0702a8d410d4",
@@ -751,7 +727,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Everday",
     street: "Plot 151, New Cairo",
     featured_photo: "https://cdn.example.com/units/everday-D15/featured.jpg",
-    other_photos: "https://cdn.example.com/units/everday-D15/gallery.zip",
   },
   {
     id: "c646e0de-6471-4d1f-b6fd-76922114d76f",
@@ -792,8 +767,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 162, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarine-commercial-F9/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/mazarine-commercial-F9/gallery.zip",
   },
   {
     id: "8d1371f3-dc14-4ad5-8202-7151a494c3c4",
@@ -830,7 +803,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "East Shire",
     street: "Plot 64, New Cairo",
     featured_photo: "https://cdn.example.com/units/east-shire-E16/featured.jpg",
-    other_photos: "https://cdn.example.com/units/east-shire-E16/gallery.zip",
   },
   {
     id: "00f08dad-bc05-4414-b5ba-8aa8ebb9cab3",
@@ -872,7 +844,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 270, Downtown Cairo",
     featured_photo:
       "https://cdn.example.com/units/maspero-mall-C7/featured.jpg",
-    other_photos: "https://cdn.example.com/units/maspero-mall-C7/gallery.zip",
   },
   {
     id: "e8b5081c-b329-4eb8-b0ce-5900e4379757",
@@ -906,7 +877,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Capital Way",
     street: "Plot 220, New Capital",
     featured_photo: "https://cdn.example.com/units/capital-way-E1/featured.jpg",
-    other_photos: null,
   },
   {
     id: "7c7d7526-9b34-4019-8383-83c9b68819a7",
@@ -940,7 +910,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Keeeva",
     street: "Plot 269, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/keeeva-C11/featured.jpg",
-    other_photos: "https://cdn.example.com/units/keeeva-C11/gallery.zip",
   },
   {
     id: "9e813dc7-4401-4ee8-a4c7-ead671ac788d",
@@ -971,7 +940,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Seazen",
     street: "Plot 225, North Coast",
     featured_photo: "https://cdn.example.com/units/seazen-D15/featured.jpg",
-    other_photos: null,
   },
   {
     id: "5bd7f478-4b4c-4f5b-ac09-f71aab6039b2",
@@ -1002,7 +970,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "NMQ",
     street: "Plot 298, El Sheikh Zayed",
     featured_photo: "https://cdn.example.com/units/nmq-A8/featured.jpg",
-    other_photos: null,
   },
   {
     id: "71110e78-f608-4a27-9770-cff49b5704b8",
@@ -1042,8 +1009,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 224, North Coast",
     featured_photo:
       "https://cdn.example.com/units/downtown-commercial-F8/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/downtown-commercial-F8/gallery.zip",
   },
   {
     id: "54fc85f6-57f6-4c1d-a96e-bfbc15fd25e6",
@@ -1075,7 +1040,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 298, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarine-commercial-E9/featured.jpg",
-    other_photos: null,
   },
   {
     id: "38f891ec-d0c9-4dc4-a946-5f55e6189ef5",
@@ -1109,7 +1073,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Latin City",
     street: "Plot 212, North Coast",
     featured_photo: "https://cdn.example.com/units/latin-city-H14/featured.jpg",
-    other_photos: null,
   },
   {
     id: "4e466312-7079-4588-921a-82d5a55d7696",
@@ -1150,7 +1113,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "The Gate",
     street: "Plot 154, North Coast",
     featured_photo: "https://cdn.example.com/units/the-gate-D1/featured.jpg",
-    other_photos: "https://cdn.example.com/units/the-gate-D1/gallery.zip",
   },
   {
     id: "0159f4b6-e1c7-4573-88bf-e33ac38602a5",
@@ -1181,7 +1143,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Kukun",
     street: "Plot 277, Mostakbal City",
     featured_photo: "https://cdn.example.com/units/kukun-C0/featured.jpg",
-    other_photos: "https://cdn.example.com/units/kukun-C0/gallery.zip",
   },
   {
     id: "2e31cb14-0453-44cb-82ed-7e53be8e8d6f",
@@ -1221,7 +1182,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Jade Park",
     street: "Plot 226, New Capital",
     featured_photo: "https://cdn.example.com/units/jade-park-G9/featured.jpg",
-    other_photos: null,
   },
   {
     id: "1d6fcf12-a7ff-4735-9264-fb516a40aa11",
@@ -1256,8 +1216,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 9, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarine---the-chalets-A7/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/mazarine---the-chalets-A7/gallery.zip",
   },
   {
     id: "8473dab6-43d5-4e8d-8b61-de1112ae73f1",
@@ -1298,7 +1256,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Jade Park",
     street: "Plot 77, New Capital",
     featured_photo: "https://cdn.example.com/units/jade-park-F10/featured.jpg",
-    other_photos: null,
   },
   {
     id: "bc8475b4-6c6b-4a11-9523-1c441ab754de",
@@ -1330,7 +1287,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 154, New Cairo",
     featured_photo:
       "https://cdn.example.com/units/v40-commercial-G8/featured.jpg",
-    other_photos: "https://cdn.example.com/units/v40-commercial-G8/gallery.zip",
   },
   {
     id: "368a9651-0dc8-4e74-b374-879b9167b3ed",
@@ -1366,7 +1322,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Ever East",
     street: "Plot 44, New Cairo",
     featured_photo: "https://cdn.example.com/units/ever-east-A0/featured.jpg",
-    other_photos: "https://cdn.example.com/units/ever-east-A0/gallery.zip",
   },
   {
     id: "1c58e0c5-1cdc-412e-933b-28237937ef85",
@@ -1402,7 +1357,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 289, New Capital",
     featured_photo:
       "https://cdn.example.com/units/al-maqsad-villas-&-residences-A18/featured.jpg",
-    other_photos: null,
   },
   {
     id: "0b9bb653-cf6a-4019-87f9-9e8d60c4fc57",
@@ -1433,7 +1387,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Youd",
     street: "Plot 41, North Coast",
     featured_photo: "https://cdn.example.com/units/youd-G0/featured.jpg",
-    other_photos: null,
   },
   {
     id: "fc2b296c-8701-4776-bac9-8d076b55a932",
@@ -1465,8 +1418,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 97, New Cairo",
     featured_photo:
       "https://cdn.example.com/units/v40-commercial-F14/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/v40-commercial-F14/gallery.zip",
   },
   {
     id: "050961b2-d1b3-47c7-853f-83b6a9493aaa",
@@ -1507,8 +1458,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 258, New Capital",
     featured_photo:
       "https://cdn.example.com/units/new-garden-city-B1/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/new-garden-city-B1/gallery.zip",
   },
   {
     id: "9384dec9-2d30-46c5-923b-8d646a7686b5",
@@ -1543,7 +1492,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 220, North Coast",
     featured_photo:
       "https://cdn.example.com/units/beach-front-B11/featured.jpg",
-    other_photos: "https://cdn.example.com/units/beach-front-B11/gallery.zip",
   },
   {
     id: "d9ffa478-2f09-49b1-ad22-69fd298d5137",
@@ -1583,8 +1531,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 257, Downtown Cairo",
     featured_photo:
       "https://cdn.example.com/units/maspero-business-tower-G13/featured.jpg",
-    other_photos:
-      "https://cdn.example.com/units/maspero-business-tower-G13/gallery.zip",
   },
   {
     id: "6552b188-9652-4675-ac7b-e4c19f6e2673",
@@ -1619,7 +1565,6 @@ export const DUMMY_PROPERTIES: Property[] = [
     street: "Plot 204, North Coast",
     featured_photo:
       "https://cdn.example.com/units/mazarine---islands-A0/featured.jpg",
-    other_photos: null,
   },
   {
     id: "046da9ec-e066-44b2-bf2c-c9cc37bb7322",
@@ -1660,6 +1605,5 @@ export const DUMMY_PROPERTIES: Property[] = [
     compound: "Downtown",
     street: "Plot 88, North Coast",
     featured_photo: "https://cdn.example.com/units/downtown-A13/featured.jpg",
-    other_photos: "https://cdn.example.com/units/downtown-A13/gallery.zip",
   },
 ];

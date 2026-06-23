@@ -8,9 +8,9 @@
       class="flex items-center gap-3 rounded-lg border border-default p-3"
     >
       <img
-        :src="model"
         alt="Selected image preview"
         class="size-16 shrink-0 rounded-md object-cover"
+        :src="model"
       />
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{{ sourceLabel }}</p>
@@ -31,11 +31,11 @@
     <template v-else>
       <UFileUpload
         v-model="file"
-        accept="image/*"
-        :label="label ?? 'Drag & drop or click to upload'"
-        description="PNG, JPG or SVG"
+        accept="image/*,.svg,.avif"
+        description="PNG, JPG, SVG or AVIF"
         icon="i-lucide-image-up"
         class="w-full"
+        :label="label ?? 'Drag & drop or click to upload'"
       />
 
       <div class="flex items-center gap-3 text-xs text-muted">
@@ -48,8 +48,8 @@
         v-model="urlDraft"
         type="url"
         icon="i-lucide-link"
-        :placeholder="placeholder ?? 'https://example.com/logo.png'"
         class="w-full"
+        :placeholder="placeholder ?? 'https://example.com/logo.png'"
         @change="commitUrl"
         @keydown.enter.prevent="commitUrl"
       />
@@ -91,11 +91,11 @@ watch(file, (selected) => {
 const commitUrl = () => {
   const url = urlDraft.value.trim();
   if (url) model.value = url;
-}
+};
 
 const onClear = () => {
   model.value = "";
   file.value = null;
   urlDraft.value = "";
-}
+};
 </script>

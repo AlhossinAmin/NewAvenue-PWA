@@ -7,10 +7,13 @@ import type { ApiResponse } from "~/types/common/api";
 // `developer` is derived from the project for those, so both are optional here.
 export type PropertyInput = Omit<
   Property,
-  "id" | "created_at" | "updated_at" | "project" | "developer"
+  "id" | "created_at" | "updated_at" | "project" | "developer" | "photos"
 > & {
   project?: string;
   developer?: string;
+  // Array of media ids; the read shape is `{ id, url }` objects (see
+  // `Property.photos`). `featured_photo` stays a plain string.
+  photos?: number[];
 };
 
 // Option lists + numeric bounds that drive the list page's filter controls.

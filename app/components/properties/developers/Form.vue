@@ -1,120 +1,82 @@
 <template>
   <UForm
     class="flex flex-col gap-6"
+    :schema="schema"
     :state="state"
-    :validate="validate"
     @submit="onSubmit"
   >
-    <div class="flex flex-col gap-4">
-      <UFormField
-        v-for="field in visibleFields"
-        :key="field.key"
-        :label="field.label"
-        :name="field.key"
-        :required="field.required"
-      >
-        <CrmContactsSelect
-          v-if="field.type === 'contact'"
-          v-model="state[field.key] as string"
-          :placeholder="field.placeholder"
-        />
-        <PropertiesProjectsSelect
-          v-else-if="field.type === 'project'"
-          v-model="state[field.key] as string"
-          :placeholder="field.placeholder"
-        />
-        <PropertiesDevelopersSelect
-          v-else-if="field.type === 'developer'"
-          v-model="state[field.key] as string"
-          :placeholder="field.placeholder"
-        />
-        <AgentSelect
-          v-else-if="field.type === 'agent'"
-          v-model="state[field.key] as string"
-          :placeholder="field.placeholder"
-        />
-        <ImageInput
-          v-else-if="field.type === 'image'"
-          v-model="state[field.key] as string"
-          :label="field.label"
-          :placeholder="field.placeholder"
-        />
-        <ImagesInput
-          v-else-if="field.type === 'images'"
-          v-model="state[field.key] as string[]"
-          :label="field.label"
-          :placeholder="field.placeholder"
-        />
-        <PhonesInput
-          v-else-if="field.type === 'phones'"
-          v-model="state[field.key] as PhoneNumber[]"
-          :placeholder="field.placeholder"
-        />
-        <USwitch
-          v-else-if="field.type === 'switch'"
-          v-model="state[field.key] as boolean"
-        />
-        <UTextarea
-          v-else-if="field.type === 'textarea'"
-          v-model="state[field.key] as string"
-          class="w-full"
-          :placeholder="field.placeholder"
-          :rows="3"
-        />
-        <USelect
-          v-else-if="field.type === 'select'"
-          v-model="state[field.key] as string"
-          class="w-full"
-          :items="field.options ?? []"
-          :placeholder="field.placeholder ?? 'Select…'"
-        />
-        <ComboboxInput
-          v-else-if="field.type === 'combobox'"
-          v-model="state[field.key] as string"
-          :options="field.options"
-          :placeholder="field.placeholder"
-        />
-        <USelectMenu
-          v-else-if="field.type === 'multiselect'"
-          v-model="state[field.key] as string[]"
-          multiple
-          class="w-full"
-          :items="field.options ?? []"
-          :placeholder="field.placeholder ?? 'Select…'"
-        />
-        <UInputTags
-          v-else-if="field.type === 'tags'"
-          v-model="state[field.key] as string[]"
-          class="w-full"
-          :placeholder="field.placeholder"
-        />
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <UFormField label="Name" name="name" required>
         <UInput
-          v-else-if="field.type === 'number'"
-          v-model.number="state[field.key] as number"
+          v-model="state.name"
+          class="w-full"
+          placeholder="Developer name"
+        />
+      </UFormField>
+
+      <UFormField label="Country" name="country" required>
+        <UInput v-model="state.country" class="w-full" placeholder="Country" />
+      </UFormField>
+
+      <UFormField label="Agreement" name="agreement">
+        <USelect
+          v-model="state.agreement"
+          class="w-full"
+          placeholder="Select…"
+          :items="AGREEMENT_OPTIONS"
+        />
+      </UFormField>
+
+      <UFormField label="Agreement end date" name="agreement_end_date">
+        <UInput v-model="state.agreement_end_date" type="date" class="w-full" />
+      </UFormField>
+
+      <UFormField label="Projects count" name="projects_count">
+        <UInput
+          v-model.number="state.projects_count"
           type="number"
           class="w-full"
-          :placeholder="field.placeholder"
         />
+      </UFormField>
+
+      <UFormField label="Number of deals" name="num_deals">
+        <UInput v-model.number="state.num_deals" type="number" class="w-full" />
+      </UFormField>
+
+      <UFormField label="Default commission (%)" name="default_commission">
         <UInput
-          v-else-if="field.type === 'date'"
-          v-model="state[field.key] as string"
-          type="date"
+          v-model.number="state.default_commission"
+          type="number"
           class="w-full"
         />
+      </UFormField>
+
+      <UFormField label="Commission min (%)" name="commission_min">
         <UInput
-          v-else-if="field.type === 'computed'"
-          readonly
-          disabled
-          placeholder="Auto-generated"
+          v-model.number="state.commission_min"
+          type="number"
           class="w-full"
-          :model-value="state[field.key] as string"
         />
+      </UFormField>
+
+      <UFormField label="Commission max (%)" name="commission_max">
         <UInput
-          v-else
-          v-model="state[field.key] as string"
+          v-model.number="state.commission_max"
+          type="number"
           class="w-full"
-          :type="field.type"
-          :placeholder="field.placeholder"
+        />
+      </UFormField>
+
+      <UFormField label="Logo" name="logo" class="sm:col-span-2">
+        <PhotoInput v-model="state.logo" label="Logo" />
+      </UFormField>
+
+      <UFormField label="Description" name="description" class="sm:col-span-2">
+        <UTextarea
+          v-model="state.description"
+          class="w-full"
+          placeholder="Short description"
+          :rows="3"
         />
       </UFormField>
     </div>
@@ -137,14 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
-import {
-  DEVELOPER_FIELDS,
-  createEmptyState,
-  type PhoneNumber,
-} from "~/constants/common/forms";
+import * as z from "zod";
 import type { DeveloperInput } from "~/composables/properties/useDevelopers";
-import type { Developer } from "~/types/properties/developers";
+import type { AgreementStatus, Developer } from "~/types/properties/developers";
+import type { MediaItem } from "~/types/common/media";
 
 const props = defineProps<{
   // Omit (or null) to create; pass a developer to edit it.
@@ -154,28 +112,89 @@ const props = defineProps<{
 const toast = useToast();
 const { createDeveloper, updateDeveloper } = useDevelopers();
 
-const state = reactive<Record<string, unknown>>(
-  props.record ? { ...props.record } : createEmptyState(DEVELOPER_FIELDS),
+const AGREEMENT_OPTIONS: AgreementStatus[] = ["Signed", "Pending", "Expired"];
+
+// Empty number inputs arrive as "" (Vue can't coerce a blank to a number) —
+// treat that as "not provided" so optional numeric fields don't fail validation.
+const optionalNumber = z.preprocess(
+  (v) => (v === "" || v === undefined || v === null ? undefined : v),
+  z.number().optional(),
+);
+
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  country: z.string().min(1, "Country is required"),
+  agreement: z.enum(["Signed", "Pending", "Expired"]).optional(),
+  agreement_end_date: z.string().optional(),
+  projects_count: optionalNumber,
+  num_deals: optionalNumber,
+  default_commission: optionalNumber,
+  commission_min: optionalNumber,
+  commission_max: optionalNumber,
+  description: z.string().optional(),
+});
+
+// `logo` holds either the existing URL (from a read), a freshly uploaded
+// MediaItem, or null — see PhotoInput. It's reshaped to a media id on submit, so
+// it lives on state but stays out of the validation schema.
+const state = reactive<{
+  name: string;
+  country: string;
+  agreement?: AgreementStatus;
+  agreement_end_date: string;
+  projects_count?: number;
+  num_deals?: number;
+  default_commission?: number;
+  commission_min?: number;
+  commission_max?: number;
+  description: string;
+  logo: MediaItem | string | null;
+}>(
+  props.record
+    ? { ...props.record }
+    : {
+        name: "",
+        country: "",
+        agreement: undefined,
+        agreement_end_date: "",
+        projects_count: undefined,
+        num_deals: undefined,
+        default_commission: undefined,
+        commission_min: undefined,
+        commission_max: undefined,
+        description: "",
+        logo: null,
+      },
 );
 const loading = ref(false);
-
-const { visibleFields, validate } = useResourceForm(DEVELOPER_FIELDS, state);
 
 const submitLabel = computed(() =>
   props.record ? "Save changes" : "Create developer",
 );
 
-const onSubmit = async (event: FormSubmitEvent<Record<string, unknown>>) => {
+const onSubmit = async () => {
   loading.value = true;
+  // `logo` is either the existing URL (unchanged → omit so it's left as-is), a
+  // freshly uploaded { id, url } (→ send its id), or null (→ send null to
+  // clear). The API can't take a URL back: writes are media ids only.
+  const payload: Record<string, unknown> = { ...state };
+  const logo = state.logo;
+  if (logo && typeof logo === "object" && "id" in logo) {
+    payload.logo = logo.id;
+  } else if (logo === null) {
+    payload.logo = null;
+  } else {
+    delete payload.logo;
+  }
   try {
     if (props.record) {
       await updateDeveloper(
         props.record.id,
-        event.data as Partial<DeveloperInput>,
+        payload as Partial<DeveloperInput>,
       );
       toast.add({ title: "Developer updated", color: "success" });
     } else {
-      await createDeveloper(event.data as DeveloperInput);
+      await createDeveloper(payload as DeveloperInput);
       toast.add({ title: "Developer created", color: "success" });
     }
     navigateTo("/developers");
