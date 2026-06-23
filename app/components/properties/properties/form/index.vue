@@ -11,6 +11,7 @@
       <PropertiesPropertiesFormPricing :state="state" />
       <PropertiesPropertiesFormLocation :state="state" />
       <PropertiesPropertiesFormSpecifications :state="state" />
+      <PropertiesPropertiesFormCharacteristics :state="state" />
       <PropertiesPropertiesFormMedia :state="state" />
       <PropertiesPropertiesFormPublishing :state="state" />
     </div>
@@ -73,6 +74,8 @@ const schema = z
     installments_available: z.boolean().optional(),
     num_installments: optionalNumber,
     installment_value: optionalNumber,
+    down_payment: optionalNumber,
+    remaining_value: optionalNumber,
     price: requiredNumber("Price is required"),
     commission_scheme: optionalNumber,
     country: z.string().optional(),
@@ -82,9 +85,26 @@ const schema = z
     street: z.string().optional(),
     area: optionalNumber,
     built_up_area: optionalNumber,
-    delivery_year: optionalNumber,
+    ready_to_move: z.boolean().optional(),
+    delivery_date: z.string().optional(),
     num_bedrooms: optionalNumber,
     num_bathrooms: optionalNumber,
+    orientation: z
+      .enum([
+        "bahary",
+        "kably",
+        "sharky",
+        "gharby",
+        "bahary_sharky",
+        "bahary_gharby",
+        "kably_sharky",
+        "kably_gharby",
+      ])
+      .optional(),
+    finishing: z
+      .enum(["core_shell", "semi_finished", "fully_finished"])
+      .optional(),
+    furnishing: z.enum(["furnished", "unfurnished"]).optional(),
     amenities: z.array(z.string()).optional(),
     description: z.string().optional(),
   })
@@ -110,6 +130,7 @@ const state = reactive<PropertyFormState>(
         developer: props.record.developer?.id ?? "",
         seller: props.record.seller?.id ?? "",
         installments_available: props.record.installments_available ?? false,
+        ready_to_move: props.record.ready_to_move ?? false,
         amenities: props.record.amenities ?? [],
         photos: props.record.photos ?? [],
         // Clone each entry so editing rows doesn't mutate the source record.
@@ -127,6 +148,8 @@ const state = reactive<PropertyFormState>(
         installments_available: false,
         num_installments: undefined,
         installment_value: undefined,
+        down_payment: undefined,
+        remaining_value: undefined,
         price: undefined,
         commission_scheme: undefined,
         country: "",
@@ -136,9 +159,13 @@ const state = reactive<PropertyFormState>(
         street: "",
         area: undefined,
         built_up_area: undefined,
-        delivery_year: undefined,
+        ready_to_move: false,
+        delivery_date: undefined,
         num_bedrooms: undefined,
         num_bathrooms: undefined,
+        orientation: undefined,
+        finishing: undefined,
+        furnishing: undefined,
         amenities: [],
         photos: [],
         description: "",
@@ -184,6 +211,9 @@ watch(
     ) {
       state.type = "";
     }
+    // Orientation is Residential-only — drop a stale value when the category
+    // changes away from Residential so it can't be submitted.
+    if (category !== "Residential") state.orientation = undefined;
   },
 );
 watch(
@@ -192,7 +222,17 @@ watch(
     if (!on) {
       state.num_installments = undefined;
       state.installment_value = undefined;
+      state.down_payment = undefined;
+      state.remaining_value = undefined;
     }
+  },
+);
+// A ready-to-move unit has no future delivery date — clear it so a stale date
+// can't be submitted once the picker is hidden.
+watch(
+  () => state.ready_to_move,
+  (ready) => {
+    if (ready) state.delivery_date = undefined;
   },
 );
 

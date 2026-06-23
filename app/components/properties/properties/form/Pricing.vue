@@ -27,6 +27,22 @@
             class="w-full"
           />
         </UFormField>
+
+        <UFormField label="Down payment (EGP)" name="down_payment">
+          <UInput
+            v-model.number="state.down_payment"
+            type="number"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField label="Remaining value (EGP)" name="remaining_value">
+          <UInput
+            v-model.number="state.remaining_value"
+            type="number"
+            class="w-full"
+          />
+        </UFormField>
       </template>
 
       <UFormField label="Price (EGP)" name="price" required>

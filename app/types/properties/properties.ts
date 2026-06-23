@@ -11,6 +11,69 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   rent: "For Rent",
 };
 
+// Cardinal/intercardinal view (orientation) of a unit. Values are stable slugs
+// using the local "bahary/kably/sharky/gharby" naming; labels carry the English
+// compass equivalent. Residential listings only.
+export type Orientation =
+  | "bahary"
+  | "kably"
+  | "sharky"
+  | "gharby"
+  | "bahary_sharky"
+  | "bahary_gharby"
+  | "kably_sharky"
+  | "kably_gharby";
+
+export const ORIENTATION_LABELS: Record<Orientation, string> = {
+  bahary: "Bahary (North)",
+  kably: "Kably (South)",
+  sharky: "Sharky (East)",
+  gharby: "Gharby (West)",
+  bahary_sharky: "Bahary Sharky (North-East)",
+  bahary_gharby: "Bahary Gharby (North-West)",
+  kably_sharky: "Kably Sharky (South-East)",
+  kably_gharby: "Kably Gharby (South-West)",
+};
+
+// Select options for the orientation dropdown (label + value).
+export const ORIENTATION_OPTIONS: { label: string; value: Orientation }[] = (
+  [
+    "bahary",
+    "kably",
+    "sharky",
+    "gharby",
+    "bahary_sharky",
+    "bahary_gharby",
+    "kably_sharky",
+    "kably_gharby",
+  ] as Orientation[]
+).map((value) => ({ label: ORIENTATION_LABELS[value], value }));
+
+// Finishing level of a unit. Applies to both Residential and Commercial.
+export type Finishing = "core_shell" | "semi_finished" | "fully_finished";
+
+export const FINISHING_LABELS: Record<Finishing, string> = {
+  core_shell: "Core & Shell",
+  semi_finished: "Semi Finished",
+  fully_finished: "Fully Finished",
+};
+
+export const FINISHING_OPTIONS: { label: string; value: Finishing }[] = (
+  ["core_shell", "semi_finished", "fully_finished"] as Finishing[]
+).map((value) => ({ label: FINISHING_LABELS[value], value }));
+
+// Whether the unit comes furnished. Applies to both categories.
+export type Furnishing = "furnished" | "unfurnished";
+
+export const FURNISHING_LABELS: Record<Furnishing, string> = {
+  furnished: "Furnished",
+  unfurnished: "Unfurnished",
+};
+
+export const FURNISHING_OPTIONS: { label: string; value: Furnishing }[] = (
+  ["furnished", "unfurnished"] as Furnishing[]
+).map((value) => ({ label: FURNISHING_LABELS[value], value }));
+
 // Where a publication sits in its destination's pipeline: not yet sent,
 // awaiting the portal's review, or live.
 export type PublicationStatus = "unpublished" | "pending" | "published";
@@ -122,6 +185,10 @@ export interface PropertyFormState {
   installments_available: boolean;
   num_installments?: number;
   installment_value?: number;
+  // Installment plan amounts — the up-front payment and the manually entered
+  // outstanding balance. Only meaningful when `installments_available` is on.
+  down_payment?: number;
+  remaining_value?: number;
   price?: number;
   commission_scheme?: number;
   country: string;
@@ -131,9 +198,18 @@ export interface PropertyFormState {
   street: string;
   area?: number;
   built_up_area?: number;
-  delivery_year?: number;
+  // Delivery state — `ready_to_move` is a yes/no flag; `delivery_date` (ISO
+  // `YYYY-MM-DD`) holds the expected handover date and is only set when the unit
+  // is not ready to move.
+  ready_to_move?: boolean;
+  delivery_date?: string;
   num_bedrooms?: number;
   num_bathrooms?: number;
+  // View/orientation of the unit (Residential listings only).
+  orientation?: Orientation;
+  // Finishing level and furnishing state (both categories).
+  finishing?: Finishing;
+  furnishing?: Furnishing;
   amenities: string[];
   photos: MediaItem[];
   description: string;
@@ -178,7 +254,15 @@ export interface Property {
   city: string;
   district: string;
   area: number;
-  delivery_year: number;
+  // Delivery state — ready-to-move flag plus the expected handover date (ISO
+  // `YYYY-MM-DD`, present only when not ready to move).
+  ready_to_move?: boolean;
+  delivery_date?: string;
+  // View/orientation (Residential only) and finishing/furnishing (both
+  // categories). All optional — a record may predate these fields.
+  orientation?: Orientation;
+  finishing?: Finishing;
+  furnishing?: Furnishing;
   description: string;
   latitude: number;
   longtitude: number;
@@ -196,6 +280,8 @@ export interface Property {
   installments_available?: boolean;
   num_installments?: number;
   installment_value?: number;
+  down_payment?: number;
+  remaining_value?: number;
   // External listing publications — where the property is posted (Property
   // Finder, Bayut, Dubizzle, or "other"), each with its status and link.
   publications?: Publication[];

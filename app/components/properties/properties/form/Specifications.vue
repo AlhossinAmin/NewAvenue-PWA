@@ -15,12 +15,18 @@
         />
       </UFormField>
 
-      <UFormField label="Delivery year" name="delivery_year">
-        <UInput
-          v-model.number="state.delivery_year"
-          type="number"
-          class="w-full"
-        />
+      <UFormField label="Ready to move" name="ready_to_move">
+        <USwitch v-model="state.ready_to_move" />
+      </UFormField>
+
+      <!-- A future handover only applies when the unit isn't ready to move; the
+           form's ready_to_move watcher clears the date when the toggle is on. -->
+      <UFormField
+        v-if="!state.ready_to_move"
+        label="Delivery date"
+        name="delivery_date"
+      >
+        <UInput v-model="state.delivery_date" type="date" class="w-full" />
       </UFormField>
 
       <UFormField label="Bedrooms" name="num_bedrooms">

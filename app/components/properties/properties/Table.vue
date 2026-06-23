@@ -169,6 +169,48 @@
                 </span>
               </div>
 
+              <div
+                v-if="row.has_attributes"
+                class="flex flex-wrap items-center gap-1.5"
+              >
+                <UBadge
+                  v-if="row.finishing"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                >
+                  {{ row.finishing_label }}
+                </UBadge>
+                <UBadge
+                  v-if="row.furnishing"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                >
+                  {{ row.furnishing_label }}
+                </UBadge>
+                <UBadge
+                  v-if="row.orientation"
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                >
+                  {{ row.orientation_label }}
+                </UBadge>
+                <UBadge
+                  color="neutral"
+                  variant="soft"
+                  size="sm"
+                  :icon="
+                    row.ready_to_move
+                      ? 'i-lucide-circle-check'
+                      : 'i-lucide-calendar'
+                  "
+                >
+                  {{ row.delivery_label }}
+                </UBadge>
+              </div>
+
               <div class="flex items-center justify-between pt-1">
                 <UBadge color="neutral" variant="soft" size="sm">
                   {{ row.transaction_label }}
@@ -314,6 +356,18 @@
           <span class="text-muted">Installment value</span>
           <span class="font-medium">{{ installmentSummary.value_label }}</span>
         </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-muted">Down payment</span>
+          <span class="font-medium">{{
+            installmentSummary.down_payment_label
+          }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-muted">Remaining value</span>
+          <span class="font-medium">{{
+            installmentSummary.remaining_value_label
+          }}</span>
+        </div>
 
         <USeparator />
 
@@ -382,6 +436,9 @@
 import type { TableColumn } from "@nuxt/ui";
 import type { FilterField } from "~/composables/common/useTable";
 import {
+  FINISHING_LABELS,
+  FURNISHING_LABELS,
+  ORIENTATION_LABELS,
   PUBLICATION_STATUS_COLORS,
   PUBLICATION_STATUS_LABELS,
   PUBLICATION_TYPE_ICONS,
@@ -411,6 +468,14 @@ type PropertyRow = Property & {
   transaction_label: string;
   created_at_label: string;
   updated_at_label: string;
+  // Pre-derived display strings for the new attribute fields ("—" when unset).
+  orientation_label: string;
+  finishing_label: string;
+  furnishing_label: string;
+  delivery_label: string;
+  // True when the row has any attribute worth showing as a chip (drives the
+  // mobile card's chips row).
+  has_attributes: boolean;
   publication_count: number;
   publication_label: string;
   publication_previews: PublicationPreview[];
@@ -452,7 +517,7 @@ const SORT_FIELDS = [
   { key: "price", label: "Price" },
   { key: "district", label: "Location" },
   { key: "transaction_type", label: "Offering type" },
-  { key: "delivery_year", label: "Delivery year" },
+  { key: "delivery_date", label: "Delivery date" },
   { key: "created_at", label: "Date created" },
   { key: "updated_at", label: "Last update" },
 ];
@@ -609,6 +674,19 @@ const properties = computed<PropertyRow[]>(() =>
       TRANSACTION_TYPE_LABELS[p.transaction_type] ?? p.transaction_type,
     created_at_label: formatDate(p.created_at),
     updated_at_label: formatDate(p.updated_at),
+    orientation_label: p.orientation ? ORIENTATION_LABELS[p.orientation] : "—",
+    finishing_label: p.finishing ? FINISHING_LABELS[p.finishing] : "—",
+    furnishing_label: p.furnishing ? FURNISHING_LABELS[p.furnishing] : "—",
+    delivery_label: p.ready_to_move
+      ? "Ready to move"
+      : formatDate(p.delivery_date),
+    has_attributes: Boolean(
+      p.orientation ||
+      p.finishing ||
+      p.furnishing ||
+      p.ready_to_move ||
+      p.delivery_date,
+    ),
     publication_count: p.publications?.length ?? 0,
     publication_label: `${p.publications?.length ?? 0} listing${
       (p.publications?.length ?? 0) === 1 ? "" : "s"
@@ -650,6 +728,10 @@ const installmentSummary = computed(() => {
     unit_num: p.unit_num,
     count,
     value_label: `EGP ${amountFormatter.format(value)}`,
+    down_payment_label: `EGP ${amountFormatter.format(p.down_payment ?? 0)}`,
+    remaining_value_label: `EGP ${amountFormatter.format(
+      p.remaining_value ?? 0,
+    )}`,
     total_label: `EGP ${amountFormatter.format(count * value)}`,
     price_label: p.price_label,
   };
