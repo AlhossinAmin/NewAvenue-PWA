@@ -35,10 +35,9 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { PropertyInput } from "~/composables/properties/useProperties";
-import {
-  createPublications,
-  type Property,
-  type PropertyFormState,
+import type {
+  Property,
+  PropertyFormState,
 } from "~/types/properties/properties";
 import { PROPERTY_TYPES_BY_CATEGORY } from "~/constants/properties/property-types";
 
@@ -113,7 +112,8 @@ const state = reactive<PropertyFormState>(
         installments_available: props.record.installments_available ?? false,
         amenities: props.record.amenities ?? [],
         photos: props.record.photos ?? [],
-        publications: createPublications(props.record.publications),
+        // Clone each entry so editing rows doesn't mutate the source record.
+        publications: (props.record.publications ?? []).map((p) => ({ ...p })),
       }
     : {
         category: undefined,
@@ -142,7 +142,7 @@ const state = reactive<PropertyFormState>(
         amenities: [],
         photos: [],
         description: "",
-        publications: createPublications(),
+        publications: [],
       },
 );
 const loading = ref(false);

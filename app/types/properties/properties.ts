@@ -11,28 +11,54 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   rent: "For Rent",
 };
 
-// Where a property sits in an external listing portal's publishing pipeline:
-// not yet sent, awaiting the portal's review, or live.
+// Where a publication sits in its destination's pipeline: not yet sent,
+// awaiting the portal's review, or live.
 export type PublicationStatus = "unpublished" | "pending" | "published";
 
-// The external listing portals a property can be published to. The key is the
-// terse API value; the label is what the UI shows.
-export type PublishingPlatform = "property_finder" | "bayut" | "dubizzle";
+// A publication's destination — one of the supported listing portals, or a
+// free-form "other" for any site not in the list.
+export type PublicationType =
+  | "property_finder"
+  | "bayut"
+  | "dubizzle"
+  | "other";
 
-export interface PublishingPlatformMeta {
-  key: PublishingPlatform;
+export interface PublicationTypeMeta {
+  value: PublicationType;
   label: string;
-  // Brand icon name (iconify) for the portal, shown alongside its status.
+  // Iconify name shown next to the destination in selects/previews.
   icon: string;
 }
 
-// Ordered list of supported portals — drives the per-platform status display
-// on the table and detail views.
-export const PUBLISHING_PLATFORMS: PublishingPlatformMeta[] = [
-  { key: "property_finder", label: "Property Finder", icon: "i-lucide-search" },
-  { key: "bayut", label: "Bayut", icon: "i-lucide-building-2" },
-  { key: "dubizzle", label: "Dubizzle", icon: "i-lucide-tag" },
+// Ordered list of publication destinations offered in the type dropdown. Extend
+// this one array to support another portal.
+export const PUBLICATION_TYPES: PublicationTypeMeta[] = [
+  {
+    value: "property_finder",
+    label: "Property Finder",
+    icon: "i-lucide-search",
+  },
+  { value: "bayut", label: "Bayut", icon: "i-lucide-building-2" },
+  { value: "dubizzle", label: "Dubizzle", icon: "i-lucide-tag" },
+  { value: "other", label: "Other", icon: "i-lucide-globe" },
 ];
+
+export const PUBLICATION_TYPE_LABELS: Record<PublicationType, string> =
+  Object.fromEntries(
+    PUBLICATION_TYPES.map((t) => [t.value, t.label]),
+  ) as Record<PublicationType, string>;
+
+export const PUBLICATION_TYPE_ICONS: Record<PublicationType, string> =
+  Object.fromEntries(PUBLICATION_TYPES.map((t) => [t.value, t.icon])) as Record<
+    PublicationType,
+    string
+  >;
+
+// Select options for the destination dropdown (label + value).
+export const PUBLICATION_TYPE_OPTIONS = PUBLICATION_TYPES.map((t) => ({
+  label: t.label,
+  value: t.value,
+}));
 
 export const PUBLICATION_STATUS_LABELS: Record<PublicationStatus, string> = {
   unpublished: "Unpublished",
@@ -58,18 +84,22 @@ export const PUBLICATION_STATUS_OPTIONS: {
   (value) => ({ label: PUBLICATION_STATUS_LABELS[value], value }),
 );
 
-// A fresh publications record with every supported platform set to
-// "unpublished" — used to seed the property form. Optionally merge in known
-// statuses (e.g. from a record being edited).
-export const createPublications = (
-  initial?: Partial<Record<PublishingPlatform, PublicationStatus>>,
-): Record<PublishingPlatform, PublicationStatus> =>
-  Object.fromEntries(
-    PUBLISHING_PLATFORMS.map((platform) => [
-      platform.key,
-      initial?.[platform.key] ?? "unpublished",
-    ]),
-  ) as Record<PublishingPlatform, PublicationStatus>;
+// A single publication entry — the destination it's posted to, its current
+// status there, and the public link to the listing. A property holds a
+// repeatable list of these (add/remove rows in the form, like phone numbers).
+export interface Publication {
+  type: PublicationType;
+  status: PublicationStatus;
+  link: string;
+}
+
+// A blank publication row for a freshly added entry (defaults to Property
+// Finder, unpublished, no link yet).
+export const createPublication = (): Publication => ({
+  type: "property_finder",
+  status: "unpublished",
+  link: "",
+});
 
 // Shape of the property form's reactive state, shared across the form sections
 // (see components/properties/properties/form). The API returns `project`/
@@ -107,9 +137,9 @@ export interface PropertyFormState {
   amenities: string[];
   photos: MediaItem[];
   description: string;
-  // Per-portal publication status. Every supported platform is present as a key
-  // (defaulting to "unpublished") so the form's selects always have a binding.
-  publications: Record<PublishingPlatform, PublicationStatus>;
+  // Repeatable list of external listing publications (destination + status +
+  // link). May be empty when the property isn't posted anywhere yet.
+  publications: Publication[];
 }
 
 // On reads the API returns the linked project and developer as nested objects;
@@ -166,10 +196,9 @@ export interface Property {
   installments_available?: boolean;
   num_installments?: number;
   installment_value?: number;
-  // Per-portal publication status — where the listing currently stands on each
-  // external website (Property Finder, Bayut, Dubizzle, …). Absent platforms are
-  // treated as "unpublished".
-  publications?: Partial<Record<PublishingPlatform, PublicationStatus>>;
+  // External listing publications — where the property is posted (Property
+  // Finder, Bayut, Dubizzle, or "other"), each with its status and link.
+  publications?: Publication[];
   // Server-managed timestamps (ISO 8601), returned on reads.
   created_at?: string;
   updated_at?: string;

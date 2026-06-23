@@ -186,6 +186,17 @@
                 block
                 @click.stop.prevent="openInstallments(row)"
               />
+
+              <UButton
+                v-if="row.publication_count"
+                icon="i-lucide-globe"
+                color="neutral"
+                variant="soft"
+                size="xs"
+                block
+                :label="`Publishing · ${row.publication_label}`"
+                @click.stop.prevent="openPreview(row)"
+              />
             </div>
           </UCard>
         </NuxtLink>
@@ -242,6 +253,19 @@
             variant="soft"
             size="xs"
             @click="openInstallments(row.original)"
+          />
+          <span v-else class="text-muted">—</span>
+        </template>
+
+        <template #publications-cell="{ row }">
+          <UButton
+            v-if="row.original.publication_count"
+            icon="i-lucide-globe"
+            color="neutral"
+            variant="soft"
+            size="xs"
+            :label="row.original.publication_label"
+            @click="openPreview(row.original)"
           />
           <span v-else class="text-muted">—</span>
         </template>
@@ -306,16 +330,77 @@
       </div>
     </template>
   </UModal>
+
+  <UModal v-model:open="previewOpen" title="Publishing status">
+    <template #body>
+      <div v-if="previewProperty" class="flex flex-col gap-3">
+        <p class="text-sm font-medium">
+          {{ previewProperty.project_name }} · Unit
+          {{ previewProperty.unit_num }}
+        </p>
+
+        <div
+          v-for="publication in previewProperty.publication_previews"
+          class="flex items-center justify-between gap-3 rounded-lg border border-default p-3"
+          :key="publication.key"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <UIcon
+              class="size-4 shrink-0 text-muted"
+              :name="publication.icon"
+            />
+            <div class="min-w-0">
+              <p class="text-sm font-medium">{{ publication.type_label }}</p>
+              <ULink
+                v-if="publication.link"
+                target="_blank"
+                class="block truncate text-xs text-primary hover:underline"
+                :to="publication.link"
+              >
+                {{ publication.link }}
+              </ULink>
+              <p v-else class="text-xs text-muted">No link</p>
+            </div>
+          </div>
+          <UBadge variant="soft" size="sm" :color="publication.color">
+            {{ publication.status_label }}
+          </UBadge>
+        </div>
+
+        <p
+          v-if="!previewProperty.publication_previews.length"
+          class="py-4 text-center text-sm text-muted"
+        >
+          Not published anywhere yet.
+        </p>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
 import type { FilterField } from "~/composables/common/useTable";
 import {
+  PUBLICATION_STATUS_COLORS,
+  PUBLICATION_STATUS_LABELS,
+  PUBLICATION_TYPE_ICONS,
+  PUBLICATION_TYPE_LABELS,
   TRANSACTION_TYPE_LABELS,
   type Property,
   type TransactionType,
 } from "~/types/properties/properties";
+
+// A single publication shaped for the preview modal (read straight by the
+// template — no function calls).
+type PublicationPreview = {
+  key: number;
+  type_label: string;
+  icon: string;
+  status_label: string;
+  color: "neutral" | "warning" | "success";
+  link: string;
+};
 
 // A property shaped into display-ready fields the table/cards read directly
 // (no function calls in templates).
@@ -326,6 +411,9 @@ type PropertyRow = Property & {
   transaction_label: string;
   created_at_label: string;
   updated_at_label: string;
+  publication_count: number;
+  publication_label: string;
+  publication_previews: PublicationPreview[];
 };
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
@@ -352,6 +440,7 @@ const columns: TableColumn<PropertyRow>[] = [
   { accessorKey: "transaction_type", header: "Offering" },
   { accessorKey: "price", header: "Price" },
   { accessorKey: "installments", header: "Installments" },
+  { accessorKey: "publications", header: "Publishing" },
   { accessorKey: "created_at", header: "Date created" },
   { accessorKey: "updated_at", header: "Last update" },
 ];
@@ -520,6 +609,19 @@ const properties = computed<PropertyRow[]>(() =>
       TRANSACTION_TYPE_LABELS[p.transaction_type] ?? p.transaction_type,
     created_at_label: formatDate(p.created_at),
     updated_at_label: formatDate(p.updated_at),
+    publication_count: p.publications?.length ?? 0,
+    publication_label: `${p.publications?.length ?? 0} listing${
+      (p.publications?.length ?? 0) === 1 ? "" : "s"
+    }`,
+    // Shaped once here so the preview modal reads ready-made display fields.
+    publication_previews: (p.publications ?? []).map((pub, index) => ({
+      key: index,
+      type_label: PUBLICATION_TYPE_LABELS[pub.type] ?? pub.type,
+      icon: PUBLICATION_TYPE_ICONS[pub.type] ?? "i-lucide-globe",
+      status_label: PUBLICATION_STATUS_LABELS[pub.status] ?? pub.status,
+      color: PUBLICATION_STATUS_COLORS[pub.status] ?? "neutral",
+      link: pub.link,
+    })),
   })),
 );
 
@@ -556,5 +658,13 @@ const installmentSummary = computed(() => {
 const openInstallments = (row: PropertyRow) => {
   selected.value = row;
   installmentOpen.value = true;
+};
+
+const previewOpen = ref(false);
+const previewProperty = ref<PropertyRow | null>(null);
+
+const openPreview = (row: PropertyRow) => {
+  previewProperty.value = row;
+  previewOpen.value = true;
 };
 </script>
