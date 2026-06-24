@@ -162,14 +162,16 @@ type LeadRow = Lead & {
 };
 
 const STATE_COLOR: Record<LeadState, LeadRow["state_color"]> = {
-  New: "info",
-  Cold: "neutral",
-  Warm: "warning",
-  Hot: "error",
-  "In Progress": "primary",
-  "On Hold": "neutral",
-  "Closed Won": "success",
-  "Closed Lost": "error",
+  Unreachable: "neutral",
+  Following: "info",
+  Meeting: "primary",
+  Showing: "primary",
+  Postponed: "warning",
+  "Not Interested": "neutral",
+  "Done Deal": "success",
+  Seller: "warning",
+  Broker: "warning",
+  "Old Data": "neutral",
 };
 
 const columns: TableColumn<LeadRow>[] = [

@@ -1,12 +1,14 @@
 export type LeadState =
-  | "New"
-  | "Cold"
-  | "Warm"
-  | "Hot"
-  | "In Progress"
-  | "On Hold"
-  | "Closed Won"
-  | "Closed Lost";
+  | "Unreachable"
+  | "Following"
+  | "Meeting"
+  | "Showing"
+  | "Postponed"
+  | "Not Interested"
+  | "Done Deal"
+  | "Seller"
+  | "Broker"
+  | "Old Data";
 
 export type RequestType = "Buy" | "Rent" | "Sell";
 
@@ -67,7 +69,8 @@ export interface LeadActivity {
   lead_id: string;
   status: LeadState;
   activity_at: string;
-  notes: string | null;
+  next_action_date: string;
+  notes: string;
   logged_by: { id: string; name: string };
   created_at: string;
 }
@@ -76,7 +79,8 @@ export interface LeadActivityInput {
   logged_by: string;
   status: LeadState;
   activity_at: string;
-  notes?: string | null;
+  next_action_date: string;
+  notes: string;
 }
 
 export interface Lead {

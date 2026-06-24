@@ -28,11 +28,15 @@
           />
         </UFormField>
 
-        <UFormField label="Notes" name="notes">
+        <UFormField label="Next action date" name="next_action_date" required>
+          <UInput v-model="state.next_action_date" type="date" class="w-full" />
+        </UFormField>
+
+        <UFormField label="Notes" name="notes" required>
           <UTextarea
             v-model="state.notes"
             class="w-full"
-            placeholder="Optional notes…"
+            placeholder="Add notes…"
             :rows="3"
           />
         </UFormField>
@@ -72,20 +76,23 @@ const toast = useToast();
 const { createLeadActivity } = useLeadActivities();
 
 const LEAD_STATES: LeadState[] = [
-  "New",
-  "Cold",
-  "Warm",
-  "Hot",
-  "In Progress",
-  "On Hold",
-  "Closed Won",
-  "Closed Lost",
+  "Unreachable",
+  "Following",
+  "Meeting",
+  "Showing",
+  "Postponed",
+  "Not Interested",
+  "Done Deal",
+  "Seller",
+  "Broker",
+  "Old Data",
 ];
 
 const emptyState = () => ({
   logged_by: "",
-  status: "New" as LeadState,
+  status: "Unreachable" as LeadState,
   activity_at: "",
+  next_action_date: "",
   notes: "",
 });
 
@@ -108,6 +115,13 @@ const validate = (data: typeof state): FormError[] => {
       name: "activity_at",
       message: "Activity date & time is required",
     });
+  if (!data.next_action_date)
+    errors.push({
+      name: "next_action_date",
+      message: "Next action date is required",
+    });
+  if (!data.notes)
+    errors.push({ name: "notes", message: "Notes are required" });
   return errors;
 };
 
@@ -115,14 +129,16 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
   if (!props.leadId) return;
   loading.value = true;
   try {
-    const { logged_by, status, activity_at, notes } = event.data;
+    const { logged_by, status, activity_at, next_action_date, notes } =
+      event.data;
     const payload: LeadActivityInput = {
       logged_by,
       status: status as LeadState,
       // datetime-local gives "YYYY-MM-DDTHH:MM"; append seconds for ISO 8601.
       activity_at:
         activity_at.length === 16 ? `${activity_at}:00` : activity_at,
-      notes: notes || null,
+      next_action_date,
+      notes,
     };
     await createLeadActivity(props.leadId, payload);
     toast.add({ title: "Activity logged", color: "success" });
