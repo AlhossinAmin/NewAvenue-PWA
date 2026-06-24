@@ -4,6 +4,9 @@
     title="New property"
     back-to="/properties"
   >
-    <PropertiesPropertiesForm />
+    <PropertiesPropertiesForm
+      @saved="$router.push('/properties')"
+      @cancel="$router.back()"
+    />
   </FormPage>
 </template>

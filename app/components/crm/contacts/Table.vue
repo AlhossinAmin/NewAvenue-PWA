@@ -134,6 +134,8 @@
       <UTable
         :data="loading ? skeletonData : contacts"
         :columns="loading ? skeletonColumns : tableColumns"
+        :ui="rowUi"
+        @select="selectRow"
       >
         <template #name-cell="{ row }">
           <div class="flex items-center gap-3">
@@ -228,6 +230,8 @@ const {
   skeletonColumns,
   skeletonData,
   skeletonRows,
+  selectRow,
+  rowUi,
 } = useTable<ContactRow>({
   columns,
   sortFields: SORT_FIELDS,

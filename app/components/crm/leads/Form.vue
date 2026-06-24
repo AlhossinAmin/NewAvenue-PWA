@@ -124,7 +124,7 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="emit('cancel')"
       />
       <UButton
         type="submit"
@@ -150,6 +150,10 @@ const props = defineProps<{
   // Omit (or null) to create; pass a lead to edit it.
   record?: Lead | null;
 }>();
+
+// Parent owns navigation (saved/cancel) so a detail page can toggle back to its
+// read-only view in place. See contacts/Form.vue.
+const emit = defineEmits<{ saved: []; cancel: [] }>();
 
 const toast = useToast();
 const { createLead, updateLead } = useLeads();
@@ -183,7 +187,7 @@ const onSubmit = async (event: FormSubmitEvent<Record<string, unknown>>) => {
       await createLead(event.data as LeadInput);
       toast.add({ title: "Lead created", color: "success" });
     }
-    navigateTo("/leads");
+    emit("saved");
   } catch {
     toast.add({
       title: props.record ? "Failed to update lead" : "Failed to create lead",

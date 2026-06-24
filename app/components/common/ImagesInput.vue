@@ -6,10 +6,10 @@
     <div v-if="images.length" class="grid grid-cols-3 gap-3 sm:grid-cols-4">
       <div
         v-for="(src, index) in images"
-        :key="index"
         class="group relative aspect-square overflow-hidden rounded-lg border border-default"
+        :key="index"
       >
-        <img :src="src" alt="Selected image" class="size-full object-cover" />
+        <img alt="Selected image" class="size-full object-cover" :src="src" />
         <UButton
           icon="i-lucide-x"
           color="neutral"
@@ -29,10 +29,10 @@
       v-model="files"
       multiple
       accept="image/*"
-      :label="label ?? 'Drag & drop or click to upload'"
       description="PNG, JPG or SVG — multiple allowed"
       icon="i-lucide-images"
       class="w-full"
+      :label="label ?? 'Drag & drop or click to upload'"
     />
 
     <div class="flex items-center gap-3 text-xs text-muted">
@@ -45,8 +45,8 @@
       v-model="urlDraft"
       type="url"
       icon="i-lucide-link"
-      :placeholder="placeholder ?? 'https://example.com/photo.jpg'"
       class="w-full"
+      :placeholder="placeholder ?? 'https://example.com/photo.jpg'"
       @change="commitUrl"
       @keydown.enter.prevent="commitUrl"
     />

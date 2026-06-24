@@ -8,18 +8,18 @@
         <template #right>
           <UColorModeButton />
           <UButton
-            :label="newLabel ?? 'New'"
-            :to="createTo"
             icon="i-lucide-plus"
             color="primary"
             class="hidden sm:inline-flex"
+            :label="newLabel ?? 'New'"
+            :to="createTo"
           />
           <UButton
             icon="i-lucide-plus"
-            :to="createTo"
             color="primary"
             square
             class="sm:hidden"
+            :to="createTo"
             :aria-label="newLabel ?? 'New'"
           />
         </template>
@@ -31,7 +31,7 @@
         <div
           class="flex flex-col items-center justify-center gap-3 py-16 text-center"
         >
-          <UIcon :name="icon" class="size-10 text-dimmed" />
+          <UIcon class="size-10 text-dimmed" :name="icon" />
           <div>
             <p class="text-base font-medium">{{ title }}</p>
             <p class="text-sm text-muted">
@@ -39,9 +39,9 @@
             </p>
           </div>
           <UButton
+            icon="i-lucide-plus"
             :label="newLabel ?? `Create ${title}`"
             :to="createTo"
-            icon="i-lucide-plus"
           />
         </div>
       </slot>

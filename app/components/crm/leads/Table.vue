@@ -76,6 +76,8 @@
       <UTable
         :data="loading ? skeletonData : leads"
         :columns="loading ? skeletonColumns : tableColumns"
+        :ui="rowUi"
+        @select="selectRow"
       >
         <template #customer-cell="{ row }">
           <span class="font-medium">{{ row.original.customer_name }}</span>
@@ -179,6 +181,8 @@ const {
   tableColumns,
   skeletonColumns,
   skeletonData,
+  selectRow,
+  rowUi,
 } = useTable<LeadRow>({
   columns,
   sortFields: SORT_FIELDS,

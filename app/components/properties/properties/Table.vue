@@ -256,6 +256,8 @@
       <UTable
         :data="loading ? skeletonData : properties"
         :columns="loading ? skeletonColumns : tableColumns"
+        :ui="rowUi"
+        @select="selectRow"
       >
         <template #unit_num-cell="{ row }">
           <span class="font-medium">{{ row.original.unit_num }}</span>
@@ -265,6 +267,7 @@
           <ULink
             class="font-medium text-primary hover:underline"
             :to="`/projects/${row.original.project_id}`"
+            @click.stop
           >
             {{ row.original.project_name }}
           </ULink>
@@ -597,6 +600,8 @@ const {
   skeletonColumns,
   skeletonData,
   skeletonRows,
+  selectRow,
+  rowUi,
   filterValues,
   resolvedFilters,
   activeFilterCount,

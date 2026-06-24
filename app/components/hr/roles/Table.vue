@@ -117,6 +117,8 @@
       <UTable
         :data="loading ? skeletonData : roles"
         :columns="loading ? skeletonColumns : tableColumns"
+        :ui="rowUi"
+        @select="selectRow"
       >
         <template #name-cell="{ row }">
           <span class="font-medium">{{ row.original.name }}</span>
@@ -198,6 +200,8 @@ const {
   skeletonColumns,
   skeletonData,
   skeletonRows,
+  selectRow,
+  rowUi,
 } = useTable<RoleRow>({
   columns,
   sortFields: SORT_FIELDS,

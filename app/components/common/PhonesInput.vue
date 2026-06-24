@@ -4,19 +4,19 @@
          once there's more than one. An "Add" button appends another row. -->
     <div
       v-for="(phone, index) in phones"
-      :key="index"
       class="flex items-center gap-2"
+      :key="index"
     >
       <USelect
         v-model="phone.country_code"
-        :items="COUNTRY_CODE_OPTIONS"
         class="w-28 shrink-0"
+        :items="COUNTRY_CODE_OPTIONS"
       />
       <UInput
         v-model="phone.number"
         type="tel"
-        :placeholder="placeholder ?? 'Mobile number'"
         class="flex-1"
+        :placeholder="placeholder ?? 'Mobile number'"
       />
       <UButton
         v-if="phones.length > 1"

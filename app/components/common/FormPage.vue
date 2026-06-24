@@ -7,11 +7,12 @@
             icon="i-lucide-arrow-left"
             color="neutral"
             variant="ghost"
-            :to="backTo"
             aria-label="Back"
+            :to="backTo"
           />
         </template>
         <template #right>
+          <slot name="actions" />
           <UColorModeButton />
         </template>
       </UDashboardNavbar>

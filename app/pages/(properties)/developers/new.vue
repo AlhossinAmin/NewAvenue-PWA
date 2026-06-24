@@ -4,6 +4,9 @@
     title="New developer"
     back-to="/developers"
   >
-    <PropertiesDevelopersForm />
+    <PropertiesDevelopersForm
+      @saved="$router.push('/developers')"
+      @cancel="$router.back()"
+    />
   </FormPage>
 </template>

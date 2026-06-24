@@ -21,7 +21,7 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="emit('cancel')"
       />
       <UButton
         type="submit"
@@ -46,6 +46,10 @@ const props = defineProps<{
   // Omit (or null) to create; pass a property to edit it.
   record?: Property | null;
 }>();
+
+// Parent owns navigation (saved/cancel) so a detail page can toggle back to its
+// read-only view in place. See contacts/Form.vue.
+const emit = defineEmits<{ saved: []; cancel: [] }>();
 
 const toast = useToast();
 const { createProperty, updateProperty } = useProperties();
@@ -269,7 +273,7 @@ const onSubmit = async () => {
       await createProperty(payload as PropertyInput);
       toast.add({ title: "Property created", color: "success" });
     }
-    navigateTo("/properties");
+    emit("saved");
   } catch (error) {
     const fallback = props.record
       ? "Failed to update property"

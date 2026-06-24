@@ -1,5 +1,8 @@
 <template>
   <FormPage panel-id="projects-new" title="New project" back-to="/projects">
-    <PropertiesProjectsForm />
+    <PropertiesProjectsForm
+      @saved="$router.push('/projects')"
+      @cancel="$router.back()"
+    />
   </FormPage>
 </template>

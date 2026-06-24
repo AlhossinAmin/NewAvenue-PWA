@@ -1,10 +1,10 @@
 <template>
   <USelectMenu
     v-model="model"
-    :items="items"
     create-item
-    :placeholder="placeholder ?? 'Select…'"
     class="w-full"
+    :items="items"
+    :placeholder="placeholder ?? 'Select…'"
     @create="onCreate"
   />
 </template>

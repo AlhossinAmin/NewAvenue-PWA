@@ -1,9 +1,9 @@
 <template>
-  <FormPage
-    panel-id="contacts-edit"
-    back-to="/contacts"
-    :title="record ? `Edit contact` : `Contact not found`"
-  >
+  <FormPage panel-id="contacts-edit" back-to="/contacts" :title="title">
+    <template v-if="record && !isEditing" #actions>
+      <UButton icon="i-lucide-pencil" label="Edit" @click="isEditing = true" />
+    </template>
+
     <div
       v-if="!record"
       class="flex flex-col items-center gap-3 py-16 text-center"
@@ -14,7 +14,13 @@
     </div>
 
     <div v-else class="flex flex-col gap-8">
-      <CrmContactsForm :record="record" />
+      <CrmContactsForm
+        v-if="isEditing"
+        :record="record"
+        @saved="onSaved"
+        @cancel="isEditing = false"
+      />
+      <ResourceView v-else :fields="CONTACT_FIELDS" :record="record" />
 
       <section class="flex flex-col gap-3">
         <h2 class="text-sm font-semibold text-highlighted">
@@ -76,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { CONTACT_FIELDS } from "~/constants/common/forms";
 import type { LeadState } from "~/types/crm/leads";
 
 const route = useRoute();
@@ -85,9 +92,26 @@ const { fetchContact } = useContacts();
 const { fetchAllLeads } = useLeads();
 const { fetchProperty } = useProperties();
 
-const { data: record } = await useAsyncData(`contact-${id}`, () =>
+const { data: record, refresh } = await useAsyncData(`contact-${id}`, () =>
   fetchContact(id).catch(() => null),
 );
+
+// Detail pages open read-only; the header Edit button flips this to swap in the
+// form, and Save/Cancel flips it back (refreshing the record after a save).
+const isEditing = ref(false);
+
+const title = computed(() =>
+  record.value
+    ? isEditing.value
+      ? "Edit contact"
+      : "Contact details"
+    : "Contact not found",
+);
+
+const onSaved = async () => {
+  await refresh();
+  isEditing.value = false;
+};
 
 // This contact's leads and the properties assigned to them. The API has no
 // "leads by contact" endpoint, so pull every lead and filter client-side, then

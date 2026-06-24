@@ -53,6 +53,9 @@ export function useTable<T extends { id: string | number }>(opts: {
   rows?: Ref<T[]>;
   // When set, an "actions" column with an edit link is appended.
   editTo?: (row: T) => string;
+  // Destination for a whole-row click. Falls back to `editTo` so rows open the
+  // same detail page the edit button links to.
+  rowTo?: (row: T) => string;
   // Initial API sort param, e.g. "-created_at".
   initialSort?: string | null;
 }) {
@@ -239,6 +242,20 @@ export function useTable<T extends { id: string | number }>(opts: {
     return cols;
   });
 
+  // Whole-row click → navigate to the row's detail page. Bound to <UTable>'s
+  // `@select`, which also flags rows as selectable so the theme applies the
+  // hover background + focus outline; `rowUi` adds the pointer cursor.
+  const rowTo = opts.rowTo ?? opts.editTo;
+  const selectRow = rowTo
+    ? (_e: Event, row: { original: T }) => {
+        const id = row.original.id;
+        // Skeleton placeholder rows carry synthetic ids — ignore clicks while loading.
+        if (typeof id === "string" && id.startsWith("skeleton-")) return;
+        navigateTo(rowTo(row.original));
+      }
+    : undefined;
+  const rowUi = rowTo ? { tr: "cursor-pointer" } : undefined;
+
   // Placeholder rows + skeleton cells so the header stays visible and skeletons
   // render inside the table body while loading.
   const skeletonRows = computed(() =>
@@ -268,6 +285,8 @@ export function useTable<T extends { id: string | number }>(opts: {
     skeletonColumns,
     skeletonData,
     skeletonRows,
+    selectRow,
+    rowUi,
     filterValues,
     resolvedFilters,
     activeFilterCount,

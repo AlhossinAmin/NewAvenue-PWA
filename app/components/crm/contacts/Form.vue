@@ -124,7 +124,7 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="emit('cancel')"
       />
       <UButton
         type="submit"
@@ -151,6 +151,11 @@ const props = defineProps<{
   record?: Contact | null;
 }>();
 
+// The parent owns navigation: `saved` after a successful create/update,
+// `cancel` when the user backs out. This lets a detail page toggle back to its
+// read-only view in place instead of navigating away.
+const emit = defineEmits<{ saved: []; cancel: [] }>();
+
 const toast = useToast();
 const { createContact, updateContact } = useContacts();
 
@@ -175,7 +180,7 @@ const onSubmit = async (event: FormSubmitEvent<Record<string, unknown>>) => {
       await createContact(event.data as ContactInput);
       toast.add({ title: "Contact created", color: "success" });
     }
-    navigateTo("/contacts");
+    emit("saved");
   } catch {
     toast.add({
       title: props.record

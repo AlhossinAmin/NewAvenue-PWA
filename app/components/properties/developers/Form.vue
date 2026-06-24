@@ -86,7 +86,7 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="emit('cancel')"
       />
       <UButton
         type="submit"
@@ -108,6 +108,10 @@ const props = defineProps<{
   // Omit (or null) to create; pass a developer to edit it.
   record?: Developer | null;
 }>();
+
+// Parent owns navigation (saved/cancel) so a detail page can toggle back to its
+// read-only view in place. See contacts/Form.vue.
+const emit = defineEmits<{ saved: []; cancel: [] }>();
 
 const toast = useToast();
 const { createDeveloper, updateDeveloper } = useDevelopers();
@@ -197,7 +201,7 @@ const onSubmit = async () => {
       await createDeveloper(payload as DeveloperInput);
       toast.add({ title: "Developer created", color: "success" });
     }
-    navigateTo("/developers");
+    emit("saved");
   } catch {
     toast.add({
       title: props.record

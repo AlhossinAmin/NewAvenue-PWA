@@ -83,7 +83,7 @@
         label="Cancel"
         color="neutral"
         variant="ghost"
-        @click="$router.back()"
+        @click="emit('cancel')"
       />
       <UButton
         type="submit"
@@ -106,6 +106,10 @@ const props = defineProps<{
   // Omit (or null) to create; pass a project to edit it.
   record?: Project | null;
 }>();
+
+// Parent owns navigation (saved/cancel) so a detail page can toggle back to its
+// read-only view in place. See contacts/Form.vue.
+const emit = defineEmits<{ saved: []; cancel: [] }>();
 
 const toast = useToast();
 const { createProject, updateProject } = useProjects();
@@ -195,7 +199,7 @@ const onSubmit = async () => {
       await createProject(payload as ProjectInput);
       toast.add({ title: "Project created", color: "success" });
     }
-    navigateTo("/projects");
+    emit("saved");
   } catch {
     toast.add({
       title: props.record

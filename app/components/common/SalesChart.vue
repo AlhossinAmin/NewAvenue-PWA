@@ -1,39 +1,35 @@
 <template>
   <div class="relative w-full">
     <svg
-      :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
-      class="h-56 w-full touch-none select-none overflow-visible"
+      class="h-56 w-full touch-none overflow-visible select-none"
       preserveAspectRatio="none"
+      :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
       @pointermove="onMove"
       @pointerleave="activeIndex = null"
     >
       <defs>
-        <linearGradient :id="gradientId" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient x1="0" y1="0" x2="0" y2="1" :id="gradientId">
           <stop
             offset="0%"
             stop-color="var(--ui-primary)"
             stop-opacity="0.35"
           />
-          <stop
-            offset="100%"
-            stop-color="var(--ui-primary)"
-            stop-opacity="0"
-          />
+          <stop offset="100%" stop-color="var(--ui-primary)" stop-opacity="0" />
         </linearGradient>
       </defs>
 
       <!-- horizontal gridlines -->
       <line
         v-for="(y, index) in gridLines"
+        stroke="var(--ui-border)"
+        stroke-width="1"
+        stroke-dasharray="4 6"
+        vector-effect="non-scaling-stroke"
         :key="index"
         :x1="PAD_X"
         :x2="VIEW_W - PAD_X"
         :y1="y"
         :y2="y"
-        stroke="var(--ui-border)"
-        stroke-width="1"
-        stroke-dasharray="4 6"
-        vector-effect="non-scaling-stroke"
       />
 
       <!-- area fill -->
@@ -41,46 +37,46 @@
 
       <!-- line -->
       <path
-        :d="linePath"
         fill="none"
         stroke="var(--ui-primary)"
         stroke-width="2.5"
         stroke-linejoin="round"
         stroke-linecap="round"
         vector-effect="non-scaling-stroke"
+        :d="linePath"
       />
 
       <!-- active marker -->
       <g v-if="activePoint">
         <line
+          stroke="var(--ui-border-accented)"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
           :x1="activePoint.x"
           :x2="activePoint.x"
           :y1="PAD_TOP"
           :y2="VIEW_H - PAD_BOTTOM"
-          stroke="var(--ui-border-accented)"
-          stroke-width="1"
-          vector-effect="non-scaling-stroke"
         />
         <circle
-          :cx="activePoint.x"
-          :cy="activePoint.y"
           r="5"
           fill="var(--ui-bg)"
           stroke="var(--ui-primary)"
           stroke-width="2.5"
           vector-effect="non-scaling-stroke"
+          :cx="activePoint.x"
+          :cy="activePoint.y"
         />
       </g>
 
       <!-- x-axis labels -->
       <text
         v-for="coord in coords"
-        :key="coord.label"
-        :x="coord.x"
-        :y="VIEW_H - 8"
         text-anchor="middle"
         fill="var(--ui-text-dimmed)"
         class="text-[11px]"
+        :key="coord.label"
+        :x="coord.x"
+        :y="VIEW_H - 8"
       >
         {{ coord.label }}
       </text>
@@ -168,5 +164,5 @@ const onMove = (event: PointerEvent) => {
   const ratio = (event.clientX - rect.left) / rect.width;
   const index = Math.round(ratio * (props.points.length - 1));
   activeIndex.value = Math.min(Math.max(index, 0), props.points.length - 1);
-}
+};
 </script>

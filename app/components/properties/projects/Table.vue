@@ -150,6 +150,8 @@
       <UTable
         :data="loading ? skeletonData : projects"
         :columns="loading ? skeletonColumns : tableColumns"
+        :ui="rowUi"
+        @select="selectRow"
       >
         <template #developer-cell="{ row }">
           {{ row.original.developer_name }}
@@ -254,6 +256,8 @@ const {
   skeletonColumns,
   skeletonData,
   skeletonRows,
+  selectRow,
+  rowUi,
 } = useTable<ProjectRow>({
   columns,
   sortFields: SORT_FIELDS,

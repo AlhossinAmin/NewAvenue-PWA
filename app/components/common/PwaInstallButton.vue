@@ -2,10 +2,10 @@
   <UButton
     v-if="showButton"
     icon="i-lucide-download"
-    :label="collapsed ? undefined : 'Install app'"
     color="primary"
     variant="soft"
     class="w-full"
+    :label="collapsed ? undefined : 'Install app'"
     :block="collapsed"
     @click="onInstall"
   />
@@ -74,5 +74,5 @@ const onInstall = async () => {
     return;
   }
   await $pwa?.install();
-}
+};
 </script>
