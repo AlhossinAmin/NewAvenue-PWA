@@ -239,10 +239,10 @@ export const LEAD_FIELDS: FormField[] = [
     required: true,
   },
   {
-    key: "offering_type",
-    label: "Offering type",
-    type: "select",
-    options: ["Sale", "Resale", "Rent"],
+    key: "request_type",
+    label: "Request type",
+    type: "multiselect",
+    options: ["Buy", "Rent", "Sell"],
     required: true,
   },
   {
@@ -253,8 +253,11 @@ export const LEAD_FIELDS: FormField[] = [
     options: ALL_PROPERTY_TYPES,
     required: true,
   },
-  { key: "budget", label: "Budget (EGP)", type: "number" },
-  { key: "neighborhood", label: "Neighborhood", type: "text" },
+  {
+    key: "neighborhood",
+    label: "Neighborhood",
+    type: "text",
+  },
   {
     key: "district",
     label: "District",

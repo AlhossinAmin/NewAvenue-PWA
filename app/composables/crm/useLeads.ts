@@ -3,8 +3,12 @@ import type { Lead } from "~/types/crm/leads";
 import type { ApiResponse } from "~/types/common/api";
 
 // On write the API expects `customer` and `assigned_agent` as UUIDs (not the
-// nested objects returned on reads).
-export type LeadInput = Omit<Lead, "id" | "customer" | "assigned_agent"> & {
+// nested objects returned on reads). `activities` is a read-only detail field
+// and must never be sent in create/update payloads.
+export type LeadInput = Omit<
+  Lead,
+  "id" | "customer" | "assigned_agent" | "activities"
+> & {
   customer: string;
   assigned_agent?: string;
 };

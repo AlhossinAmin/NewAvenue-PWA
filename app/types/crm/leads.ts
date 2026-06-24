@@ -8,7 +8,7 @@ export type LeadState =
   | "Closed Won"
   | "Closed Lost";
 
-export type OfferingType = "Sale" | "Resale" | "Rent";
+export type RequestType = "Buy" | "Rent" | "Sell";
 
 // Kept in sync with PROPERTY_TYPES_BY_CATEGORY in
 // app/constants/properties/property-types.ts (and the backend property_type
@@ -62,11 +62,28 @@ export interface LeadAgent {
   name: string;
 }
 
+export interface LeadActivity {
+  id: string;
+  lead_id: string;
+  status: LeadState;
+  activity_at: string;
+  notes: string | null;
+  logged_by: { id: string; name: string };
+  created_at: string;
+}
+
+export interface LeadActivityInput {
+  logged_by: string;
+  status: LeadState;
+  activity_at: string;
+  notes?: string | null;
+}
+
 export interface Lead {
   id: string;
   customer: LeadCustomer;
   current_state: LeadState;
-  offering_type: OfferingType;
+  request_type: RequestType[];
   property_type: PropertyType;
   assigned_agent: LeadAgent | null;
   next_follow_up_date: string | null;
@@ -77,9 +94,9 @@ export interface Lead {
   lead_date: string;
   notes: string | null;
   assigned_property: string | null;
-  budget: number;
   neighborhood: string;
   district: string;
   num_bedrooms: number;
   additional_customer_notes: string | null;
+  activities?: LeadActivity[];
 }

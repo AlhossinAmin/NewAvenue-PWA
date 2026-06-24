@@ -83,20 +83,44 @@
           <span class="font-medium">{{ row.original.customer_name }}</span>
         </template>
 
-        <template #offering_type-cell="{ row }">
-          <UBadge color="neutral" variant="soft">
-            {{ row.original.offering_type }}
-          </UBadge>
-        </template>
-
-        <template #budget-cell="{ row }">
-          {{ row.original.budget_label }}
+        <template #request_type-cell="{ row }">
+          <div class="flex flex-wrap gap-1">
+            <UBadge
+              v-for="type in row.original.request_type"
+              color="neutral"
+              variant="soft"
+              :key="type"
+            >
+              {{ type }}
+            </UBadge>
+          </div>
         </template>
 
         <template #current_state-cell="{ row }">
           <UBadge variant="subtle" :color="row.original.state_color">
             {{ row.original.current_state }}
           </UBadge>
+        </template>
+
+        <template #actions-cell="{ row }">
+          <div class="flex items-center gap-1">
+            <UButton
+              icon="i-lucide-list-plus"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              aria-label="Log activity"
+              @click.stop="openActivityModal(row.original)"
+            />
+            <UButton
+              icon="i-lucide-pencil"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              aria-label="Edit"
+              :to="editTo(row.original)"
+            />
+          </div>
         </template>
       </UTable>
     </div>
@@ -115,6 +139,12 @@
         :items-per-page="pagination.per_page"
       />
     </div>
+
+    <CrmLeadsActivityModal
+      v-model:open="activityModalOpen"
+      :lead-id="activityLeadId"
+      @logged="onActivityLogged"
+    />
   </div>
 </template>
 
@@ -127,7 +157,6 @@ import type { Lead, LeadState } from "~/types/crm/leads";
 type LeadRow = Lead & {
   customer_name: string;
   agent_name: string;
-  budget_label: string;
   location_label: string;
   state_color: "info" | "neutral" | "warning" | "error" | "success" | "primary";
 };
@@ -143,17 +172,11 @@ const STATE_COLOR: Record<LeadState, LeadRow["state_color"]> = {
   "Closed Lost": "error",
 };
 
-const budgetFormatter = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-
 const columns: TableColumn<LeadRow>[] = [
   { accessorKey: "customer", header: "Customer" },
   { accessorKey: "property_type", header: "Property" },
-  { accessorKey: "offering_type", header: "Offering" },
+  { accessorKey: "request_type", header: "Request" },
   { accessorKey: "location_label", header: "Location" },
-  { accessorKey: "budget", header: "Budget" },
   { accessorKey: "agent_name", header: "Agent" },
   { accessorKey: "current_state", header: "State" },
 ];
@@ -161,9 +184,9 @@ const columns: TableColumn<LeadRow>[] = [
 const SORT_FIELDS = [
   { key: "customer", label: "Customer" },
   { key: "property_type", label: "Property type" },
-  { key: "budget", label: "Budget" },
   { key: "current_state", label: "State" },
   { key: "lead_date", label: "Lead date" },
+  { key: "district", label: "District" },
 ];
 
 const editTo = (row: LeadRow) => `/leads/${row.id}`;
@@ -192,6 +215,14 @@ const {
 
 const sortOpen = ref(false);
 
+const activityModalOpen = ref(false);
+const activityLeadId = ref<string | null>(null);
+
+const openActivityModal = (lead: LeadRow) => {
+  activityLeadId.value = lead.id;
+  activityModalOpen.value = true;
+};
+
 const { fetchLeads } = useLeads();
 
 const { data, status, refresh } = useAsyncData(
@@ -219,7 +250,6 @@ const leads = computed<LeadRow[]>(() =>
     ...l,
     customer_name: l.customer?.name ?? "Unknown",
     agent_name: l.assigned_agent?.name ?? "Unassigned",
-    budget_label: `EGP ${budgetFormatter.format(l.budget)}`,
     location_label:
       [l.neighborhood, l.district].filter(Boolean).join(", ") || "—",
     state_color: STATE_COLOR[l.current_state],
@@ -231,4 +261,8 @@ const pagination = computed(() =>
     ? data.value.pagination
     : null,
 );
+
+const onActivityLogged = () => {
+  refresh();
+};
 </script>
