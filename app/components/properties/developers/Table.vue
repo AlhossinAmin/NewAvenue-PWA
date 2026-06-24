@@ -174,9 +174,11 @@
       v-if="pagination && pagination.total > pagination.per_page"
       class="flex items-center justify-between gap-2"
     >
-      <p class="text-sm text-muted">{{ pagination.total }} results</p>
+      <p class="text-sm text-muted">{{ pagination.total }} total</p>
       <UPagination
         v-model:page="page"
+        showEdges
+        :showControls="false"
         :total="pagination.total"
         :items-per-page="pagination.per_page"
       />
