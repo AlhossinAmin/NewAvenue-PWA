@@ -114,6 +114,7 @@ const links: NavigationMenuItem[][] = [
     { label: "CRM", type: "label" },
     { label: "Contacts", icon: "i-lucide-contact", to: "/contacts" },
     { label: "Leads", icon: "i-lucide-user-plus", to: "/leads" },
+    { label: "Activity logs", icon: "i-lucide-scroll-text", to: "/logs" },
   ],
   [
     { label: "HR", type: "label" },
