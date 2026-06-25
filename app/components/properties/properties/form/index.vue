@@ -4,6 +4,7 @@
     :schema="schema"
     :state="state"
     @submit="onSubmit"
+    @error="onError"
   >
     <div class="flex flex-col gap-8">
       <PropertiesPropertiesFormClassification :state="state" />
@@ -41,6 +42,7 @@
 
 <script setup lang="ts">
 import * as z from "zod";
+import type { FormErrorEvent } from "@nuxt/ui";
 import type { PropertyInput } from "~/composables/properties/useProperties";
 import type {
   Property,
@@ -66,6 +68,12 @@ const blankToUndefined = (v: unknown) =>
 const optionalNumber = z.preprocess(blankToUndefined, z.number().optional());
 const requiredNumber = (message: string) =>
   z.preprocess(blankToUndefined, z.number({ error: message }));
+// Optional enums seeded from the API can arrive as "" (or null) for "not set" —
+// a value a bare z.enum rejects as an invalid option. Normalise blanks to
+// undefined first, mirroring `optionalNumber` above.
+const optionalEnum = <const T extends readonly [string, ...string[]]>(
+  values: T,
+) => z.preprocess(blankToUndefined, z.enum(values).optional());
 
 const schema = z
   .object({
@@ -73,9 +81,12 @@ const schema = z
       error: "Category is required",
     }),
     type: z.string().min(1, "Type is required"),
-    license: z
-      .enum(["administrative", "commercial", "medical", "tourism"])
-      .optional(),
+    license: optionalEnum([
+      "administrative",
+      "commercial",
+      "medical",
+      "tourism",
+    ]),
     transaction_type: z.enum(["sell", "rent"], {
       error: "Offering type is required",
     }),
@@ -95,9 +106,12 @@ const schema = z
     advance_months: optionalNumber,
     insurance_months: optionalNumber,
     escalation_rate: optionalNumber,
-    payment_terms: z
-      .enum(["monthly", "quarterly", "semi_annual", "annual"])
-      .optional(),
+    payment_terms: optionalEnum([
+      "monthly",
+      "quarterly",
+      "semi_annual",
+      "annual",
+    ]),
     contract_period_min_years: optionalNumber,
     contract_period_max_years: optionalNumber,
     price: requiredNumber("Price is required"),
@@ -113,22 +127,18 @@ const schema = z
     delivery_date: z.string().optional(),
     num_bedrooms: optionalNumber,
     num_bathrooms: optionalNumber,
-    orientation: z
-      .enum([
-        "bahary",
-        "kably",
-        "sharky",
-        "gharby",
-        "bahary_sharky",
-        "bahary_gharby",
-        "kably_sharky",
-        "kably_gharby",
-      ])
-      .optional(),
-    finishing: z
-      .enum(["core_shell", "semi_finished", "fully_finished"])
-      .optional(),
-    furnishing: z.enum(["furnished", "unfurnished"]).optional(),
+    orientation: optionalEnum([
+      "bahary",
+      "kably",
+      "sharky",
+      "gharby",
+      "bahary_sharky",
+      "bahary_gharby",
+      "kably_sharky",
+      "kably_gharby",
+    ]),
+    finishing: optionalEnum(["core_shell", "semi_finished", "fully_finished"]),
+    furnishing: optionalEnum(["furnished", "unfurnished"]),
     amenities: z.array(z.string()).optional(),
     description: z.string().optional(),
   })
@@ -143,6 +153,21 @@ const schema = z
     message: "A property for sale must have a seller or a project.",
   });
 
+// The read API returns the derived unit code (e.g. "D5-2-13") and `floor_num`,
+// but not the building/unit numbers as separate values. Recover them from the
+// code — `${typePrefix}${building}-${floor}-${unit}` — so the edit form's
+// required numeric fields are seeded and validation can pass on submit.
+const parseUnitCode = (code: string | undefined) => {
+  const [building = "", , unit = ""] = (code ?? "").split("-");
+  const buildingNum = Number(building.replace(/^\D+/, ""));
+  const unitNum = Number(unit);
+  return {
+    building_num:
+      building && Number.isFinite(buildingNum) ? buildingNum : undefined,
+    unit_number: unit && Number.isFinite(unitNum) ? unitNum : undefined,
+  };
+};
+
 // The API returns `project`/`developer` as { id, name } objects, but the form
 // works with their UUIDs — seed them from `*.id`. `photos` holds { id, url }
 // objects in state and is reshaped to media ids on submit.
@@ -150,6 +175,7 @@ const state = reactive<PropertyFormState>(
   props.record
     ? {
         ...props.record,
+        ...parseUnitCode(props.record.unit_num),
         project: props.record.project?.id ?? "",
         developer: props.record.developer?.id ?? "",
         seller: props.record.seller?.id ?? "",
@@ -249,6 +275,7 @@ watch(
     else clearRentTerms();
   },
 );
+
 // The type options depend on the category — drop a type that no longer belongs
 // to the selected category so a stale, mismatched value can't be submitted.
 watch(
@@ -272,6 +299,7 @@ watch(
     }
   },
 );
+
 watch(
   () => state.installments_available,
   (on) => {
@@ -284,6 +312,7 @@ watch(
     }
   },
 );
+
 // A ready-to-move unit has no future delivery date — clear it so a stale date
 // can't be submitted once the picker is hidden.
 watch(
@@ -308,6 +337,17 @@ const serverErrorMessage = (error: unknown): string | undefined => {
     if (typeof message === "string") return message;
   }
   return undefined;
+};
+
+// Validation is owned by zod and surfaced per-field by each UFormField. The form
+// doesn't scroll on a failed submit, so an invalid field above the fold can go
+// unseen — bring the first one into view and focus it.
+const onError = (event: FormErrorEvent) => {
+  const id = event.errors?.[0]?.id;
+  if (!id) return;
+  const element = document.getElementById(id);
+  element?.focus();
+  element?.scrollIntoView({ behavior: "smooth", block: "center" });
 };
 
 const onSubmit = async () => {

@@ -1,5 +1,5 @@
 <template>
-  <UApp>
+  <UApp :toaster="{ position: 'top-right' }">
     <VitePwaManifest />
     <NuxtPwaAssets />
     <NuxtRouteAnnouncer />
@@ -29,7 +29,7 @@ const syncThemeColor = () => {
   const bg = getComputedStyle(probe).backgroundColor;
   probe.remove();
   if (bg) themeColor.value = bg;
-}
+};
 
 onMounted(() => {
   syncThemeColor();
