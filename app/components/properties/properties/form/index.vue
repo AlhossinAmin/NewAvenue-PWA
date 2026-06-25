@@ -9,6 +9,12 @@
       <PropertiesPropertiesFormClassification :state="state" />
       <PropertiesPropertiesFormUnit :state="state" :unit-num="unitNum" />
       <PropertiesPropertiesFormPricing :state="state" />
+      <PropertiesPropertiesFormRent
+        v-if="
+          state.category === 'Commercial' && state.transaction_type === 'rent'
+        "
+        :state="state"
+      />
       <PropertiesPropertiesFormLocation :state="state" />
       <PropertiesPropertiesFormSpecifications :state="state" />
       <PropertiesPropertiesFormCharacteristics :state="state" />
@@ -67,6 +73,9 @@ const schema = z
       error: "Category is required",
     }),
     type: z.string().min(1, "Type is required"),
+    license: z
+      .enum(["administrative", "commercial", "medical", "tourism"])
+      .optional(),
     transaction_type: z.enum(["sell", "rent"], {
       error: "Offering type is required",
     }),
@@ -80,6 +89,17 @@ const schema = z
     installment_value: optionalNumber,
     down_payment: optionalNumber,
     remaining_value: optionalNumber,
+    maintenance_value: optionalNumber,
+    rent_price_per_sqm: optionalNumber,
+    service_charge_per_sqm: optionalNumber,
+    advance_months: optionalNumber,
+    insurance_months: optionalNumber,
+    escalation_rate: optionalNumber,
+    payment_terms: z
+      .enum(["monthly", "quarterly", "semi_annual", "annual"])
+      .optional(),
+    contract_period_min_years: optionalNumber,
+    contract_period_max_years: optionalNumber,
     price: requiredNumber("Price is required"),
     commission_scheme: optionalNumber,
     country: z.string().optional(),
@@ -143,6 +163,7 @@ const state = reactive<PropertyFormState>(
     : {
         category: undefined,
         type: "",
+        license: undefined,
         transaction_type: undefined,
         project: "",
         seller: "",
@@ -154,6 +175,15 @@ const state = reactive<PropertyFormState>(
         installment_value: undefined,
         down_payment: undefined,
         remaining_value: undefined,
+        maintenance_value: undefined,
+        rent_price_per_sqm: undefined,
+        service_charge_per_sqm: undefined,
+        advance_months: undefined,
+        insurance_months: undefined,
+        escalation_rate: undefined,
+        payment_terms: undefined,
+        contract_period_min_years: undefined,
+        contract_period_max_years: undefined,
         price: undefined,
         commission_scheme: undefined,
         country: "",
@@ -196,12 +226,27 @@ const submitLabel = computed(() =>
   props.record ? "Save changes" : "Create property",
 );
 
+// Rent terms only apply to a Commercial "For Rent" listing — clear them all so
+// stale values can't be submitted once the section is hidden.
+const clearRentTerms = () => {
+  state.rent_price_per_sqm = undefined;
+  state.service_charge_per_sqm = undefined;
+  state.advance_months = undefined;
+  state.insurance_months = undefined;
+  state.escalation_rate = undefined;
+  state.payment_terms = undefined;
+  state.contract_period_min_years = undefined;
+  state.contract_period_max_years = undefined;
+};
+
 // A rental has no linked project — clear any project picked while it was a sale
-// so a stale value can't be submitted once the project field is hidden.
+// so a stale value can't be submitted once the project field is hidden. Leaving
+// "rent" hides the rent-terms section, so drop those values too.
 watch(
   () => state.transaction_type,
   (type) => {
     if (type === "rent") state.project = "";
+    else clearRentTerms();
   },
 );
 // The type options depend on the category — drop a type that no longer belongs
@@ -218,6 +263,13 @@ watch(
     // Orientation is Residential-only — drop a stale value when the category
     // changes away from Residential so it can't be submitted.
     if (category !== "Residential") state.orientation = undefined;
+    // License, maintenance, and rent terms are Commercial-only — clear them
+    // when the category changes away from Commercial.
+    if (category !== "Commercial") {
+      state.license = undefined;
+      state.maintenance_value = undefined;
+      clearRentTerms();
+    }
   },
 );
 watch(
@@ -228,6 +280,7 @@ watch(
       state.installment_value = undefined;
       state.down_payment = undefined;
       state.remaining_value = undefined;
+      state.maintenance_value = undefined;
     }
   },
 );

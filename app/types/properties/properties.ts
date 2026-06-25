@@ -62,6 +62,39 @@ export const FINISHING_OPTIONS: { label: string; value: Finishing }[] = (
   ["core_shell", "semi_finished", "fully_finished"] as Finishing[]
 ).map((value) => ({ label: FINISHING_LABELS[value], value }));
 
+// Commercial license category — the legal use a commercial unit is licensed
+// for. Commercial listings only.
+export type PropertyLicense =
+  | "administrative"
+  | "commercial"
+  | "medical"
+  | "tourism";
+
+export const LICENSE_LABELS: Record<PropertyLicense, string> = {
+  administrative: "Administrative",
+  commercial: "Commercial",
+  medical: "Medical",
+  tourism: "Tourism",
+};
+
+export const LICENSE_OPTIONS: { label: string; value: PropertyLicense }[] = (
+  Object.keys(LICENSE_LABELS) as PropertyLicense[]
+).map((value) => ({ label: LICENSE_LABELS[value], value }));
+
+// How often rent is paid under the lease. Commercial "For Rent" listings only.
+export type PaymentTerms = "monthly" | "quarterly" | "semi_annual" | "annual";
+
+export const PAYMENT_TERMS_LABELS: Record<PaymentTerms, string> = {
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  semi_annual: "Semi-Annual",
+  annual: "Annual",
+};
+
+export const PAYMENT_TERMS_OPTIONS: { label: string; value: PaymentTerms }[] = (
+  Object.keys(PAYMENT_TERMS_LABELS) as PaymentTerms[]
+).map((value) => ({ label: PAYMENT_TERMS_LABELS[value], value }));
+
 // Whether the unit comes furnished. Applies to both categories.
 export type Furnishing = "furnished" | "unfurnished";
 
@@ -173,6 +206,8 @@ export const createPublication = (): Publication => ({
 export interface PropertyFormState {
   category?: PropertyCategory;
   type: string;
+  // Legal use the unit is licensed for (Commercial listings only).
+  license?: PropertyLicense;
   transaction_type?: TransactionType;
   // UUIDs of the linked project and the seller contact. A "rent" offering needs
   // a seller; a "sell" offering needs a seller and/or a project (at least one).
@@ -189,6 +224,18 @@ export interface PropertyFormState {
   // outstanding balance. Only meaningful when `installments_available` is on.
   down_payment?: number;
   remaining_value?: number;
+  // Maintenance amount tied to the installment plan (Commercial only).
+  maintenance_value?: number;
+  // Rent terms — Commercial "For Rent" listings only. Rent and service charge
+  // are priced per square metre; advance/insurance are counts of months.
+  rent_price_per_sqm?: number;
+  service_charge_per_sqm?: number;
+  advance_months?: number;
+  insurance_months?: number;
+  escalation_rate?: number;
+  payment_terms?: PaymentTerms;
+  contract_period_min_years?: number;
+  contract_period_max_years?: number;
   price?: number;
   commission_scheme?: number;
   country: string;
@@ -247,6 +294,8 @@ export interface Property {
   seller: PropertySeller | null;
   category: PropertyCategory;
   type: string;
+  // Legal use the unit is licensed for (Commercial listings only).
+  license?: PropertyLicense;
   transaction_type: TransactionType;
   price: number;
   commission_scheme: number;
@@ -282,6 +331,17 @@ export interface Property {
   installment_value?: number;
   down_payment?: number;
   remaining_value?: number;
+  // Maintenance amount tied to the installment plan (Commercial only).
+  maintenance_value?: number;
+  // Rent terms — present only for Commercial "For Rent" listings.
+  rent_price_per_sqm?: number;
+  service_charge_per_sqm?: number;
+  advance_months?: number;
+  insurance_months?: number;
+  escalation_rate?: number;
+  payment_terms?: PaymentTerms;
+  contract_period_min_years?: number;
+  contract_period_max_years?: number;
   // External listing publications — where the property is posted (Property
   // Finder, Bayut, Dubizzle, or "other"), each with its status and link.
   publications?: Publication[];

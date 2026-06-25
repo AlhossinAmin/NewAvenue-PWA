@@ -26,6 +26,22 @@
         />
       </UFormField>
 
+      <!-- License is the legal use a commercial unit is licensed for —
+           Commercial listings only. -->
+      <UFormField
+        v-if="state.category === 'Commercial'"
+        label="License"
+        name="license"
+      >
+        <USelect
+          v-model="state.license"
+          value-key="value"
+          class="w-full"
+          placeholder="Select…"
+          :items="LICENSE_OPTIONS"
+        />
+      </UFormField>
+
       <UFormField label="Offering type" name="transaction_type" required>
         <USelect
           v-model="state.transaction_type"
@@ -63,10 +79,11 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  PropertyCategory,
-  PropertyFormState,
-  TransactionType,
+import {
+  LICENSE_OPTIONS,
+  type PropertyCategory,
+  type PropertyFormState,
+  type TransactionType,
 } from "~/types/properties/properties";
 import { PROPERTY_TYPES_BY_CATEGORY } from "~/constants/properties/property-types";
 

@@ -43,6 +43,19 @@
             class="w-full"
           />
         </UFormField>
+
+        <!-- Maintenance is part of the installment plan for commercial units. -->
+        <UFormField
+          v-if="state.category === 'Commercial'"
+          label="Maintenance (EGP)"
+          name="maintenance_value"
+        >
+          <UInput
+            v-model.number="state.maintenance_value"
+            type="number"
+            class="w-full"
+          />
+        </UFormField>
       </template>
 
       <UFormField label="Price (EGP)" name="price" required>

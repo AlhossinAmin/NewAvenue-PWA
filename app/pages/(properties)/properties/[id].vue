@@ -23,6 +23,11 @@
     <div v-else class="flex flex-col gap-8">
       <ResourceView :fields="PROPERTY_VIEW_FIELDS" :record="viewRecord" />
 
+      <section v-if="showRentTerms" class="flex flex-col gap-3">
+        <h2 class="text-sm font-semibold text-highlighted">Rent terms</h2>
+        <ResourceView :fields="RENT_VIEW_FIELDS" :record="viewRecord" />
+      </section>
+
       <section class="flex flex-col gap-3">
         <h2 class="text-sm font-semibold text-highlighted">
           Publications ({{ publications.length }})
@@ -68,6 +73,8 @@ import {
   ORIENTATION_LABELS,
   FINISHING_LABELS,
   FURNISHING_LABELS,
+  LICENSE_LABELS,
+  PAYMENT_TERMS_LABELS,
   PUBLICATION_TYPE_LABELS,
   PUBLICATION_TYPE_ICONS,
   PUBLICATION_STATUS_LABELS,
@@ -104,6 +111,12 @@ const onSaved = async () => {
 const PROPERTY_VIEW_FIELDS: FormField[] = [
   { key: "type", label: "Type", type: "text" },
   { key: "category", label: "Category", type: "text" },
+  {
+    key: "license",
+    label: "License",
+    type: "text",
+    visibleWhen: { field: "category", in: ["Commercial"] },
+  },
   { key: "transaction_type", label: "Offering", type: "text" },
   { key: "unit_num", label: "Unit code", type: "text" },
   { key: "project", label: "Project", type: "project" },
@@ -116,6 +129,12 @@ const PROPERTY_VIEW_FIELDS: FormField[] = [
   { key: "installment_value", label: "Installment value", type: "number" },
   { key: "down_payment", label: "Down payment", type: "number" },
   { key: "remaining_value", label: "Remaining value", type: "number" },
+  {
+    key: "maintenance_value",
+    label: "Maintenance (EGP)",
+    type: "number",
+    visibleWhen: { field: "category", in: ["Commercial"] },
+  },
   { key: "country", label: "Country", type: "text" },
   { key: "city", label: "City", type: "text" },
   { key: "district", label: "District", type: "text" },
@@ -143,11 +162,44 @@ const viewRecord = computed(() => {
     transaction_type: r.transaction_type
       ? TRANSACTION_TYPE_LABELS[r.transaction_type]
       : "",
+    license: r.license ? LICENSE_LABELS[r.license] : "",
+    payment_terms: r.payment_terms ? PAYMENT_TERMS_LABELS[r.payment_terms] : "",
     orientation: r.orientation ? ORIENTATION_LABELS[r.orientation] : "",
     finishing: r.finishing ? FINISHING_LABELS[r.finishing] : "",
     furnishing: r.furnishing ? FURNISHING_LABELS[r.furnishing] : "",
   };
 });
+
+// Rent terms apply only to Commercial "For Rent" listings — gate the whole
+// section on both, since ResourceView's visibleWhen checks a single field.
+const showRentTerms = computed(
+  () =>
+    record.value?.category === "Commercial" &&
+    record.value?.transaction_type === "rent",
+);
+
+const RENT_VIEW_FIELDS: FormField[] = [
+  { key: "rent_price_per_sqm", label: "Rent price (EGP / m²)", type: "number" },
+  {
+    key: "service_charge_per_sqm",
+    label: "Service charge (EGP / m²)",
+    type: "number",
+  },
+  { key: "advance_months", label: "Advance (months)", type: "number" },
+  { key: "insurance_months", label: "Insurance (months)", type: "number" },
+  { key: "escalation_rate", label: "Escalation rate (%)", type: "number" },
+  { key: "payment_terms", label: "Payment terms", type: "text" },
+  {
+    key: "contract_period_min_years",
+    label: "Contract period (min years)",
+    type: "number",
+  },
+  {
+    key: "contract_period_max_years",
+    label: "Contract period (max years)",
+    type: "number",
+  },
+];
 
 // Publications shaped into display-ready rows (label, icon, status badge).
 const publications = computed(() =>
